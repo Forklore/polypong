@@ -1,0 +1,7 @@
+h1. Polypong
+
+Web-browser game.
+
+h2. Architecture
+
+Node.js, coffee.script, web sockets and cookies, chocolate cookies! (lots of them)

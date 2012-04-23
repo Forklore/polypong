@@ -3,4 +3,21 @@ html
   head
     title= title
     link(rel='stylesheet', href='/stylesheets/style.css')
-  body!= body
+    script(type='text/javascript', src='/javascripts/jquery.js')
+    
+  body
+    header
+      h1= title
+
+    section#body!= body
+    
+    footer
+      span Powered by &nbsp;
+        a(href='https://github.com/Oregu/') Oregu
+        &nbsp; and &nbsp; 
+        a(href='https://github.com/Axblade/') Axblade
+      br
+      span &nbsp; &copy; 2012
+       
+
+         

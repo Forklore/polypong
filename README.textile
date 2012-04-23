@@ -1,6 +1,6 @@
 h1. Polypong
 
-Web-browser game.
+Browser based multiplayer Pong game implemented with canvas, websockets, node.js and coffee.script.
 
 h2. Architecture
 

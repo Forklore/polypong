@@ -4,7 +4,7 @@ It's implemented with canvas, websockets, node.js and coffee.script
 
 ## Developers
 Game kindly developed for you by
-[Axblade](https://github.com/Axblade)
-[Oleg Prophet](https://github.com/Oregu)
+- [Axblade](https://github.com/Axblade)
+- [Oleg Prophet](https://github.com/Oregu)
 
-Now **Go fork it!**
+Now **go fork it!**

@@ -35,4 +35,5 @@ io = io.listen app
 io.sockets.on "connection", (socket) ->
   console.log "Have a connection"
   socket.on "join", (data) ->
-    console.log "I have some data from my client: #{data}"
+    console.log "I have some data from my client:"
+    console.log (if data && data.msg then data.msg else "\tHe didn't say anything")

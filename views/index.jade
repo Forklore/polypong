@@ -3,5 +3,4 @@ p Welcome to #{title}
   socket = io.connect "ws://localhost:3000"
   socket.on "connect", ->
     console.log "Socket opened, Master"
-  socket.emit "join", (msg) ->
-    alert "Server tells me something, what do you think?\n" + msg
+  socket.emit "join", msg: "I'm in"

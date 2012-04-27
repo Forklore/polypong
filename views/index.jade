@@ -1,2 +1,7 @@
-h1= title
 p Welcome to #{title}
+:coffeescript
+  socket = io.connect "ws://localhost:3000"
+  socket.on "connect", ->
+    console.log "Socket opened, Master"
+  socket.emit "join", (msg) ->
+    alert "Server tells me something, what do you think?\n" + msg

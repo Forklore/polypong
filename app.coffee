@@ -1,5 +1,7 @@
 express = require("express")
 routes = require("./routes")
+io = require('socket.io')
+
 app = module.exports = express.createServer()
 app.configure ->
   app.set "views", __dirname + "/views"
@@ -28,3 +30,9 @@ app.post "/login", routes.loginAction
 
 app.listen port
 console.log "Express server listening on port %d in %s mode", app.address().port, app.settings.env
+
+io = io.listen app
+io.sockets.on "connection", (socket) ->
+  console.log "Have a connection"
+  socket.on "join", (data) ->
+    console.log "I have some data from my client: #{data}"

@@ -39,14 +39,12 @@ io.sockets.on 'connection', (socket) ->
   socket.on 'join', (data) ->
     console.log "I can has join: #{socket.id}"
     clients[socket.id] = socket
-    console.log "I have so much clients:"
     for id, cl of clients
-      console.log "\t#{cl}"
+      cl.emit('state', data) if (id != socket.id)
 
   socket.on 'state', (data) ->
     console.log "He told me that he moved #{data.moved}"
     for id, cl of clients
-      console.log "sending msg to #{cl}"
       cl.emit('state', data) if (id != socket.id)
 
   socket.on 'disconnect', ->

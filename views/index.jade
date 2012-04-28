@@ -1,6 +1,15 @@
 p Welcome to #{title}
 :coffeescript
   socket = io.connect "ws://localhost:3000"
-  socket.on "connect", ->
-    console.log "Socket opened, Master"
-  socket.emit "join", msg: "I'm in"
+
+  socket.on 'connect', ->
+    console.log "Socket opened, Master!"
+  socket.on 'state', (data) ->
+    console.log "I get state message from server"
+    $('#log').append "<li>#{data.moved}</li>"
+
+  socket.emit 'join'
+  socket.emit 'state', moved: Math.random()
+
+span(style='font-weight:bold;') Messages
+ul#log

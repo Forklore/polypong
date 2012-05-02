@@ -1,5 +1,7 @@
 express = require("express")
 routes = require("./routes")
+spt = require(__dirname + "/precompiler/precompiler")
+
 app = module.exports = express.createServer()
 app.configure ->
   app.set "views", __dirname + "/views"
@@ -27,4 +29,7 @@ app.get "/login", routes.loginPage
 app.post "/login", routes.loginAction
 
 app.listen port
+
+spt.precompile __dirname + "/public/javascripts"
+
 console.log "Express server listening on port %d in %s mode", app.address().port, app.settings.env

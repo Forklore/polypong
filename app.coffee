@@ -1,6 +1,7 @@
 express = require("express")
 routes = require("./routes")
 spt = require(__dirname + "/precompiler/precompiler")
+io = require('socket.io')
 
 app = module.exports = express.createServer()
 app.configure ->
@@ -33,3 +34,23 @@ app.listen port
 spt.precompile __dirname + "/public/javascripts"
 
 console.log "Express server listening on port %d in %s mode", app.address().port, app.settings.env
+
+clients = {}
+io = io.listen app
+io.sockets.on 'connection', (socket) ->
+  console.log "Have a connection: #{socket.id}"
+
+  socket.on 'join', (data) ->
+    console.log "I can has join: #{socket.id}"
+    clients[socket.id] = socket
+    for id, cl of clients
+      cl.emit('state', data) if (id != socket.id)
+
+  socket.on 'state', (data) ->
+    console.log "He told me that he moved #{data.moved}"
+    for id, cl of clients
+      cl.emit('state', data) if (id != socket.id)
+
+  socket.on 'disconnect', ->
+    console.log "He disconnected: #{socket.id}"
+    delete clients[socket.id]

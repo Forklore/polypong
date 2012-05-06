@@ -18,7 +18,7 @@ app.configure "development", ->
   )
 
 # heroku configure
-port = process.env.PORT || 3000
+port = process.env['app_port'] || 3000
 
 app.configure "production", ->
   app.use express.errorHandler()

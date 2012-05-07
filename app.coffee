@@ -1,3 +1,4 @@
+require('coffee-script')
 express = require("express")
 routes = require("./routes")
 spt = require(__dirname + "/precompiler/precompiler")

@@ -3,7 +3,7 @@
   , "version": "0.0.1"
   , "description": "Browser based multiplayer Pong game implemented with canvas, websockets, node.js and coffee.script"
   , "private": true
-  , "node": "o.6.17"
+  , "node": "0.6.17"
   , "dependencies": {
       "express": "2.5.8"
     , "jade": ">= 0.0.1"

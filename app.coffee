@@ -1,7 +1,5 @@
-require('coffee-script')
 express = require("express")
 routes = require("./routes")
-spt = require(__dirname + "/precompiler/precompiler")
 io = require('socket.io')
 
 app = module.exports = express.createServer()
@@ -31,8 +29,6 @@ app.get "/login", routes.loginPage
 app.post "/login", routes.loginAction
 
 app.listen port
-
-spt.precompile __dirname + "/public/javascripts"
 
 console.log "Express server listening on port %d in %s mode", app.address().port, app.settings.env
 

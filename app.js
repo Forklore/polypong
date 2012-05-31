@@ -2,8 +2,6 @@
 (function() {
   var app, clients, express, io, port, routes, spt;
 
-  require('coffee-script');
-
   express = require("express");
 
   routes = require("./routes");

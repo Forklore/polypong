@@ -17,16 +17,15 @@ app.configure "development", ->
     showStack: true
   )
 
-# heroku configure
 port = process.env['app_port'] || 3000
 
-app.configure "production", ->
+app.configure 'production', ->
   app.use express.errorHandler()
 
-app.get "/", routes.index
-app.get "/about", routes.about
-app.get "/login", routes.loginPage
-app.post "/login", routes.loginAction
+app.get '/', routes.index
+app.get '/about', routes.about
+app.get '/login', routes.loginPage
+app.post '/login', routes.loginAction
 
 app.listen port
 

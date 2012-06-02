@@ -28,17 +28,17 @@
 
   port = process.env['app_port'] || 3000;
 
-  app.configure("production", function() {
+  app.configure('production', function() {
     return app.use(express.errorHandler());
   });
 
-  app.get("/", routes.index);
+  app.get('/', routes.index);
 
-  app.get("/about", routes.about);
+  app.get('/about', routes.about);
 
-  app.get("/login", routes.loginPage);
+  app.get('/login', routes.loginPage);
 
-  app.post("/login", routes.loginAction);
+  app.post('/login', routes.loginAction);
 
   app.listen(port);
 

@@ -10,8 +10,12 @@ div#game
 
   socket.on 'connect', ->
     console.log "Socket opened, Master!"
+
   socket.on 'state', (data) ->
-    console.log "I get state message from server"
+    console.log "Whoa, he moved"
+
+  socket.on 'joined', (side) ->
+    console.log "I'm at #{side} side"
 
   socket.emit 'join'
   socket.emit 'state', moved: Math.random()

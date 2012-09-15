@@ -3,15 +3,16 @@
   var Game;
 
   window.Game = Game = (function() {
-    var canvas_height, canvas_width, down_pressed, height, my_y, up_pressed, width;
 
-    canvas_width = 700;
+    Game.canvas_width = 700;
 
-    canvas_height = 400;
+    Game.canvas_height = 400;
 
-    height = 55;
+    Game.racket_height = 55;
 
-    width = 10;
+    Game.racket_width = 10;
+
+    Game.dy = 5;
 
     Game.key_left = 37;
 
@@ -21,19 +22,19 @@
 
     Game.key_down = 40;
 
-    up_pressed = false;
+    Game.players_pos = [10, 680];
 
-    down_pressed = false;
-
-    my_y = 10;
-
-    Game.dy = 5;
-
-    function Game() {}
+    function Game() {
+      this.up_pressed = false;
+      this.down_pressed = false;
+      this.y_position = 10;
+      this.side = 0;
+      this.enemy_side = 1;
+    }
 
     Game.prototype.drawRacket = function(x, y, color) {
       this.ctx.fillStyle = color;
-      return this.ctx.fillRect(x, y, width, height);
+      return this.ctx.fillRect(x, y, Game.racket_width, Game.racket_height);
     };
 
     Game.prototype.drawBall = function(x, y) {
@@ -44,37 +45,37 @@
 
     Game.prototype.drawBoard = function() {
       this.processInputs();
-      this.ctx.clearRect(0, 0, canvas_width, canvas_height);
-      this.drawRacket(10, my_y, "rgb(200,0,0)");
-      this.drawRacket(680, 10, "rgb(0,0,200)");
+      this.ctx.clearRect(0, 0, Game.canvas_width, Game.canvas_height);
+      this.drawRacket(Game.players_pos[this.side], this.y_position, "rgb(200,0,0)");
+      this.drawRacket(Game.players_pos[this.enemy_side], 10, "rgb(0,0,200)");
       return this.drawBall(100, 100);
     };
 
     Game.prototype.keyboardDown = function(evt) {
       switch (evt.which) {
         case Game.key_down:
-          down_pressed = true;
-          return up_pressed = false;
+          this.down_pressed = true;
+          return this.up_pressed = false;
         case Game.key_up:
-          up_pressed = true;
-          return down_pressed = false;
+          this.up_pressed = true;
+          return this.down_pressed = false;
       }
     };
 
     Game.prototype.keyboardUp = function(evt) {
       switch (evt.which) {
         case Game.key_down:
-          return down_pressed = false;
+          return this.down_pressed = false;
         case Game.key_up:
-          return up_pressed = false;
+          return this.up_pressed = false;
       }
     };
 
     Game.prototype.processInputs = function() {
-      if (up_pressed) {
-        return my_y -= Game.dy;
-      } else if (down_pressed) {
-        return my_y += Game.dy;
+      if (this.up_pressed) {
+        return this.y_position -= Game.dy;
+      } else if (this.down_pressed) {
+        return this.y_position += Game.dy;
       }
     };
 
@@ -83,8 +84,6 @@
       canvas = document.getElementById('game_board_canvas');
       this.ctx = canvas.getContext('2d');
       this.drawBoard();
-      $(window).on('keydown', this.keyboardDown);
-      $(window).on('keyup', this.keyboardUp);
       self = this;
       return setInterval((function() {
         return self.drawBoard();
@@ -92,6 +91,8 @@
     };
 
     Game.prototype.start = function(socket) {
+      var self;
+      self = this;
       socket.on('connect', function() {
         return console.log("Socket opened, Master!");
       });
@@ -99,7 +100,14 @@
         return console.log("Whoa, he moved");
       });
       socket.on('joined', function(side) {
-        return console.log("I'm at " + side + " side");
+        self.side = side;
+        self.enemy_side = side === 0 ? 1 : 0;
+        $(window).on('keydown', function(e) {
+          return self.keyboardDown(e);
+        });
+        return $(window).on('keyup', function(e) {
+          return self.keyboardUp(e);
+        });
       });
       socket.emit('join');
       socket.emit('state', {

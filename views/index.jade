@@ -7,15 +7,4 @@ div#game
 
 :coffeescript
   socket = io.connect "ws://#{window.location.host}"
-
-  socket.on 'connect', ->
-    console.log "Socket opened, Master!"
-
-  socket.on 'state', (data) ->
-    console.log "Whoa, he moved"
-
-  socket.on 'joined', (side) ->
-    console.log "I'm at #{side} side"
-
-  socket.emit 'join'
-  socket.emit 'state', moved: Math.random()
+  (new Game).start socket

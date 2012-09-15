@@ -1,62 +1,79 @@
-@canvas_width = 700
-@canvas_height = 400
-@height = 55
-@width = 10
+window.Game = class Game
 
-@key_left = 37
-@key_up = 38
-@key_right = 39
-@key_down = 40
+  canvas_width = 700
+  canvas_height = 400
+  height = 55
+  width = 10
 
-@up_pressed = false
-@down_pressed = false
+  @key_left = 37
+  @key_up = 38
+  @key_right = 39
+  @key_down = 40
 
-@my_y = 10
-@dy = 5
+  up_pressed = false
+  down_pressed = false
 
-# drawing functions
+  my_y = 10
+  @dy = 5
 
-drawBoard = (ctx) ->
-  processInputs()
-  ctx.clearRect 0, 0, @canvas_width, @canvas_height
-  drawRacket ctx, 10, @my_y, "rgb(200,0,0)"
-  drawRacket ctx, 680, 10, "rgb(0,0,200)"
-  drawBall ctx, 100, 100
+  constructor: ->
 
-drawRacket = (ctx, x, y, color) ->
-  ctx.fillStyle = color
-  ctx.fillRect x, y, @width, @height
+  # drawing functions
 
-drawBall = (ctx, x, y) ->
-  ctx.fillStyle = "rgb(100, 100, 0)"
-  ctx.arc x, y, 5, 0, Math.PI*2, true
-  ctx.fill()
+  drawRacket: (x, y, color) ->
+    @ctx.fillStyle = color
+    @ctx.fillRect x, y, width, height
 
-# Keyboard functions
+  drawBall: (x, y) ->
+    @ctx.fillStyle = "rgb(100, 100, 0)"
+    @ctx.arc x, y, 5, 0, Math.PI*2, true
+    @ctx.fill()
 
-keyboardDown = (evt) ->
-  switch evt.which
-    when @key_down then @down_pressed = true; @up_pressed = false
-    when @key_up   then @up_pressed = true; @down_pressed = false
+  drawBoard: ->
+    @processInputs()
+    @ctx.clearRect 0, 0, canvas_width, canvas_height
+    @drawRacket 10, my_y, "rgb(200,0,0)"
+    @drawRacket 680, 10, "rgb(0,0,200)"
+    @drawBall 100, 100
 
-keyboardUp = (evt) ->
-  switch evt.which
-    when @key_down then @down_pressed = false
-    when @key_up   then @up_pressed = false
+  # Keyboard functions
 
-processInputs = ->
-  if @up_pressed
-    @my_y -= @dy
-  else if @down_pressed
-    @my_y += @dy
+  keyboardDown: (evt) ->
+    switch evt.which
+      when Game.key_down then down_pressed = true; up_pressed = false
+      when Game.key_up   then up_pressed = true; down_pressed = false
 
-game = ->
-  canvas = document.getElementById('game_board_canvas')
-  ctx = canvas.getContext '2d'
-  drawBoard ctx
-  $(window).on 'keydown', keyboardDown
-  $(window).on 'keyup', keyboardUp
-  setInterval (-> drawBoard ctx), 20
+  keyboardUp: (evt) ->
+    switch evt.which
+      when Game.key_down then down_pressed = false
+      when Game.key_up   then up_pressed = false
 
-$ ->
-  game()
+  processInputs: ->
+    if up_pressed
+      my_y -= Game.dy
+    else if down_pressed
+      my_y += Game.dy
+
+  startGame: ->
+    canvas = document.getElementById('game_board_canvas')
+    @ctx = canvas.getContext '2d'
+    @drawBoard()
+    $(window).on 'keydown', @keyboardDown
+    $(window).on 'keyup', @keyboardUp
+    self = @
+    setInterval (-> self.drawBoard()), 20
+
+  start: (socket) ->
+    socket.on 'connect', ->
+      console.log "Socket opened, Master!"
+
+    socket.on 'state', (data) ->
+      console.log "Whoa, he moved"
+
+    socket.on 'joined', (side) ->
+      console.log "I'm at #{side} side"
+
+    socket.emit 'join'
+    socket.emit 'state', moved: Math.random()
+
+    @startGame()

@@ -56,6 +56,14 @@
       return this.socket.emit('joined', this.side);
     };
 
+    Gamer.prototype.heMoved = function(who, where) {
+      return this.socket.emit('state', where);
+    };
+
+    Gamer.prototype.heQuitted = function(who) {
+      return this.socket.emit('quit', who);
+    };
+
     return Gamer;
 
   })();
@@ -69,24 +77,13 @@
   io.sockets.on('connection', function(socket) {
     console.log("Have a connection: " + socket.id);
     socket.on('join', function(data) {
-      var gamer, id, _results;
       console.log("I can has join: " + socket.id);
       if (count > 0) {
         console.log('Second player, he finally came...');
       }
       gamers[socket.id] = new Gamer(socket);
       gamers[socket.id].yourSide(count);
-      count++;
-      _results = [];
-      for (id in gamers) {
-        gamer = gamers[id];
-        if (id !== socket.id) {
-          _results.push(gamer.socket.emit('state', data));
-        } else {
-          _results.push(void 0);
-        }
-      }
-      return _results;
+      return count++;
     });
     socket.on('state', function(data) {
       var gamer, id, _results;
@@ -95,7 +92,7 @@
       for (id in gamers) {
         gamer = gamers[id];
         if (id !== socket.id) {
-          _results.push(gamer.socket.emit('state', data));
+          _results.push(gamer.heMoved(gamers[socket.id], data));
         } else {
           _results.push(void 0);
         }
@@ -103,8 +100,19 @@
       return _results;
     });
     return socket.on('disconnect', function() {
+      var gamer, id, _results;
       console.log("He disconnected: " + socket.id);
-      return delete gamers[socket.id];
+      delete gamers[socket.id];
+      _results = [];
+      for (id in gamers) {
+        gamer = gamers[id];
+        if (id !== socket.id) {
+          _results.push(gamer.heQuitted(gamers[socket.id]));
+        } else {
+          _results.push(void 0);
+        }
+      }
+      return _results;
     });
   });
 

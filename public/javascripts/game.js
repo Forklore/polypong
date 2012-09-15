@@ -24,6 +24,8 @@
 
     Game.players_pos = [10, 680];
 
+    Game.players_colors = ['rgb(200,0,0)', 'rgb(0,0,200)'];
+
     function Game() {
       this.up_pressed = false;
       this.down_pressed = false;
@@ -46,8 +48,8 @@
     Game.prototype.drawBoard = function() {
       this.processInputs();
       this.ctx.clearRect(0, 0, Game.canvas_width, Game.canvas_height);
-      this.drawRacket(Game.players_pos[this.side], this.y_position, "rgb(200,0,0)");
-      this.drawRacket(Game.players_pos[this.enemy_side], 10, "rgb(0,0,200)");
+      this.drawRacket(Game.players_pos[this.side], this.y_position, Game.players_colors[this.side]);
+      this.drawRacket(Game.players_pos[this.enemy_side], 10, Game.players_colors[this.enemy_side]);
       return this.drawBall(100, 100);
     };
 

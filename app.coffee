@@ -34,11 +34,11 @@ console.log "Express server listening on port %d in %s mode", app.address().port
 class Gamer
   constructor: (@socket) ->
   yourSide: (@side = 0) ->
-    console.log "emitting his side, can you here me?"
     @socket.emit 'joined', @side
   heMoved: (who, where) ->
     @socket.emit 'state', where
   heQuitted: (who) ->
+    console.log 'who=' + who
     @socket.emit 'quit', who
 
 gamers = {}
@@ -60,8 +60,6 @@ io.sockets.on 'connection', (socket) ->
 
   socket.on 'join', (data) ->
     console.log "I can has join: #{socket.id}"
-    if count > 0
-      console.log 'Second player, he finally came...'
     gamers[socket.id] = new Gamer socket
     gamers[socket.id].yourSide count
     count++
@@ -72,7 +70,9 @@ io.sockets.on 'connection', (socket) ->
       gamer.heMoved gamers[socket.id], data if (id != socket.id)
 
   socket.on 'disconnect', ->
-    console.log "He disconnected: #{socket.id}"
-    delete gamers[socket.id]
+    console.log "Disconnected: #{socket.id}"
+    if gamers[socket.id]
+      delete gamers[socket.id]
+      count--
     for id, gamer of gamers
-      gamer.heQuitted gamers[socket.id] if (id != socket.id)
+      gamer.heQuitted socket.id if (id != socket.id)

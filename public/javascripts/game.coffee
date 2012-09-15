@@ -13,6 +13,7 @@ window.Game = class Game
   @key_down = 40
 
   @players_pos = [10, 680]
+  @players_colors = ['rgb(200,0,0)', 'rgb(0,0,200)']
 
   constructor: ->
     @up_pressed = false
@@ -35,8 +36,8 @@ window.Game = class Game
   drawBoard: ->
     @processInputs()
     @ctx.clearRect 0, 0, Game.canvas_width, Game.canvas_height
-    @drawRacket Game.players_pos[@side], @y_position, "rgb(200,0,0)"
-    @drawRacket Game.players_pos[@enemy_side], 10, "rgb(0,0,200)"
+    @drawRacket Game.players_pos[@side], @y_position, Game.players_colors[@side]
+    @drawRacket Game.players_pos[@enemy_side], 10, Game.players_colors[@enemy_side]
     @drawBall 100, 100
 
   # Keyboard functions

@@ -52,7 +52,6 @@
 
     Gamer.prototype.yourSide = function(side) {
       this.side = side != null ? side : 0;
-      console.log("emitting his side, can you here me?");
       return this.socket.emit('joined', this.side);
     };
 
@@ -61,6 +60,7 @@
     };
 
     Gamer.prototype.heQuitted = function(who) {
+      console.log('who=' + who);
       return this.socket.emit('quit', who);
     };
 
@@ -78,9 +78,6 @@
     console.log("Have a connection: " + socket.id);
     socket.on('join', function(data) {
       console.log("I can has join: " + socket.id);
-      if (count > 0) {
-        console.log('Second player, he finally came...');
-      }
       gamers[socket.id] = new Gamer(socket);
       gamers[socket.id].yourSide(count);
       return count++;
@@ -101,13 +98,16 @@
     });
     return socket.on('disconnect', function() {
       var gamer, id, _results;
-      console.log("He disconnected: " + socket.id);
-      delete gamers[socket.id];
+      console.log("Disconnected: " + socket.id);
+      if (gamers[socket.id]) {
+        delete gamers[socket.id];
+        count--;
+      }
       _results = [];
       for (id in gamers) {
         gamer = gamers[id];
         if (id !== socket.id) {
-          _results.push(gamer.heQuitted(gamers[socket.id]));
+          _results.push(gamer.heQuitted(socket.id));
         } else {
           _results.push(void 0);
         }

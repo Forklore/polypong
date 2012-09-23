@@ -11,10 +11,9 @@ app.configure ->
   app.use app.router
   app.use express.static(__dirname + "/public")
 
-app.configure "development", ->
+app.configure 'development', ->
   app.use express.errorHandler(
-    dumpExceptions: true
-    showStack: true
+    dumpExceptions: true, showStack: true
   )
 
 port = process.env['app_port'] || 3000

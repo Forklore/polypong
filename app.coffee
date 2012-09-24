@@ -69,9 +69,9 @@ io.sockets.on 'connection', (socket) ->
     count++
 
   socket.on 'state', (data) ->
-    console.log "He told me that he moved #{data.moved}"
-    for id, gamer of gamers
-      gamer.heMoved gamers[socket.id], data if (id != socket.id)
+    console.log "He told me that his state is #{data.state}"
+    # for id, gamer of gamers
+    #   gamer.heMoved gamers[socket.id], data if (id != socket.id)
 
   socket.on 'disconnect', ->
     console.log "Disconnected: #{socket.id}"

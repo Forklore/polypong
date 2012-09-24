@@ -14,6 +14,7 @@ window.Game = class Game
 
   @players_pos = [10, 680]
   @players_colors = ['rgb(200,0,0)', 'rgb(0,0,200)']
+  @players_states = [0, 0]
 
   constructor: ->
     @up_pressed = false
@@ -39,6 +40,7 @@ window.Game = class Game
     @drawRacket Game.players_pos[@side], @y_position, Game.players_colors[@side]
     @drawRacket Game.players_pos[@enemy_side], 10, Game.players_colors[@enemy_side]
     @drawBall 100, 100
+    this.sendState()
 
   # Keyboard functions
 
@@ -55,8 +57,16 @@ window.Game = class Game
   processInputs: ->
     if @up_pressed
       @y_position -= Game.dy
+      Game.players_states[@side] = -1
     else if @down_pressed
       @y_position += Game.dy
+      Game.players_states[@side] = 1
+    else
+      Game.players_states[@side] = 0
+    console.log Game.players_states[@side]
+
+  sendState: ->
+    @socket.emit 'state', {state: Game.players_states[@side]}
 
   # Game control functions
 
@@ -65,10 +75,11 @@ window.Game = class Game
     @ctx = canvas.getContext '2d'
     @drawBoard()
     self = @
-    setInterval (-> self.drawBoard()), 20
+    setInterval (-> self.drawBoard()), 500
 
   start: (socket) ->
     self = @
+    @socket = socket
 
     socket.on 'connect', ->
       console.log "Socket opened, Master!"
@@ -84,6 +95,7 @@ window.Game = class Game
       $(window).on 'keyup', (e) -> self.keyboardUp e
 
     socket.emit 'join'
-    socket.emit 'state', moved: Math.random()
+
+
 
     @startGame()

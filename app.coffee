@@ -60,23 +60,29 @@ io = io.listen app
 
 io.sockets.on 'connection', (socket) ->
   sid = cookie.parse(socket.handshake.headers.cookie)['connect.sid']
-  console.log "Have a connection: '#{socket.id}' with sid: '#{sid}'"
+  console.log "Have a connection: #{sid} (socket id: #{socket.id})"
 
   socket.on 'join', (data) ->
-    console.log "I can has join: #{socket.id}"
-    gamers[socket.id] = new Gamer socket
-    gamers[socket.id].yourSide count
+    if sid in gamers
+      gamers[sid].yourSide gamers[sid].side
+      return
+    if count == 2
+      socket.emit 'busy'
+      return
+    console.log "I can has join: #{sid}"
+    gamers[sid] = new Gamer socket
+    gamers[sid].yourSide count
     count++
 
   socket.on 'state', (data) ->
     console.log "He told me that he moved #{data.moved}"
     for id, gamer of gamers
-      gamer.heMoved gamers[socket.id], data if (id != socket.id)
+      gamer.heMoved gamers[sid], data if (id != sid)
 
   socket.on 'disconnect', ->
-    console.log "Disconnected: #{socket.id}"
-    if gamers[socket.id]
-      delete gamers[socket.id]
+    console.log "Disconnected: #{sid}"
+    if gamers[sid]
+      delete gamers[sid]
       count--
     for id, gamer of gamers
-      gamer.heQuitted socket.id if (id != socket.id)
+      gamer.heQuitted sid if (id != sid)

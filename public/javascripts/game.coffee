@@ -22,6 +22,7 @@ window.Game = class Game
     @side = 0
     @enemy_side = 1
 
+
   # Drawing functions
 
   drawRacket: (x, y, color) ->
@@ -40,6 +41,7 @@ window.Game = class Game
     @drawRacket Game.players_pos[@enemy_side], 10, Game.players_colors[@enemy_side]
     @drawBall 100, 100
 
+
   # Keyboard functions
 
   keyboardDown: (evt) ->
@@ -57,6 +59,7 @@ window.Game = class Game
       @y_position -= Game.dy
     else if @down_pressed
       @y_position += Game.dy
+
 
   # Game control functions
 
@@ -82,6 +85,8 @@ window.Game = class Game
       # Can't move while not joined
       $(window).on 'keydown', (e) -> self.keyboardDown e
       $(window).on 'keyup', (e) -> self.keyboardUp e
+
+    socket.on 'busy', (data) ->
 
     socket.emit 'join'
     socket.emit 'state', moved: Math.random()

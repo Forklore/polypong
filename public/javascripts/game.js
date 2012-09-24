@@ -111,6 +111,7 @@
           return self.keyboardUp(e);
         });
       });
+      socket.on('busy', function(data) {});
       socket.emit('join');
       socket.emit('state', {
         moved: Math.random()

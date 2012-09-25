@@ -103,21 +103,22 @@
     });
     return socket.on('disconnect', function() {
       var gamer, id, _results;
-      console.log("Disconnected: " + sid);
-      if (sid in gamers && gamers[sid].socket.id === socket.id) {
-        delete gamers[sid];
-        count--;
-        _results = [];
-        for (id in gamers) {
-          gamer = gamers[id];
-          if (id !== sid) {
-            _results.push(gamer.heQuitted(sid));
-          } else {
-            _results.push(void 0);
-          }
-        }
-        return _results;
+      if (!(sid in gamers && gamers[sid].socket.id === socket.id)) {
+        return;
       }
+      console.log("Disconnecting: " + sid);
+      delete gamers[sid];
+      count--;
+      _results = [];
+      for (id in gamers) {
+        gamer = gamers[id];
+        if (id !== sid) {
+          _results.push(gamer.heQuitted(sid));
+        } else {
+          _results.push(void 0);
+        }
+      }
+      return _results;
     });
   });
 

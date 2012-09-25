@@ -80,9 +80,9 @@ io.sockets.on 'connection', (socket) ->
     #   gamer.heMoved gamers[socket.id], data if (id != socket.id)
 
   socket.on 'disconnect', ->
-    console.log "Disconnected: #{sid}"
-    if sid of gamers && gamers[sid].socket.id == socket.id
-      delete gamers[sid]
-      count--
-      for id, gamer of gamers
-        gamer.heQuitted sid if (id != sid)
+    return unless sid of gamers && gamers[sid].socket.id == socket.id
+    console.log "Disconnecting: #{sid}"
+    delete gamers[sid]
+    count--
+    for id, gamer of gamers
+      gamer.heQuitted sid if (id != sid)

@@ -26,6 +26,8 @@
 
     Game.players_colors = ['rgb(200,0,0)', 'rgb(0,0,200)'];
 
+    Game.players_states = [0, 0];
+
     function Game() {
       this.up_pressed = false;
       this.down_pressed = false;
@@ -50,7 +52,8 @@
       this.ctx.clearRect(0, 0, Game.canvas_width, Game.canvas_height);
       this.drawRacket(Game.players_pos[this.side], this.y_position, Game.players_colors[this.side]);
       this.drawRacket(Game.players_pos[this.enemy_side], 10, Game.players_colors[this.enemy_side]);
-      return this.drawBall(100, 100);
+      this.drawBall(100, 100);
+      return this.sendState();
     };
 
     Game.prototype.keyboardDown = function(evt) {
@@ -75,10 +78,21 @@
 
     Game.prototype.processInputs = function() {
       if (this.up_pressed) {
-        return this.y_position -= Game.dy;
+        this.y_position -= Game.dy;
+        Game.players_states[this.side] = -1;
       } else if (this.down_pressed) {
-        return this.y_position += Game.dy;
+        this.y_position += Game.dy;
+        Game.players_states[this.side] = 1;
+      } else {
+        Game.players_states[this.side] = 0;
       }
+      return console.log(Game.players_states[this.side]);
+    };
+
+    Game.prototype.sendState = function() {
+      return this.socket.emit('state', {
+        state: Game.players_states[this.side]
+      });
     };
 
     Game.prototype.startGame = function() {
@@ -89,12 +103,13 @@
       self = this;
       return setInterval((function() {
         return self.drawBoard();
-      }), 20);
+      }), 500);
     };
 
     Game.prototype.start = function(socket) {
       var self;
       self = this;
+      this.socket = socket;
       socket.on('connect', function() {
         return console.log("Socket opened, Master!");
       });
@@ -113,9 +128,6 @@
       });
       socket.on('busy', function(data) {});
       socket.emit('join');
-      socket.emit('state', {
-        moved: Math.random()
-      });
       return this.startGame();
     };
 

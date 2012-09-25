@@ -100,18 +100,7 @@
       return count++;
     });
     socket.on('state', function(data) {
-      var gamer, id, _results;
-      console.log("He told me that he moved " + data.moved);
-      _results = [];
-      for (id in gamers) {
-        gamer = gamers[id];
-        if (id !== sid) {
-          _results.push(gamer.heMoved(gamers[sid], data));
-        } else {
-          _results.push(void 0);
-        }
-      }
-      return _results;
+      return console.log("He told me that his state is " + data.state);
     });
     return socket.on('disconnect', function() {
       var gamer, id, _results;

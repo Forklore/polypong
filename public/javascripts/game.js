@@ -4,7 +4,7 @@
 
   window.Game = Game = (function() {
 
-    Game.canvas_width = 700;
+    Game.canvas_width = 780;
 
     Game.canvas_height = 400;
 
@@ -24,7 +24,7 @@
 
     Game.players_pos = [10, 680];
 
-    Game.players_colors = ['rgb(200,0,0)', 'rgb(0,0,200)'];
+    Game.players_colors = ['rgb(255,255,255)', 'rgb(255,255,255)'];
 
     Game.players_states = [0, 0];
 
@@ -42,9 +42,8 @@
     };
 
     Game.prototype.drawBall = function(x, y) {
-      this.ctx.fillStyle = "rgb(100, 100, 0)";
-      this.ctx.arc(x, y, 5, 0, Math.PI * 2, true);
-      return this.ctx.fill();
+      this.ctx.fillStyle = "rgb(200, 200, 200)";
+      return this.ctx.fillRect(x, y, 8, 8);
     };
 
     Game.prototype.drawBoard = function() {

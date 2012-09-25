@@ -2,15 +2,21 @@ body {
   padding-top: 50px;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
   margin: 0 auto;
-  width: 800px;
+  width: 780px;
+  background-color: #272822;
 }
 
 a {
   color: #00B7FF;
 }
 
+h1 {
+  color: #f2f1f0;
+}
+
 canvas#game_board_canvas {
-  width: 700px;
-  height: 400px;
+  width: 780px;
+  height: 440px;
   border: 1px solid #555;
+  background-color: #000;
 }

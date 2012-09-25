@@ -1,6 +1,6 @@
 window.Game = class Game
 
-  @canvas_width = 700
+  @canvas_width = 780
   @canvas_height = 400
   @racket_height = 55
   @racket_width = 10
@@ -13,7 +13,7 @@ window.Game = class Game
   @key_down = 40
 
   @players_pos = [10, 680]
-  @players_colors = ['rgb(200,0,0)', 'rgb(0,0,200)']
+  @players_colors = ['rgb(255,255,255)', 'rgb(255,255,255)']
   @players_states = [0, 0]
 
   constructor: ->
@@ -31,9 +31,8 @@ window.Game = class Game
     @ctx.fillRect x, y, Game.racket_width, Game.racket_height
 
   drawBall: (x, y) ->
-    @ctx.fillStyle = "rgb(100, 100, 0)"
-    @ctx.arc x, y, 5, 0, Math.PI*2, true
-    @ctx.fill()
+    @ctx.fillStyle = "rgb(200, 200, 200)"
+    @ctx.fillRect x, y, 8, 8
 
   drawBoard: ->
     @processInputs()

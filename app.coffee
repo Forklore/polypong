@@ -63,7 +63,7 @@ io.sockets.on 'connection', (socket) ->
   console.log "Have a connection: #{sid} (socket id: #{socket.id})"
 
   socket.on 'join', (data) ->
-    if sid in gamers
+    if sid of gamers
       gamers[sid].yourSide gamers[sid].side
       return
     if count == 2
@@ -81,8 +81,8 @@ io.sockets.on 'connection', (socket) ->
 
   socket.on 'disconnect', ->
     console.log "Disconnected: #{sid}"
-    if gamers[sid]
+    if sid of gamers && gamers[sid].socket.id == socket.id
       delete gamers[sid]
       count--
-    for id, gamer of gamers
-      gamer.heQuitted sid if (id != sid)
+      for id, gamer of gamers
+        gamer.heQuitted sid if (id != sid)

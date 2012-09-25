@@ -1,7 +1,7 @@
 window.Game = class Game
 
   @canvas_width = 780
-  @canvas_height = 400
+  @canvas_height = 440
   @racket_height = 55
   @racket_width = 10
 
@@ -12,7 +12,7 @@ window.Game = class Game
   @key_right = 39
   @key_down = 40
 
-  @players_pos = [10, 680]
+  @players_pos = [10, 760]
   @players_colors = ['rgb(255,255,255)', 'rgb(255,255,255)']
   @players_states = [0, 0]
 
@@ -37,6 +37,8 @@ window.Game = class Game
   drawBoard: ->
     @processInputs()
     @ctx.clearRect 0, 0, Game.canvas_width, Game.canvas_height
+    @ctx.fillStyle = "rgb(200, 200, 200)"
+    @ctx.fillRect 389, 5, 1, 430
     @drawRacket Game.players_pos[@side], @y_position, Game.players_colors[@side]
     @drawRacket Game.players_pos[@enemy_side], 10, Game.players_colors[@enemy_side]
     @drawBall 100, 100

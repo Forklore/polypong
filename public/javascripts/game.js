@@ -6,7 +6,7 @@
 
     Game.canvas_width = 780;
 
-    Game.canvas_height = 400;
+    Game.canvas_height = 440;
 
     Game.racket_height = 55;
 
@@ -22,7 +22,7 @@
 
     Game.key_down = 40;
 
-    Game.players_pos = [10, 680];
+    Game.players_pos = [10, 760];
 
     Game.players_colors = ['rgb(255,255,255)', 'rgb(255,255,255)'];
 
@@ -49,6 +49,8 @@
     Game.prototype.drawBoard = function() {
       this.processInputs();
       this.ctx.clearRect(0, 0, Game.canvas_width, Game.canvas_height);
+      this.ctx.fillStyle = "rgb(200, 200, 200)";
+      this.ctx.fillRect(389, 5, 1, 430);
       this.drawRacket(Game.players_pos[this.side], this.y_position, Game.players_colors[this.side]);
       this.drawRacket(Game.players_pos[this.enemy_side], 10, Game.players_colors[this.enemy_side]);
       this.drawBall(100, 100);

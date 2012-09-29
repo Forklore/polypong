@@ -4,41 +4,30 @@
 
   window.Game = Game = (function() {
 
-    Game.canvas_width = 780;
-
-    Game.canvas_height = 440;
-
-    Game.racket_height = 55;
-
-    Game.racket_width = 10;
-
-    Game.dy = 5;
-
-    Game.key_left = 37;
-
-    Game.key_up = 38;
-
-    Game.key_right = 39;
-
-    Game.key_down = 40;
-
-    Game.players_pos = [10, 760];
-
-    Game.players_colors = ['rgb(255,255,255)', 'rgb(255,255,255)'];
-
-    Game.players_states = [0, 0];
-
     function Game() {
       this.up_pressed = false;
       this.down_pressed = false;
       this.y_position = 10;
       this.side = 0;
       this.enemy_side = 1;
+      this.canvas_width = 780;
+      this.canvas_height = 440;
+      this.racket_height = 55;
+      this.racket_width = 10;
+      this.dy = 5;
+      this.key_left = 37;
+      this.key_up = 38;
+      this.key_right = 39;
+      this.key_down = 40;
+      this.key_space = 32;
+      this.players_start_pos = [[10, 80], [760, this.canvas_height - 80 - this.racket_height]];
+      this.players_colors = ['rgb(255,255,255)', 'rgb(255,255,255)'];
+      this.players_states = [0, 0];
     }
 
     Game.prototype.drawRacket = function(x, y, color) {
       this.ctx.fillStyle = color;
-      return this.ctx.fillRect(x, y, Game.racket_width, Game.racket_height);
+      return this.ctx.fillRect(x, y, this.racket_width, this.racket_height);
     };
 
     Game.prototype.drawBall = function(x, y) {
@@ -48,21 +37,21 @@
 
     Game.prototype.drawBoard = function() {
       this.processInputs();
-      this.ctx.clearRect(0, 0, Game.canvas_width, Game.canvas_height);
+      this.ctx.clearRect(0, 0, this.canvas_width, this.canvas_height);
       this.ctx.fillStyle = "rgb(200, 200, 200)";
       this.ctx.fillRect(389, 5, 1, 430);
-      this.drawRacket(Game.players_pos[this.side], this.y_position, Game.players_colors[this.side]);
-      this.drawRacket(Game.players_pos[this.enemy_side], 10, Game.players_colors[this.enemy_side]);
+      this.drawRacket(this.players_start_pos[this.side][0], this.y_position, this.players_colors[this.side]);
+      this.drawRacket(this.players_start_pos[this.enemy_side][0], this.players_start_pos[this.enemy_side][1], this.players_colors[this.enemy_side]);
       this.drawBall(100, 100);
       return this.sendState();
     };
 
     Game.prototype.keyboardDown = function(evt) {
       switch (evt.which) {
-        case Game.key_down:
+        case this.key_down:
           this.down_pressed = true;
           return this.up_pressed = false;
-        case Game.key_up:
+        case this.key_up:
           this.up_pressed = true;
           return this.down_pressed = false;
       }
@@ -70,29 +59,31 @@
 
     Game.prototype.keyboardUp = function(evt) {
       switch (evt.which) {
-        case Game.key_down:
+        case this.key_down:
           return this.down_pressed = false;
-        case Game.key_up:
+        case this.key_up:
           return this.up_pressed = false;
+        case this.key_space:
+          return this.startRound();
       }
     };
 
     Game.prototype.processInputs = function() {
       if (this.up_pressed) {
-        this.y_position -= Game.dy;
-        Game.players_states[this.side] = -1;
+        this.y_position -= this.dy;
+        this.players_states[this.side] = -1;
       } else if (this.down_pressed) {
-        this.y_position += Game.dy;
-        Game.players_states[this.side] = 1;
+        this.y_position += this.dy;
+        this.players_states[this.side] = 1;
       } else {
-        Game.players_states[this.side] = 0;
+        this.players_states[this.side] = 0;
       }
-      return console.log(Game.players_states[this.side]);
+      return console.log(this.players_states[this.side]);
     };
 
     Game.prototype.sendState = function() {
       return this.socket.emit('state', {
-        state: Game.players_states[this.side]
+        state: this.players_states[this.side]
       });
     };
 
@@ -120,6 +111,7 @@
       socket.on('joined', function(side) {
         self.side = side;
         self.enemy_side = side === 0 ? 1 : 0;
+        self.y_position = self.players_start_pos[self.side][1];
         $(window).on('keydown', function(e) {
           return self.keyboardDown(e);
         });

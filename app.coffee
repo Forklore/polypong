@@ -57,9 +57,9 @@ move_up = (position) ->
   position + 10
 
 detect_move = (side) ->
-  if (state_messages[side]) == 1
+  if (state_messages[side]) == -1
     racket_positions[side] = move_down(racket_positions[side])
-  else if (state_messages[side]) == -1
+  else if (state_messages[side]) == 1
     racket_positions[side] = move_up(racket_positions[side])
 
 # Here is all our socket machimery.
@@ -76,12 +76,18 @@ io = io.listen app
 
 io.sockets.on 'connection', (socket) ->
   sid = cookie.parse(socket.handshake.headers.cookie)['connect.sid']
-  console.log "Have a connection: '#{socket.id}' with sid: '#{sid}'"
+  console.log "Have a connection: #{sid} (socket id: #{socket.id})"
 
   socket.on 'join', (data) ->
-    console.log "I can has join: #{socket.id}"
-    gamers[socket.id] = new Gamer socket
-    gamers[socket.id].yourSide count
+    if sid of gamers
+      gamers[sid].yourSide gamers[sid].side
+      return
+    if count == 2
+      socket.emit 'busy'
+      return
+    console.log "I can has join: #{sid}"
+    gamers[sid] = new Gamer socket
+    gamers[sid].yourSide count
     count++
 
   socket.on 'state', (data) ->
@@ -99,9 +105,9 @@ io.sockets.on 'connection', (socket) ->
     #   gamer.heMoved gamers[socket.id], data if (id != socket.id)
 
   socket.on 'disconnect', ->
-    console.log "Disconnected: #{socket.id}"
-    if gamers[socket.id]
-      delete gamers[socket.id]
-      count--
+    return unless sid of gamers && gamers[sid].socket.id == socket.id
+    console.log "Disconnecting: #{sid}"
+    delete gamers[sid]
+    count--
     for id, gamer of gamers
-      gamer.heQuitted socket.id if (id != socket.id)
+      gamer.heQuitted sid if (id != sid)

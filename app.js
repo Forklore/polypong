@@ -106,11 +106,19 @@
   io.sockets.on('connection', function(socket) {
     var sid;
     sid = cookie.parse(socket.handshake.headers.cookie)['connect.sid'];
-    console.log("Have a connection: '" + socket.id + "' with sid: '" + sid + "'");
+    console.log("Have a connection: " + sid + " (socket id: " + socket.id + ")");
     socket.on('join', function(data) {
-      console.log("I can has join: " + socket.id);
-      gamers[socket.id] = new Gamer(socket);
-      gamers[socket.id].yourSide(count);
+      if (sid in gamers) {
+        gamers[sid].yourSide(gamers[sid].side);
+        return;
+      }
+      if (count === 2) {
+        socket.emit('busy');
+        return;
+      }
+      console.log("I can has join: " + sid);
+      gamers[sid] = new Gamer(socket);
+      gamers[sid].yourSide(count);
       return count++;
     });
     socket.on('state', function(data) {
@@ -130,16 +138,15 @@
     });
     return socket.on('disconnect', function() {
       var gamer, id, _results;
-      console.log("Disconnected: " + socket.id);
-      if (gamers[socket.id]) {
-        delete gamers[socket.id];
-        count--;
-      }
+      if (!(sid in gamers && gamers[sid].socket.id === socket.id)) return;
+      console.log("Disconnecting: " + sid);
+      delete gamers[sid];
+      count--;
       _results = [];
       for (id in gamers) {
         gamer = gamers[id];
-        if (id !== socket.id) {
-          _results.push(gamer.heQuitted(socket.id));
+        if (id !== sid) {
+          _results.push(gamer.heQuitted(sid));
         } else {
           _results.push(void 0);
         }

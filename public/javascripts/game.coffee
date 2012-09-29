@@ -49,10 +49,10 @@ window.Game = class Game
       when Game.key_down then @down_pressed = true; @up_pressed = false
       when Game.key_up   then @up_pressed = true; @down_pressed = false
 
-  keyboardUp: (evt) ->
-    switch evt.which
-      when Game.key_down then @down_pressed = false
-      when Game.key_up   then @up_pressed = false
+#  keyboardUp: (evt) ->
+#    switch evt.which
+#      when Game.key_down then @down_pressed = false
+#      when Game.key_up   then @up_pressed = false
 
   processInputs: ->
     if @up_pressed
@@ -66,7 +66,7 @@ window.Game = class Game
     console.log Game.players_states[@side]
 
   sendState: ->
-    @socket.emit 'state', {state: Game.players_states[@side]}
+    @socket.emit 'state', {side: @side, state: Game.players_states[@side]}
 
   # Game control functions
 
@@ -89,12 +89,16 @@ window.Game = class Game
       self.enemy_side = if side == 0 then 1 else 0
       # Can't move while not joined
       $(window).on 'keydown', (e) -> self.keyboardDown e
-      $(window).on 'keyup', (e) -> self.keyboardUp e
+      #$(window).on 'keyup', (e) -> self.keyboardUp e
+      console.log 'Joined'
 
     socket.on 'move', (data) ->
       self.y_positions[self.side] = data.positions[self.side]
       self.y_positions[self.enemy_side] = data.positions[self.enemy_side]
       console.log "#{self.y_positions[self.side]}, #{self.y_positions[self.enemy_side]}"
+      @down_pressed = false
+      @up_pressed = false
+      @players_states = [0, 0]
       self.drawBoard()
 
     socket.emit 'join'

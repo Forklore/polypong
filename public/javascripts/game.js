@@ -66,15 +66,6 @@
       }
     };
 
-    Game.prototype.keyboardUp = function(evt) {
-      switch (evt.which) {
-        case Game.key_down:
-          return this.down_pressed = false;
-        case Game.key_up:
-          return this.up_pressed = false;
-      }
-    };
-
     Game.prototype.processInputs = function() {
       if (this.up_pressed) {
         Game.players_states[this.side] = -1;
@@ -88,6 +79,7 @@
 
     Game.prototype.sendState = function() {
       return this.socket.emit('state', {
+        side: this.side,
         state: Game.players_states[this.side]
       });
     };
@@ -116,14 +108,15 @@
         $(window).on('keydown', function(e) {
           return self.keyboardDown(e);
         });
-        return $(window).on('keyup', function(e) {
-          return self.keyboardUp(e);
-        });
+        return console.log('Joined');
       });
       socket.on('move', function(data) {
         self.y_positions[self.side] = data.positions[self.side];
         self.y_positions[self.enemy_side] = data.positions[self.enemy_side];
         console.log("" + self.y_positions[self.side] + ", " + self.y_positions[self.enemy_side]);
+        this.down_pressed = false;
+        this.up_pressed = false;
+        this.players_states = [0, 0];
         return self.drawBoard();
       });
       socket.emit('join');

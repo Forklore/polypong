@@ -114,11 +114,13 @@
       return count++;
     });
     socket.on('state', function(data) {
-      console.log("He told me that his state is " + data.state);
+      console.log("He told me that his state is " + data.state + " and side " + data.side);
+      state_messages[data.side] = data.state;
       state_messages_counter++;
       console.log(racket_positions);
       if (state_messages_counter === 2) {
-        detect_move();
+        detect_move(0);
+        detect_move(1);
         state_messages = [0, 0];
         state_messages_counter = 0;
         return socket.emit('move', {

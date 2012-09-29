@@ -19,7 +19,7 @@ window.Game = class Game
   constructor: ->
     @up_pressed = false
     @down_pressed = false
-    @y_position = 10
+    @y_positions = [10, 10]
     @side = 0
     @enemy_side = 1
 
@@ -37,8 +37,8 @@ window.Game = class Game
   drawBoard: ->
     @processInputs()
     @ctx.clearRect 0, 0, Game.canvas_width, Game.canvas_height
-    @drawRacket Game.players_pos[@side], @y_position, Game.players_colors[@side]
-    @drawRacket Game.players_pos[@enemy_side], 10, Game.players_colors[@enemy_side]
+    @drawRacket Game.players_pos[@side], @y_positions[@side], Game.players_colors[@side]
+    @drawRacket Game.players_pos[@enemy_side], @y_positions[@enemy_side], Game.players_colors[@enemy_side]
     @drawBall 100, 100
     this.sendState()
 
@@ -56,10 +56,10 @@ window.Game = class Game
 
   processInputs: ->
     if @up_pressed
-      @y_position -= Game.dy
+      #@y_positions -= Game.dy
       Game.players_states[@side] = -1
     else if @down_pressed
-      @y_position += Game.dy
+      #@y_positions += Game.dy
       Game.players_states[@side] = 1
     else
       Game.players_states[@side] = 0
@@ -84,15 +84,18 @@ window.Game = class Game
     socket.on 'connect', ->
       console.log "Socket opened, Master!"
 
-    socket.on 'move', (data) ->
-      console.log "Whoa, he moved"
-
     socket.on 'joined', (side) ->
       self.side = side
       self.enemy_side = if side == 0 then 1 else 0
       # Can't move while not joined
       $(window).on 'keydown', (e) -> self.keyboardDown e
       $(window).on 'keyup', (e) -> self.keyboardUp e
+
+    socket.on 'move', (data) ->
+      self.y_positions[self.side] = data.positions[self.side]
+      self.y_positions[self.enemy_side] = data.positions[self.enemy_side]
+      console.log "#{self.y_positions[self.side]}, #{self.y_positions[self.enemy_side]}"
+      self.drawBoard()
 
     socket.emit 'join'
 

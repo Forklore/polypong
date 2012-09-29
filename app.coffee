@@ -89,7 +89,6 @@ io.sockets.on 'connection', (socket) ->
     state_messages_counter++
     console.log racket_positions
     if state_messages_counter == 2
-      console.log "move emitimg"
       detect_move()
       state_messages = [0, 0]
       state_messages_counter = 0

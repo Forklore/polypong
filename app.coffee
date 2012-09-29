@@ -45,6 +45,22 @@ class Gamer
 
 gamers = {}
 count = 0
+state_messages = [0, 0]
+init_position = 440 / 2 - 40
+racket_positions = [init_position, init_position]
+state_messages_counter = 0
+
+move_down = (position) ->
+  position - 10
+
+move_up = (position) ->
+  position + 10
+
+detect_move = (side) ->
+  if (state_messages[side]) == 1
+    racket_positions[side] = move_down(racket_positions[side])
+  else if (state_messages[side]) == -1
+    racket_positions[side] = move_up(racket_positions[side])
 
 # Here is all our socket machimery.
 # We have server events:
@@ -70,6 +86,14 @@ io.sockets.on 'connection', (socket) ->
 
   socket.on 'state', (data) ->
     console.log "He told me that his state is #{data.state}"
+    state_messages_counter++
+    console.log racket_positions
+    if state_messages_counter == 2
+      console.log "move emitimg"
+      detect_move()
+      state_messages = [0, 0]
+      state_messages_counter = 0
+      socket.emit 'move', {positions: racket_positions}
     # for id, gamer of gamers
     #   gamer.heMoved gamers[socket.id], data if (id != socket.id)
 

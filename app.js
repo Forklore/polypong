@@ -1,5 +1,5 @@
 (function() {
-  var Gamer, app, cookie, count, express, gamers, io, port, routes;
+  var Gamer, app, cookie, count, detect_move, express, gamers, init_position, io, move_down, move_up, port, racket_positions, routes, state_messages, state_messages_counter;
 
   express = require('express');
 
@@ -77,6 +77,30 @@
 
   count = 0;
 
+  state_messages = [0, 0];
+
+  init_position = 440 / 2 - 40;
+
+  racket_positions = [init_position, init_position];
+
+  state_messages_counter = 0;
+
+  move_down = function(position) {
+    return position - 10;
+  };
+
+  move_up = function(position) {
+    return position + 10;
+  };
+
+  detect_move = function(side) {
+    if (state_messages[side] === 1) {
+      return racket_positions[side] = move_down(racket_positions[side]);
+    } else if (state_messages[side] === -1) {
+      return racket_positions[side] = move_up(racket_positions[side]);
+    }
+  };
+
   io = io.listen(app);
 
   io.sockets.on('connection', function(socket) {
@@ -90,7 +114,18 @@
       return count++;
     });
     socket.on('state', function(data) {
-      return console.log("He told me that his state is " + data.state);
+      console.log("He told me that his state is " + data.state);
+      state_messages_counter++;
+      console.log(racket_positions);
+      if (state_messages_counter === 2) {
+        console.log("move emitimg");
+        detect_move();
+        state_messages = [0, 0];
+        state_messages_counter = 0;
+        return socket.emit('move', {
+          positions: racket_positions
+        });
+      }
     });
     return socket.on('disconnect', function() {
       var gamer, id, _results;

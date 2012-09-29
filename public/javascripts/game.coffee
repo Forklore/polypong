@@ -84,7 +84,7 @@ window.Game = class Game
     socket.on 'connect', ->
       console.log "Socket opened, Master!"
 
-    socket.on 'state', (data) ->
+    socket.on 'move', (data) ->
       console.log "Whoa, he moved"
 
     socket.on 'joined', (side) ->

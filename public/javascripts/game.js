@@ -112,7 +112,7 @@
       socket.on('connect', function() {
         return console.log("Socket opened, Master!");
       });
-      socket.on('state', function(data) {
+      socket.on('move', function(data) {
         return console.log("Whoa, he moved");
       });
       socket.on('joined', function(side) {

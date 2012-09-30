@@ -82,7 +82,7 @@
 
   init_position = 440 / 2 - 40;
 
-  racket_positions = [init_position, init_position];
+  racket_positions = [init_position - 60, init_position + 60];
 
   state_messages_counter = 0;
 
@@ -111,6 +111,9 @@
     socket.on('join', function(data) {
       if (sid in gamers) {
         gamers[sid].yourSide(gamers[sid].side);
+        socket.emit('move', {
+          positions: racket_positions
+        });
         return;
       }
       if (count === 2) {
@@ -120,6 +123,9 @@
       console.log("I can has join: " + sid);
       gamers[sid] = new Gamer(socket);
       gamers[sid].yourSide(count);
+      socket.emit('move', {
+        positions: racket_positions
+      });
       return count++;
     });
     socket.on('state', function(data) {

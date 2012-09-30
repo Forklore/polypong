@@ -155,7 +155,6 @@
       socket.on('joined', function(side) {
         self.side = side;
         self.enemy_side = side === 0 ? 1 : 0;
-        self.y_position = self.players_start_pos[self.side][1];
         $(window).on('keydown', function(e) {
           return self.keyboardDown(e);
         });
@@ -164,13 +163,8 @@
         });
       });
       socket.on('move', function(data) {
-        self.y_positions[self.side] = data.positions[self.side];
-        self.y_positions[self.enemy_side] = data.positions[self.enemy_side];
-        console.log("" + self.y_positions[self.side] + ", " + self.y_positions[self.enemy_side]);
-        self.down_pressed = false;
-        self.up_pressed = false;
-        self.players_states = [0, 0];
-        return self.drawBoard();
+        self.y_positions = data.positions;
+        return console.log("" + self.y_positions[self.side] + ", " + self.y_positions[self.enemy_side]);
       });
       socket.on('busy', function(data) {});
       socket.emit('join');

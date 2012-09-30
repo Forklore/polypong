@@ -131,19 +131,13 @@ window.Game = class Game
     socket.on 'joined', (side) ->
       self.side = side
       self.enemy_side = if side == 0 then 1 else 0
-      self.y_position = self.players_start_pos[self.side][1]
       # Can't move while not joined
       $(window).on 'keydown', (e) -> self.keyboardDown e
       $(window).on 'keyup', (e) -> self.keyboardUp e
 
     socket.on 'move', (data) ->
-      self.y_positions[self.side] = data.positions[self.side]
-      self.y_positions[self.enemy_side] = data.positions[self.enemy_side]
+      self.y_positions = data.positions
       console.log "#{self.y_positions[self.side]}, #{self.y_positions[self.enemy_side]}"
-      self.down_pressed = false
-      self.up_pressed = false
-      self.players_states = [0, 0]
-      self.drawBoard()
 
     socket.on 'busy', (data) ->
 

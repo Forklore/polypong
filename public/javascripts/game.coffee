@@ -7,6 +7,7 @@ window.Game = class Game
     @y_positions = [10, 10]
     @side = 0
     @enemy_side = 1
+    @ball_pos = [100, 100]
 
     # Constants
     @canvas_width = 780
@@ -15,6 +16,10 @@ window.Game = class Game
     @racket_width = 10
 
     @dy = 5
+    @dt = 20
+    @dt_in_sec = @dt/1000
+    @ball_v = 50 # pixels per second
+    @angle = 30*Math.PI/180
 
     @key_left  = 37
     @key_up    = 38
@@ -40,13 +45,27 @@ window.Game = class Game
     @ctx.fillRect x, y, 8, 8
 
   drawBoard: ->
-    @processInputs()
     @ctx.clearRect 0, 0, @canvas_width, @canvas_height
     @ctx.fillStyle = "rgb(200, 200, 200)"
     @ctx.fillRect 389, 5, 1, 430
     @drawRacket @players_start_pos[@side][0], @y_positions[@side], @players_colors[@side]
     @drawRacket @players_start_pos[@enemy_side][0], @y_positions[@enemy_side], @players_colors[@enemy_side]
-    @drawBall 100, 100
+    @drawBall @ball_pos[0], @ball_pos[1]
+
+
+  # Game logic
+
+  gameLoop: ->
+    @updateState()
+    @drawBoard()
+
+  updateState: ->
+    @updateBall()
+
+  updateBall: ->
+    ds = @ball_v * @dt_in_sec
+    @ball_pos[0] += ds * Math.cos(@angle)
+    @ball_pos[1] += ds * Math.sin(@angle)
 
 
   # Keyboard functions
@@ -61,28 +80,17 @@ window.Game = class Game
       when @key_down then @down_pressed = false; @sendState @dir_idle unless @up_pressed
       when @key_up   then @up_pressed = false; @sendState @dir_idle unless @down_pressed
 
-  processInputs: ->
-#    if @up_pressed
-#      @y_positions -= @dy
-#      @players_states[@side] = -1
-#    else if @down_pressed
-#      @y_positions += @dy
-#      @players_states[@side] = 1
-#    else
-#      @players_states[@side] = 0
-#    console.log @players_states[@side]
-
   sendState: (dir) ->
     @socket.emit 'state', {side: @side, state: dir}
+
 
   # Game control functions
 
   startGame: ->
     canvas = document.getElementById('game_board_canvas')
     @ctx = canvas.getContext '2d'
-    @drawBoard()
     self = @
-    setInterval (-> self.drawBoard()), 500
+    setInterval (-> self.gameLoop()), @dt
 
   start: (socket) ->
     self = @
@@ -111,7 +119,6 @@ window.Game = class Game
     socket.on 'busy', (data) ->
 
     socket.emit 'join'
-
 
 
     @startGame()

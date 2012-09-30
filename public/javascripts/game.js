@@ -10,11 +10,16 @@
       this.y_positions = [10, 10];
       this.side = 0;
       this.enemy_side = 1;
+      this.ball_pos = [100, 100];
       this.canvas_width = 780;
       this.canvas_height = 440;
       this.racket_height = 55;
       this.racket_width = 10;
       this.dy = 5;
+      this.dt = 20;
+      this.dt_in_sec = this.dt / 1000;
+      this.ball_v = 50;
+      this.angle = 30 * Math.PI / 180;
       this.key_left = 37;
       this.key_up = 38;
       this.key_right = 39;
@@ -38,13 +43,28 @@
     };
 
     Game.prototype.drawBoard = function() {
-      this.processInputs();
       this.ctx.clearRect(0, 0, this.canvas_width, this.canvas_height);
       this.ctx.fillStyle = "rgb(200, 200, 200)";
       this.ctx.fillRect(389, 5, 1, 430);
       this.drawRacket(this.players_start_pos[this.side][0], this.y_positions[this.side], this.players_colors[this.side]);
       this.drawRacket(this.players_start_pos[this.enemy_side][0], this.y_positions[this.enemy_side], this.players_colors[this.enemy_side]);
-      return this.drawBall(100, 100);
+      return this.drawBall(this.ball_pos[0], this.ball_pos[1]);
+    };
+
+    Game.prototype.gameLoop = function() {
+      this.updateState();
+      return this.drawBoard();
+    };
+
+    Game.prototype.updateState = function() {
+      return this.updateBall();
+    };
+
+    Game.prototype.updateBall = function() {
+      var ds;
+      ds = this.ball_v * this.dt_in_sec;
+      this.ball_pos[0] += ds * Math.cos(this.angle);
+      return this.ball_pos[1] += ds * Math.sin(this.angle);
     };
 
     Game.prototype.keyboardDown = function(evt) {
@@ -76,8 +96,6 @@
       }
     };
 
-    Game.prototype.processInputs = function() {};
-
     Game.prototype.sendState = function(dir) {
       return this.socket.emit('state', {
         side: this.side,
@@ -89,11 +107,10 @@
       var canvas, self;
       canvas = document.getElementById('game_board_canvas');
       this.ctx = canvas.getContext('2d');
-      this.drawBoard();
       self = this;
       return setInterval((function() {
-        return self.drawBoard();
-      }), 500);
+        return self.gameLoop();
+      }), this.dt);
     };
 
     Game.prototype.start = function(socket) {

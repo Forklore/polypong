@@ -11,15 +11,16 @@
       this.side = 0;
       this.enemy_side = 1;
       this.ball_pos = [100, 100];
+      this.angle = 30 * Math.PI / 180;
       this.canvas_width = 780;
       this.canvas_height = 440;
       this.racket_height = 55;
       this.racket_width = 10;
+      this.ball_size = 8;
       this.dy = 5;
       this.dt = 20;
       this.dt_in_sec = this.dt / 1000;
-      this.ball_v = 50;
-      this.angle = 30 * Math.PI / 180;
+      this.ball_v = 200;
       this.key_left = 37;
       this.key_up = 38;
       this.key_right = 39;
@@ -39,7 +40,7 @@
 
     Game.prototype.drawBall = function(x, y) {
       this.ctx.fillStyle = "rgb(200, 200, 200)";
-      return this.ctx.fillRect(x, y, 8, 8);
+      return this.ctx.fillRect(x, y, this.ball_size, this.ball_size);
     };
 
     Game.prototype.drawBoard = function() {
@@ -64,7 +65,23 @@
       var ds;
       ds = this.ball_v * this.dt_in_sec;
       this.ball_pos[0] += ds * Math.cos(this.angle);
-      return this.ball_pos[1] += ds * Math.sin(this.angle);
+      this.ball_pos[1] += ds * Math.sin(this.angle);
+      if (this.ball_pos[0] < 0) {
+        this.ball_pos[0] = 0;
+        this.angle = Math.PI - this.angle;
+      }
+      if (this.ball_pos[1] < 0) {
+        this.ball_pos[1] = 0;
+        this.angle = -this.angle;
+      }
+      if (this.ball_pos[0] > this.canvas_width - this.ball_size) {
+        this.ball_pos[0] = this.canvas_width - this.ball_size;
+        this.angle = Math.PI - this.angle;
+      }
+      if (this.ball_pos[1] > this.canvas_height - this.ball_size) {
+        this.ball_pos[1] = this.canvas_height - this.ball_size;
+        return this.angle = -this.angle;
+      }
     };
 
     Game.prototype.keyboardDown = function(evt) {

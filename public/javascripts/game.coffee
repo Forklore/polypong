@@ -8,18 +8,19 @@ window.Game = class Game
     @side = 0
     @enemy_side = 1
     @ball_pos = [100, 100]
+    @angle = 30*Math.PI/180
 
     # Constants
     @canvas_width = 780
     @canvas_height = 440
     @racket_height = 55
     @racket_width = 10
+    @ball_size = 8
 
     @dy = 5
     @dt = 20
     @dt_in_sec = @dt/1000
-    @ball_v = 50 # pixels per second
-    @angle = 30*Math.PI/180
+    @ball_v = 200 # pixels per second
 
     @key_left  = 37
     @key_up    = 38
@@ -42,7 +43,7 @@ window.Game = class Game
 
   drawBall: (x, y) ->
     @ctx.fillStyle = "rgb(200, 200, 200)"
-    @ctx.fillRect x, y, 8, 8
+    @ctx.fillRect x, y, @ball_size, @ball_size
 
   drawBoard: ->
     @ctx.clearRect 0, 0, @canvas_width, @canvas_height
@@ -66,6 +67,19 @@ window.Game = class Game
     ds = @ball_v * @dt_in_sec
     @ball_pos[0] += ds * Math.cos(@angle)
     @ball_pos[1] += ds * Math.sin(@angle)
+
+    if @ball_pos[0] < 0
+      @ball_pos[0] = 0
+      @angle = Math.PI - @angle
+    if @ball_pos[1] < 0
+      @ball_pos[1] = 0
+      @angle = - @angle
+    if @ball_pos[0] > @canvas_width - @ball_size
+      @ball_pos[0] = @canvas_width - @ball_size
+      @angle = Math.PI - @angle
+    if @ball_pos[1] > @canvas_height - @ball_size
+      @ball_pos[1] = @canvas_height - @ball_size
+      @angle = - @angle
 
 
   # Keyboard functions

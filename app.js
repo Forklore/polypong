@@ -96,9 +96,21 @@
 
   detect_move = function(side) {
     if (state_messages[side] === -1) {
-      return racket_positions[side] = move_down(racket_positions[side]);
+      racket_positions[side] = move_down(racket_positions[side]);
     } else if (state_messages[side] === 1) {
-      return racket_positions[side] = move_up(racket_positions[side]);
+      racket_positions[side] = move_up(racket_positions[side]);
+    }
+    if (racket_positions[0] < 0) {
+      racket_positions[0] = 0;
+    }
+    if (racket_positions[1] < 0) {
+      racket_positions[1] = 0;
+    }
+    if (racket_positions[0] > 440 - 55) {
+      racket_positions[0] = 440 - 55;
+    }
+    if (racket_positions[1] > 440 - 55) {
+      return racket_positions[1] = 440 - 55;
     }
   };
 

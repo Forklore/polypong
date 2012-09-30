@@ -32,7 +32,7 @@ window.Game = class Game
     @dir_idle = 0
     @dir_down = 1
     @players_start_pos = [[10, 80], [760, @canvas_height - 80 - @racket_height]]
-    @players_colors = ['rgb(255,255,255)', 'rgb(255,255,255)']
+    @racket_color = '#fff'
 
 
   # Drawing functions
@@ -49,8 +49,8 @@ window.Game = class Game
     @ctx.clearRect 0, 0, @canvas_width, @canvas_height
     @ctx.fillStyle = "rgb(200, 200, 200)"
     @ctx.fillRect 389, 5, 1, 430
-    @drawRacket @players_start_pos[@side][0], @y_positions[@side], @players_colors[@side]
-    @drawRacket @players_start_pos[@enemy_side][0], @y_positions[@enemy_side], @players_colors[@enemy_side]
+    @drawRacket @players_start_pos[@side][0], @y_positions[@side], @racket_color
+    @drawRacket @players_start_pos[@enemy_side][0], @y_positions[@enemy_side], @racket_color
     @drawBall @ball_pos[0], @ball_pos[1]
 
 

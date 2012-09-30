@@ -30,7 +30,7 @@
       this.dir_idle = 0;
       this.dir_down = 1;
       this.players_start_pos = [[10, 80], [760, this.canvas_height - 80 - this.racket_height]];
-      this.players_colors = ['rgb(255,255,255)', 'rgb(255,255,255)'];
+      this.racket_color = '#fff';
     }
 
     Game.prototype.drawRacket = function(x, y, color) {
@@ -47,8 +47,8 @@
       this.ctx.clearRect(0, 0, this.canvas_width, this.canvas_height);
       this.ctx.fillStyle = "rgb(200, 200, 200)";
       this.ctx.fillRect(389, 5, 1, 430);
-      this.drawRacket(this.players_start_pos[this.side][0], this.y_positions[this.side], this.players_colors[this.side]);
-      this.drawRacket(this.players_start_pos[this.enemy_side][0], this.y_positions[this.enemy_side], this.players_colors[this.enemy_side]);
+      this.drawRacket(this.players_start_pos[this.side][0], this.y_positions[this.side], this.racket_color);
+      this.drawRacket(this.players_start_pos[this.enemy_side][0], this.y_positions[this.enemy_side], this.racket_color);
       return this.drawBall(this.ball_pos[0], this.ball_pos[1]);
     };
 

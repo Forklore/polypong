@@ -1,6 +1,7 @@
 body {
   padding-top: 50px;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  color: #ccc;
   margin: 0 auto;
   width: 780px;
   background-color: #272822;
@@ -8,6 +9,11 @@ body {
 
 a {
   color: #00B7FF;
+  text-decoration: none;
+}
+
+a.hover {
+  text-decoration: underline;
 }
 
 h1 {
@@ -19,4 +25,22 @@ canvas#game_board_canvas {
   height: 440px;
   border: 1px solid #555;
   background-color: #000;
+}
+
+footer {
+  margin: auto;
+  text-align: center;
+}
+
+div#p0 {
+	float: left;
+}
+
+div#p1 {
+	float: right;
+}
+
+div#scoreboard {
+	width: 90%;
+	margin: auto;
 }

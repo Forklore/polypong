@@ -2,7 +2,7 @@
 (function() {
   var Game;
 
-  Game = (function() {
+  module.exports = Game = (function() {
 
     function Game() {
       var initPos;
@@ -85,7 +85,5 @@
     return Game;
 
   })();
-
-  module.exports = Game;
 
 }).call(this);

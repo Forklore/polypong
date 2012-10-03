@@ -8,7 +8,7 @@
 # - state - update his and enemies position
 # - quit - some user quitted
 
-class Game
+module.exports = class Game
 
   constructor: ->
     @gamers = {}
@@ -46,5 +46,3 @@ class Game
     delete @gamers[sid]
     for sid, gamer of @gamers
       gamer.socket.emit 'quit', sid if (sidQuit != sid)
-
-module.exports = Game

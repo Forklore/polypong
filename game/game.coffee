@@ -15,13 +15,27 @@ module.exports = class Game
 
   constructor: ->
     @fieldHeight = 440
+    @fieldWidth = 780
+
     @racketStep = 10
+    @racketHeight = 55
+    @racketWidth = 10
+
+    @ballSize = 8
+    @ballPosition = [@fieldWidth / 2, @fieldHeight / 2]
+    @ball_v = 200 # pixels per second
+    @dt = 20
+    @dt_in_sec = @dt/1000
+    @angle = (20 + Math.random()*50)*Math.PI/180
+
     @gamers = {}
     initPos = @fieldHeight / 2 - 40
-    @positions = [initPos - 60, initPos + 60]
+    @yPositions = [initPos - @racketHeight, initPos + @racketHeight]
+    @xOffset = 20
     @count = 0
-    @gameLoopTimeout = 50
+
     @gameLoop()
+
 
   addGamer: (sid, socket, side) ->
     @gamers[sid] = {socket: socket, state: 0, side: side, pos: @positions[side]}
@@ -47,18 +61,52 @@ module.exports = class Game
       else if gamer.state == 1
         gamer.pos += @racketStep
       gamer.pos = 0 if gamer.pos < 0
-      gamer.pos = @fieldHeight - 55 if gamer.pos > @fieldHeight - 55
+      gamer.pos = @fieldHeight - @racketHeight if gamer.pos > @fieldHeight - @racketHeight
       @positions[gamer.side] = gamer.pos
+
+  detectBallMove: ->
+    ds = @ball_v * @dt_in_sec
+    @ballPosition[0] += ds * Math.cos(@angle)
+    @ballPosition[1] += ds * Math.sin(@angle)
+    console.log "Ball position: #{@ballPosition[0]}, #{@ballPosition[1]}"
+
+    if @ballPosition[0] < 0
+      @ballPosition[0] = 0
+      @angle = Math.PI - @angle
+      return
+    if @ballPosition[0] > @fieldWidth - @ballSize
+      @ballPosition[0] = @fieldWidth - @ballSize
+      @angle = Math.PI - @angle
+      return
+    if @ballPosition[1] < 0
+      @ballPosition[1] = 0
+      @angle = - @angle
+      return
+    if @ballPosition[1] > @fieldHeight - @ballSize
+      @ballPosition[1] = @fieldHeight - @ballSize
+      @angle = - @angle
+      return
+
+    ballInRacket = @ballPosition[1] >= @yPositions[0] && @ballPosition[1] <= @ballPosition[0] + @racketHeight
+    if @ballPosition[0] < @xOffset && ballInRacket
+      @ballPosition[0] = @xOffset
+      @angle = Math.PI - @angle
+      return
+    ballInRacket = @ballPosition[1] >= @yPositions[1] && @ballPosition[1] <= @yPositions[1] + @racketHeight
+    if @ballPosition[0] > @fieldWidth - @xOffset && ballInRacket
+      @ballPosition[0] = @fieldWidth - @xOffset - @ballSize
+      @angle = Math.PI - @angle
+      return
 
   gameLoop: ->
     console.log 'loop started'
     timers.setInterval =>
       @gameStep()
-    , @gameLoopTimeout, @
+    , @dt
 
   gameStep:  ->
-#    console.log "step"
     @detectMove()
+    @detectBallMove()
     @sendMoveAll()
 
   oneQuitted: (sidQuit) ->

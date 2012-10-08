@@ -10,12 +10,21 @@
     function Game() {
       var initPos;
       this.fieldHeight = 440;
+      this.fieldWidth = 780;
       this.racketStep = 10;
+      this.racketHeight = 55;
+      this.racketWidth = 10;
+      this.ballSize = 8;
+      this.ballPosition = [this.fieldWidth / 2, this.fieldHeight / 2];
+      this.ball_v = 200;
+      this.dt = 20;
+      this.dt_in_sec = this.dt / 1000;
+      this.angle = (20 + Math.random() * 50) * Math.PI / 180;
       this.gamers = {};
       initPos = this.fieldHeight / 2 - 40;
-      this.positions = [initPos - 60, initPos + 60];
+      this.yPositions = [initPos - this.racketHeight, initPos + this.racketHeight];
+      this.xOffset = 20;
       this.count = 0;
-      this.gameLoopTimeout = 50;
       this.gameLoop();
     }
 
@@ -64,10 +73,51 @@
           gamer.pos += this.racketStep;
         }
         if (gamer.pos < 0) gamer.pos = 0;
-        if (gamer.pos > this.fieldHeight - 55) gamer.pos = this.fieldHeight - 55;
+        if (gamer.pos > this.fieldHeight - this.racketHeight) {
+          gamer.pos = this.fieldHeight - this.racketHeight;
+        }
         _results.push(this.positions[gamer.side] = gamer.pos);
       }
       return _results;
+    };
+
+    Game.prototype.detectBallMove = function() {
+      var ballInRacket, ds;
+      ds = this.ball_v * this.dt_in_sec;
+      this.ballPosition[0] += ds * Math.cos(this.angle);
+      this.ballPosition[1] += ds * Math.sin(this.angle);
+      console.log("Ball position: " + this.ballPosition[0] + ", " + this.ballPosition[1]);
+      if (this.ballPosition[0] < 0) {
+        this.ballPosition[0] = 0;
+        this.angle = Math.PI - this.angle;
+        return;
+      }
+      if (this.ballPosition[0] > this.fieldWidth - this.ballSize) {
+        this.ballPosition[0] = this.fieldWidth - this.ballSize;
+        this.angle = Math.PI - this.angle;
+        return;
+      }
+      if (this.ballPosition[1] < 0) {
+        this.ballPosition[1] = 0;
+        this.angle = -this.angle;
+        return;
+      }
+      if (this.ballPosition[1] > this.fieldHeight - this.ballSize) {
+        this.ballPosition[1] = this.fieldHeight - this.ballSize;
+        this.angle = -this.angle;
+        return;
+      }
+      ballInRacket = this.ballPosition[1] >= this.yPositions[0] && this.ballPosition[1] <= this.ballPosition[0] + this.racketHeight;
+      if (this.ballPosition[0] < this.xOffset && ballInRacket) {
+        this.ballPosition[0] = this.xOffset;
+        this.angle = Math.PI - this.angle;
+        return;
+      }
+      ballInRacket = this.ballPosition[1] >= this.yPositions[1] && this.ballPosition[1] <= this.yPositions[1] + this.racketHeight;
+      if (this.ballPosition[0] > this.fieldWidth - this.xOffset && ballInRacket) {
+        this.ballPosition[0] = this.fieldWidth - this.xOffset - this.ballSize;
+        this.angle = Math.PI - this.angle;
+      }
     };
 
     Game.prototype.gameLoop = function() {
@@ -75,11 +125,13 @@
       console.log('loop started');
       return timers.setInterval(function() {
         return _this.gameStep();
-      }, this.gameLoopTimeout, this);
+      }, this.dt);
     };
 
     Game.prototype.gameStep = function() {
       this.detectMove();
+      this.detectBallMove();
+      console.log("" + this.ballPosition[0] + " , " + this.ballPosition[1]);
       return this.sendMoveAll();
     };
 

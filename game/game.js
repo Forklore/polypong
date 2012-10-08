@@ -107,7 +107,7 @@
         this.angle = -this.angle;
         return;
       }
-      ballInRacket = this.ballPosition[1] >= this.yPositions[0] && this.ballPosition[1] <= this.ballPosition[0] + this.racketHeight;
+      ballInRacket = this.ballPosition[1] >= this.yPositions[0] && this.ballPosition[1] <= this.yPositions[0] + this.racketHeight;
       if (this.ballPosition[0] < this.xOffset && ballInRacket) {
         this.ballPosition[0] = this.xOffset;
         this.angle = Math.PI - this.angle;

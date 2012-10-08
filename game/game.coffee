@@ -68,7 +68,6 @@ module.exports = class Game
     ds = @ball_v * @dt_in_sec
     @ballPosition[0] += Math.round( ds * Math.cos(@angle) )
     @ballPosition[1] += Math.round( ds * Math.sin(@angle) )
-    #console.log "Ball position: #{@ballPosition[0]}, #{@ballPosition[1]}"
 
     if @ballPosition[0] < 0
       @ballPosition[0] = 0
@@ -87,7 +86,7 @@ module.exports = class Game
       @angle = - @angle
       return
 
-    ballInRacket = @ballPosition[1] >= @yPositions[0] && @ballPosition[1] <= @ballPosition[0] + @racketHeight
+    ballInRacket = @ballPosition[1] >= @yPositions[0] && @ballPosition[1] <= @yPositions[0] + @racketHeight
     if @ballPosition[0] < @xOffset && ballInRacket
       @ballPosition[0] = @xOffset
       @angle = Math.PI - @angle

@@ -14,8 +14,10 @@ timers = require 'timers'
 module.exports = class Game
 
   constructor: ->
+    @fieldHeight = 440
+    @racketStep = 10
     @gamers = {}
-    initPos = 440 / 2 - 40
+    initPos = @fieldHeight / 2 - 40
     @positions = [initPos - 60, initPos + 60]
     @count = 0
     @gameLoopTimeout = 50
@@ -41,11 +43,11 @@ module.exports = class Game
   detectMove: ->
     for sid, gamer of @gamers
       if gamer.state == -1
-        gamer.pos -= 10
+        gamer.pos -= @racketStep
       else if gamer.state == 1
-        gamer.pos += 10
+        gamer.pos += @racketStep
       gamer.pos = 0 if gamer.pos < 0
-      gamer.pos = 440 - 55 if gamer.pos > 440 - 55
+      gamer.pos = @fieldHeight - 55 if gamer.pos > @fieldHeight - 55
       @positions[gamer.side] = gamer.pos
 
   gameLoop: ->

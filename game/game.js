@@ -9,8 +9,10 @@
 
     function Game() {
       var initPos;
+      this.fieldHeight = 440;
+      this.racketStep = 10;
       this.gamers = {};
-      initPos = 440 / 2 - 40;
+      initPos = this.fieldHeight / 2 - 40;
       this.positions = [initPos - 60, initPos + 60];
       this.count = 0;
       this.gameLoopTimeout = 50;
@@ -57,12 +59,12 @@
       for (sid in _ref) {
         gamer = _ref[sid];
         if (gamer.state === -1) {
-          gamer.pos -= 10;
+          gamer.pos -= this.racketStep;
         } else if (gamer.state === 1) {
-          gamer.pos += 10;
+          gamer.pos += this.racketStep;
         }
         if (gamer.pos < 0) gamer.pos = 0;
-        if (gamer.pos > 440 - 55) gamer.pos = 440 - 55;
+        if (gamer.pos > this.fieldHeight - 55) gamer.pos = this.fieldHeight - 55;
         _results.push(this.positions[gamer.side] = gamer.pos);
       }
       return _results;

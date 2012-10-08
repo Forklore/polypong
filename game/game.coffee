@@ -9,6 +9,7 @@
 # - quit - some user quitted
 
 cookie = require 'cookie'
+timers = require 'timers'
 
 module.exports = class Game
 
@@ -17,6 +18,8 @@ module.exports = class Game
     initPos = 440 / 2 - 40
     @positions = [initPos - 60, initPos + 60]
     @count = 0
+    @gameLoopTimeout = 50
+    @gameLoop()
 
   addGamer: (sid, socket, side) ->
     @gamers[sid] = {socket: socket, state: 0, side: side, pos: @positions[side]}
@@ -45,6 +48,17 @@ module.exports = class Game
       gamer.pos = 440 - 55 if gamer.pos > 440 - 55
       @positions[gamer.side] = gamer.pos
 
+  gameLoop: ->
+    console.log 'loop started'
+    timers.setInterval =>
+      @gameStep()
+    , @gameLoopTimeout, @
+
+  gameStep:  ->
+#    console.log "step"
+    @detectMove()
+    @sendMoveAll()
+
   oneQuitted: (sidQuit) ->
     delete @gamers[sidQuit]
     for sid, gamer of @gamers
@@ -71,8 +85,6 @@ module.exports = class Game
     socket.on 'state', (data) ->
       console.log "Player #{data.side} moving #{data.state}"
       self.setState sid, data.state
-      self.detectMove()
-      self.sendMoveAll()
 
     socket.on 'disconnect', ->
       return unless sid of self.gamers && self.gamers[sid].socket.id == socket.id

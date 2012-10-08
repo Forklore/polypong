@@ -38,14 +38,14 @@ module.exports = class Game
 
 
   addGamer: (sid, socket, side) ->
-    @gamers[sid] = {socket: socket, state: 0, side: side, pos: @positions[side]}
+    @gamers[sid] = {socket: socket, state: 0, side: side, pos: @yPositions[side]}
     @tellSide sid
 
   tellSide: (sid) ->
     @gamers[sid].socket.emit 'joined', @gamers[sid].side
 
   sendMove: (sid) ->
-    @gamers[sid].socket.emit 'move', {positions: @positions}
+    @gamers[sid].socket.emit 'move', {positions: @yPositions}
 
   sendMoveAll: ->
     for sid of @gamers
@@ -62,13 +62,13 @@ module.exports = class Game
         gamer.pos += @racketStep
       gamer.pos = 0 if gamer.pos < 0
       gamer.pos = @fieldHeight - @racketHeight if gamer.pos > @fieldHeight - @racketHeight
-      @positions[gamer.side] = gamer.pos
+      @yPositions[gamer.side] = gamer.pos
 
   detectBallMove: ->
     ds = @ball_v * @dt_in_sec
     @ballPosition[0] += ds * Math.cos(@angle)
     @ballPosition[1] += ds * Math.sin(@angle)
-    console.log "Ball position: #{@ballPosition[0]}, #{@ballPosition[1]}"
+    #console.log "Ball position: #{@ballPosition[0]}, #{@ballPosition[1]}"
 
     if @ballPosition[0] < 0
       @ballPosition[0] = 0

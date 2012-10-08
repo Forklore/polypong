@@ -33,7 +33,7 @@
         socket: socket,
         state: 0,
         side: side,
-        pos: this.positions[side]
+        pos: this.yPositions[side]
       };
       return this.tellSide(sid);
     };
@@ -44,7 +44,7 @@
 
     Game.prototype.sendMove = function(sid) {
       return this.gamers[sid].socket.emit('move', {
-        positions: this.positions
+        positions: this.yPositions
       });
     };
 
@@ -76,7 +76,7 @@
         if (gamer.pos > this.fieldHeight - this.racketHeight) {
           gamer.pos = this.fieldHeight - this.racketHeight;
         }
-        _results.push(this.positions[gamer.side] = gamer.pos);
+        _results.push(this.yPositions[gamer.side] = gamer.pos);
       }
       return _results;
     };
@@ -86,7 +86,6 @@
       ds = this.ball_v * this.dt_in_sec;
       this.ballPosition[0] += ds * Math.cos(this.angle);
       this.ballPosition[1] += ds * Math.sin(this.angle);
-      console.log("Ball position: " + this.ballPosition[0] + ", " + this.ballPosition[1]);
       if (this.ballPosition[0] < 0) {
         this.ballPosition[0] = 0;
         this.angle = Math.PI - this.angle;
@@ -131,7 +130,6 @@
     Game.prototype.gameStep = function() {
       this.detectMove();
       this.detectBallMove();
-      console.log("" + this.ballPosition[0] + " , " + this.ballPosition[1]);
       return this.sendMoveAll();
     };
 

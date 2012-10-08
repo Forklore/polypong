@@ -57,44 +57,46 @@ window.Game = class Game
   # Game logic
 
   gameLoop: ->
-    @updateState()
+    # @updateState()
     @drawBoard()
 
   updateState: ->
     @updateBall()
 
-  updateBall: ->
-    ds = @ball_v * @dt_in_sec
-    @ball_pos[0] += ds * Math.cos(@angle)
-    @ball_pos[1] += ds * Math.sin(@angle)
-
-    if @ball_pos[0] < 0
-      @ball_pos[0] = 0
-      @angle = Math.PI - @angle
-      return
-    if @ball_pos[0] > @canvas_width - @ball_size
-      @ball_pos[0] = @canvas_width - @ball_size
-      @angle = Math.PI - @angle
-      return
-    if @ball_pos[1] < 0
-      @ball_pos[1] = 0
-      @angle = - @angle
-      return
-    if @ball_pos[1] > @canvas_height - @ball_size
-      @ball_pos[1] = @canvas_height - @ball_size
-      @angle = - @angle
-      return
-
-    ball_in_racket = @ball_pos[1] >= @y_positions[0] && @ball_pos[1] <= @y_positions[0] + @racket_height
-    if @ball_pos[0] < 20 && ball_in_racket
-      @ball_pos[0] = 20
-      @angle = Math.PI - @angle
-      return
-    ball_in_racket = @ball_pos[1] >= @y_positions[1] && @ball_pos[1] <= @y_positions[1] + @racket_height
-    if @ball_pos[0] > @canvas_width - 20 && ball_in_racket
-      @ball_pos[0] = @canvas_width - 20 - @ball_size
-      @angle = Math.PI - @angle
-      return
+  updateBall: (ballPos) ->
+    console.log(ballPos)
+    @ball_pos = ballPos
+    # ds = @ball_v * @dt_in_sec
+    # @ball_pos[0] += ds * Math.cos(@angle)
+    # @ball_pos[1] += ds * Math.sin(@angle)
+    #
+    # if @ball_pos[0] < 0
+    #   @ball_pos[0] = 0
+    #   @angle = Math.PI - @angle
+    #   return
+    # if @ball_pos[0] > @canvas_width - @ball_size
+    #   @ball_pos[0] = @canvas_width - @ball_size
+    #   @angle = Math.PI - @angle
+    #   return
+    # if @ball_pos[1] < 0
+    #   @ball_pos[1] = 0
+    #   @angle = - @angle
+    #   return
+    # if @ball_pos[1] > @canvas_height - @ball_size
+    #   @ball_pos[1] = @canvas_height - @ball_size
+    #   @angle = - @angle
+    #   return
+    #
+    # ball_in_racket = @ball_pos[1] >= @y_positions[0] && @ball_pos[1] <= @y_positions[0] + @racket_height
+    # if @ball_pos[0] < 20 && ball_in_racket
+    #   @ball_pos[0] = 20
+    #   @angle = Math.PI - @angle
+    #   return
+    # ball_in_racket = @ball_pos[1] >= @y_positions[1] && @ball_pos[1] <= @y_positions[1] + @racket_height
+    # if @ball_pos[0] > @canvas_width - 20 && ball_in_racket
+    #   @ball_pos[0] = @canvas_width - 20 - @ball_size
+    #   @angle = Math.PI - @angle
+    #   return
 
 
   # Keyboard functions
@@ -137,7 +139,8 @@ window.Game = class Game
 
     socket.on 'move', (data) ->
       self.y_positions = data.positions
-      console.log "#{self.y_positions[self.side]}, #{self.y_positions[self.enemy_side]}"
+      self.ball_pos = data.ballPosition
+      # console.log "#{self.y_positions[self.side]}, #{self.y_positions[self.enemy_side]}, ball: #{data.ballPosition}"
 
     socket.on 'busy', (data) ->
 

@@ -45,7 +45,7 @@ module.exports = class Game
     @gamers[sid].socket.emit 'joined', @gamers[sid].side
 
   sendMove: (sid) ->
-    @gamers[sid].socket.emit 'move', {positions: @yPositions}
+    @gamers[sid].socket.emit 'move', {positions: @yPositions, ballPosition: @ballPosition}
 
   sendMoveAll: ->
     for sid of @gamers
@@ -66,8 +66,8 @@ module.exports = class Game
 
   detectBallMove: ->
     ds = @ball_v * @dt_in_sec
-    @ballPosition[0] += ds * Math.cos(@angle)
-    @ballPosition[1] += ds * Math.sin(@angle)
+    @ballPosition[0] += Math.round( ds * Math.cos(@angle) )
+    @ballPosition[1] += Math.round( ds * Math.sin(@angle) )
     #console.log "Ball position: #{@ballPosition[0]}, #{@ballPosition[1]}"
 
     if @ballPosition[0] < 0

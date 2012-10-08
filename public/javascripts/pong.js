@@ -52,7 +52,6 @@
     };
 
     Game.prototype.gameLoop = function() {
-      this.updateState();
       return this.drawBoard();
     };
 
@@ -60,42 +59,9 @@
       return this.updateBall();
     };
 
-    Game.prototype.updateBall = function() {
-      var ball_in_racket, ds;
-      ds = this.ball_v * this.dt_in_sec;
-      this.ball_pos[0] += ds * Math.cos(this.angle);
-      this.ball_pos[1] += ds * Math.sin(this.angle);
-      if (this.ball_pos[0] < 0) {
-        this.ball_pos[0] = 0;
-        this.angle = Math.PI - this.angle;
-        return;
-      }
-      if (this.ball_pos[0] > this.canvas_width - this.ball_size) {
-        this.ball_pos[0] = this.canvas_width - this.ball_size;
-        this.angle = Math.PI - this.angle;
-        return;
-      }
-      if (this.ball_pos[1] < 0) {
-        this.ball_pos[1] = 0;
-        this.angle = -this.angle;
-        return;
-      }
-      if (this.ball_pos[1] > this.canvas_height - this.ball_size) {
-        this.ball_pos[1] = this.canvas_height - this.ball_size;
-        this.angle = -this.angle;
-        return;
-      }
-      ball_in_racket = this.ball_pos[1] >= this.y_positions[0] && this.ball_pos[1] <= this.y_positions[0] + this.racket_height;
-      if (this.ball_pos[0] < 20 && ball_in_racket) {
-        this.ball_pos[0] = 20;
-        this.angle = Math.PI - this.angle;
-        return;
-      }
-      ball_in_racket = this.ball_pos[1] >= this.y_positions[1] && this.ball_pos[1] <= this.y_positions[1] + this.racket_height;
-      if (this.ball_pos[0] > this.canvas_width - 20 && ball_in_racket) {
-        this.ball_pos[0] = this.canvas_width - 20 - this.ball_size;
-        this.angle = Math.PI - this.angle;
-      }
+    Game.prototype.updateBall = function(ballPos) {
+      console.log(ballPos);
+      return this.ball_pos = ballPos;
     };
 
     Game.prototype.keyboardDown = function(evt) {
@@ -159,7 +125,7 @@
       });
       socket.on('move', function(data) {
         self.y_positions = data.positions;
-        return console.log("" + self.y_positions[self.side] + ", " + self.y_positions[self.enemy_side]);
+        return self.ball_pos = data.ballPosition;
       });
       socket.on('busy', function(data) {});
       socket.emit('join');

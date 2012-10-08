@@ -44,7 +44,8 @@
 
     Game.prototype.sendMove = function(sid) {
       return this.gamers[sid].socket.emit('move', {
-        positions: this.yPositions
+        positions: this.yPositions,
+        ballPosition: this.ballPosition
       });
     };
 
@@ -84,8 +85,8 @@
     Game.prototype.detectBallMove = function() {
       var ballInRacket, ds;
       ds = this.ball_v * this.dt_in_sec;
-      this.ballPosition[0] += ds * Math.cos(this.angle);
-      this.ballPosition[1] += ds * Math.sin(this.angle);
+      this.ballPosition[0] += Math.round(ds * Math.cos(this.angle));
+      this.ballPosition[1] += Math.round(ds * Math.sin(this.angle));
       if (this.ballPosition[0] < 0) {
         this.ballPosition[0] = 0;
         this.angle = Math.PI - this.angle;

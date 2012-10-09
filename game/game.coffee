@@ -9,24 +9,43 @@
 # - quit - some user quitted
 
 cookie = require 'cookie'
+timers = require 'timers'
 
 module.exports = class Game
 
   constructor: ->
+    @fieldHeight = 440
+    @fieldWidth = 780
+
+    @racketStep = 10
+    @racketHeight = 55
+    @racketWidth = 10
+
+    @ballSize = 8
+    @ballPosition = [@fieldWidth / 2, @fieldHeight / 2]
+    @ball_v = 200 # pixels per second
+    @dt = 20
+    @dt_in_sec = @dt/1000
+    @angle = (20 + Math.random()*50)*Math.PI/180
+
     @gamers = {}
-    initPos = 440 / 2 - 40
-    @positions = [initPos - 60, initPos + 60]
+    initPos = @fieldHeight / 2 - 40
+    @yPositions = [initPos - @racketHeight, initPos + @racketHeight]
+    @xOffset = 20
     @count = 0
 
+    @gameLoop()
+
+
   addGamer: (sid, socket, side) ->
-    @gamers[sid] = {socket: socket, state: 0, side: side, pos: @positions[side]}
+    @gamers[sid] = {socket: socket, state: 0, side: side, pos: @yPositions[side]}
     @tellSide sid
 
   tellSide: (sid) ->
     @gamers[sid].socket.emit 'joined', @gamers[sid].side
 
   sendMove: (sid) ->
-    @gamers[sid].socket.emit 'move', {positions: @positions}
+    @gamers[sid].socket.emit 'move', {positions: @yPositions, ballPosition: @ballPosition}
 
   sendMoveAll: ->
     for sid of @gamers
@@ -38,12 +57,56 @@ module.exports = class Game
   detectMove: ->
     for sid, gamer of @gamers
       if gamer.state == -1
-        gamer.pos -= 10
+        gamer.pos -= @racketStep
       else if gamer.state == 1
-        gamer.pos += 10
+        gamer.pos += @racketStep
       gamer.pos = 0 if gamer.pos < 0
-      gamer.pos = 440 - 55 if gamer.pos > 440 - 55
-      @positions[gamer.side] = gamer.pos
+      gamer.pos = @fieldHeight - @racketHeight if gamer.pos > @fieldHeight - @racketHeight
+      @yPositions[gamer.side] = gamer.pos
+
+  detectBallMove: ->
+    ds = @ball_v * @dt_in_sec
+    @ballPosition[0] += Math.round( ds * Math.cos(@angle) )
+    @ballPosition[1] += Math.round( ds * Math.sin(@angle) )
+
+    if @ballPosition[0] < 0
+      @ballPosition[0] = 0
+      @angle = Math.PI - @angle
+      return
+    if @ballPosition[0] > @fieldWidth - @ballSize
+      @ballPosition[0] = @fieldWidth - @ballSize
+      @angle = Math.PI - @angle
+      return
+    if @ballPosition[1] < 0
+      @ballPosition[1] = 0
+      @angle = - @angle
+      return
+    if @ballPosition[1] > @fieldHeight - @ballSize
+      @ballPosition[1] = @fieldHeight - @ballSize
+      @angle = - @angle
+      return
+
+    ballInRacket = @ballPosition[1] >= @yPositions[0] && @ballPosition[1] <= @yPositions[0] + @racketHeight
+    if @ballPosition[0] < @xOffset && ballInRacket
+      @ballPosition[0] = @xOffset
+      @angle = Math.PI - @angle
+      return
+    ballInRacket = @ballPosition[1] >= @yPositions[1] && @ballPosition[1] <= @yPositions[1] + @racketHeight
+    if @ballPosition[0] > @fieldWidth - @xOffset && ballInRacket
+      @ballPosition[0] = @fieldWidth - @xOffset - @ballSize
+      @angle = Math.PI - @angle
+      return
+
+  gameLoop: ->
+    console.log 'loop started'
+    timers.setInterval =>
+      @gameStep()
+    , @dt
+
+  gameStep:  ->
+    @detectMove()
+    @detectBallMove()
+    @sendMoveAll()
 
   oneQuitted: (sidQuit) ->
     delete @gamers[sidQuit]
@@ -71,8 +134,6 @@ module.exports = class Game
     socket.on 'state', (data) ->
       console.log "Player #{data.side} moving #{data.state}"
       self.setState sid, data.state
-      self.detectMove()
-      self.sendMoveAll()
 
     socket.on 'disconnect', ->
       return unless sid of self.gamers && self.gamers[sid].socket.id == socket.id

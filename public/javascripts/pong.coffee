@@ -2,112 +2,114 @@ window.Game = class Game
 
   constructor: ->
     # Vars
-    @up_pressed = false
-    @down_pressed = false
-    @y_positions = [10, 10]
+    @upPressed = false
+    @downPressed = false
+    @yPositions = [10, 10]
     @side = 0
-    @enemy_side = 1
-    @ball_pos = [100, 100]
+    @enemySide = 1
+    @ballPos = [100, 100]
     @angle = (20 + Math.random()*50)*Math.PI/180
 
     # Constants
-    @canvas_width = 780
-    @canvas_height = 440
-    @racket_height = 55
-    @racket_width = 10
-    @ball_size = 8
+    @canvasWidth = 780
+    @canvasHeight = 440
+    @racketHeight = 55
+    @racketWidth = 10
+    @ballSize = 8
 
     @dy = 5
     @dt = 20
-    @dt_in_sec = @dt/1000
-    @ball_v = 200 # pixels per second
+    @dtInSec = @dt/1000
+    @ballV = 200 # pixels per second
 
-    @key_left  = 37
-    @key_up    = 38
-    @key_right = 39
-    @key_down  = 40
-    @key_space = 32
+    @keyLeft = 37
+    @keyUp = 38
+    @keyRight = 39
+    @keyDown = 40
+    @keySpace = 32
 
-    @dir_up = -1
-    @dir_idle = 0
-    @dir_down = 1
-    @players_start_pos = [[10, 80], [760, @canvas_height - 80 - @racket_height]]
-    @racket_color = '#fff'
+    @dirUp = -1
+    @dirIdle = 0
+    @dirDown = 1
+    @playersStartPos = [[10, 80], [760, @canvasHeight - 80 - @racketHeight]]
+    @racketColor = '#fff'
 
 
   # Drawing functions
 
   drawRacket: (x, y, color) ->
     @ctx.fillStyle = color
-    @ctx.fillRect x, y, @racket_width, @racket_height
+    @ctx.fillRect x, y, @racketWidth, @racketHeight
 
   drawBall: (x, y) ->
     @ctx.fillStyle = "rgb(200, 200, 200)"
-    @ctx.fillRect x, y, @ball_size, @ball_size
+    @ctx.fillRect x, y, @ballSize, @ballSize
 
   drawBoard: ->
-    @ctx.clearRect 0, 0, @canvas_width, @canvas_height
+    @ctx.clearRect 0, 0, @canvasWidth, @canvasHeight
     @ctx.fillStyle = "rgb(200, 200, 200)"
     @ctx.fillRect 389, 5, 1, 430
-    @drawRacket @players_start_pos[@side][0], @y_positions[@side], @racket_color
-    @drawRacket @players_start_pos[@enemy_side][0], @y_positions[@enemy_side], @racket_color
-    @drawBall @ball_pos[0], @ball_pos[1]
-
+    @drawRacket @playersStartPos[@side][0], @yPositions[@side], @racketColor
+    @drawRacket @playersStartPos[@enemySide][0], @yPositions[@enemySide], @racketColor
+    @drawBall @ballPos[0], @ballPos[1]
+    console.log "#{@yPositions[self.side]}, #{@yPositions[self.enemySide]}, ball: #{@ballPos}"
 
   # Game logic
 
   gameLoop: ->
-    @updateState()
+    # @updateState()
     @drawBoard()
 
   updateState: ->
     @updateBall()
 
-  updateBall: ->
-    ds = @ball_v * @dt_in_sec
-    @ball_pos[0] += ds * Math.cos(@angle)
-    @ball_pos[1] += ds * Math.sin(@angle)
-
-    if @ball_pos[0] < 0
-      @ball_pos[0] = 0
-      @angle = Math.PI - @angle
-      return
-    if @ball_pos[0] > @canvas_width - @ball_size
-      @ball_pos[0] = @canvas_width - @ball_size
-      @angle = Math.PI - @angle
-      return
-    if @ball_pos[1] < 0
-      @ball_pos[1] = 0
-      @angle = - @angle
-      return
-    if @ball_pos[1] > @canvas_height - @ball_size
-      @ball_pos[1] = @canvas_height - @ball_size
-      @angle = - @angle
-      return
-
-    ball_in_racket = @ball_pos[1] >= @y_positions[0] && @ball_pos[1] <= @y_positions[0] + @racket_height
-    if @ball_pos[0] < 20 && ball_in_racket
-      @ball_pos[0] = 20
-      @angle = Math.PI - @angle
-      return
-    ball_in_racket = @ball_pos[1] >= @y_positions[1] && @ball_pos[1] <= @y_positions[1] + @racket_height
-    if @ball_pos[0] > @canvas_width - 20 && ball_in_racket
-      @ball_pos[0] = @canvas_width - 20 - @ball_size
-      @angle = Math.PI - @angle
-      return
+  updateBall: (ballPos) ->
+    console.log(ballPos)
+    @ballPos = ballPos
+    # ds = @ballV * @dtInSec
+    # @ballPos[0] += ds * Math.cos(@angle)
+    # @ballPos[1] += ds * Math.sin(@angle)
+    #
+    # if @ballPos[0] < 0
+    #   @ballPos[0] = 0
+    #   @angle = Math.PI - @angle
+    #   return
+    # if @ballPos[0] > @canvasWidth - @ballSize
+    #   @ballPos[0] = @canvasWidth - @ballSize
+    #   @angle = Math.PI - @angle
+    #   return
+    # if @ballPos[1] < 0
+    #   @ballPos[1] = 0
+    #   @angle = - @angle
+    #   return
+    # if @ballPos[1] > @canvasHeight - @ballSize
+    #   @ballPos[1] = @canvasHeight - @ballSize
+    #   @angle = - @angle
+    #   return
+    #
+    # ball_in_racket = @ballPos[1] >= @yPositions[0] && @ballPos[1] <= @yPositions[0] + @racketHeight
+    # if @ballPos[0] < 20 && ball_in_racket
+    #   @ballPos[0] = 20
+    #   @angle = Math.PI - @angle
+    #   return
+    # ball_in_racket = @ballPos[1] >= @yPositions[1] && @ballPos[1] <= @yPositions[1] + @racketHeight
+    # if @ballPos[0] > @canvasWidth - 20 && ball_in_racket
+    #   @ballPos[0] = @canvasWidth - 20 - @ballSize
+    #   @angle = Math.PI - @angle
+    #   return
 
 
   # Keyboard functions
 
   keyboardDown: (evt) ->
     switch evt.which
-      when @key_down then @down_pressed = true; @up_pressed = false; @sendState @dir_down
-      when @key_up   then @up_pressed = true; @down_pressed = false; @sendState @dir_up
+      when @keyDown then @downPressed = true; @upPressed = false; @sendState @dirDown
+      when @keyUp   then @upPressed = true; @downPressed = false; @sendState @dirUp
 
   keyboardUp: (evt) ->
     switch evt.which
-      when @key_down then @down_pressed = false; @sendState @dir_idle unless @up_pressed
-      when @key_up   then @up_pressed = false; @sendState @dir_idle unless @down_pressed
+      when @keyDown then @downPressed = false; @sendState @dirIdle unless @upPressed
+      when @keyUp   then @upPressed = false; @sendState @dirIdle unless @downPressed
 
   sendState: (dir) ->
     @socket.emit 'state', {side: @side, state: dir}
@@ -130,14 +132,15 @@ window.Game = class Game
 
     socket.on 'joined', (side) ->
       self.side = side
-      self.enemy_side = if side == 0 then 1 else 0
+      self.enemySide = if side == 0 then 1 else 0
       # Can't move while not joined
       $(window).on 'keydown', (e) -> self.keyboardDown e
       $(window).on 'keyup', (e) -> self.keyboardUp e
 
     socket.on 'move', (data) ->
-      self.y_positions = data.positions
-      console.log "#{self.y_positions[self.side]}, #{self.y_positions[self.enemy_side]}"
+      self.yPositions = data.positions
+      self.ballPos = data.ballPosition
+      # console.log "#{self.y_positions[self.side]}, #{self.y_positions[self.enemy_side]}, ball: #{data.ballPosition}"
 
     socket.on 'busy', (data) ->
 

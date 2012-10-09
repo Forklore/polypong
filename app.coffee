@@ -43,3 +43,4 @@ game = new Game
 io = io.listen app
 io.sockets.on 'connection', (socket) ->
   game.connect socket
+

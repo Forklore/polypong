@@ -8,28 +8,21 @@
 # - state - update his and enemies position
 # - quit - some user quitted
 
+GameCore = require './game.core'
 cookie = require 'cookie'
 timers = require 'timers'
 
-module.exports = class Game
+module.exports = class Game extends GameCore
 
   constructor: ->
-    @fieldHeight = 440
-    @fieldWidth = 780
-
-    @racketStep = 10
-    @racketHeight = 55
-    @racketWidth = 10
-
-    @ballSize = 8
-    @ballPosition = [@fieldWidth / 2, @fieldHeight / 2]
+    super()
+    @ballPosition = [@canvasWidth / 2, @canvasHeight / 2]
     @ball_v = 200 # pixels per second
     @dt = 20
     @dt_in_sec = @dt/1000
-    @angle = (20 + Math.random()*50)*Math.PI/180
 
     @gamers = {}
-    initPos = @fieldHeight / 2 - 40
+    initPos = @canvasHeight / 2 - 40
     @yPositions = [initPos - @racketHeight, initPos + @racketHeight]
     @xOffset = 20
     @count = 0
@@ -61,7 +54,7 @@ module.exports = class Game
       else if gamer.state == 1
         gamer.pos += @racketStep
       gamer.pos = 0 if gamer.pos < 0
-      gamer.pos = @fieldHeight - @racketHeight if gamer.pos > @fieldHeight - @racketHeight
+      gamer.pos = @canvasHeight - @racketHeight if gamer.pos > @canvasHeight - @racketHeight
       @yPositions[gamer.side] = gamer.pos
 
   detectBallMove: ->
@@ -73,16 +66,16 @@ module.exports = class Game
       @ballPosition[0] = 0
       @angle = Math.PI - @angle
       return
-    if @ballPosition[0] > @fieldWidth - @ballSize
-      @ballPosition[0] = @fieldWidth - @ballSize
+    if @ballPosition[0] > @canvasWidth - @ballSize
+      @ballPosition[0] = @canvasWidth - @ballSize
       @angle = Math.PI - @angle
       return
     if @ballPosition[1] < 0
       @ballPosition[1] = 0
       @angle = - @angle
       return
-    if @ballPosition[1] > @fieldHeight - @ballSize
-      @ballPosition[1] = @fieldHeight - @ballSize
+    if @ballPosition[1] > @canvasHeight - @ballSize
+      @ballPosition[1] = @canvasHeight - @ballSize
       @angle = - @angle
       return
 
@@ -92,8 +85,8 @@ module.exports = class Game
       @angle = Math.PI - @angle
       return
     ballInRacket = @ballPosition[1] >= @yPositions[1] && @ballPosition[1] <= @yPositions[1] + @racketHeight
-    if @ballPosition[0] > @fieldWidth - @xOffset && ballInRacket
-      @ballPosition[0] = @fieldWidth - @xOffset - @ballSize
+    if @ballPosition[0] > @canvasWidth - @xOffset && ballInRacket
+      @ballPosition[0] = @canvasWidth - @xOffset - @ballSize
       @angle = Math.PI - @angle
       return
 

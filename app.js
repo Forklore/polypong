@@ -42,6 +42,8 @@
 
   app.get('/', routes.index);
 
+  app.get('/game.core.js', express["static"](__dirname + "/game"));
+
   app.get('/about', routes.about);
 
   app.get('/login', routes.loginPage);

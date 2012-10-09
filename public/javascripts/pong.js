@@ -49,8 +49,7 @@
       this.ctx.fillRect(389, 5, 1, 430);
       this.drawRacket(this.playersStartPos[this.side][0], this.yPositions[this.side], this.racketColor);
       this.drawRacket(this.playersStartPos[this.enemySide][0], this.yPositions[this.enemySide], this.racketColor);
-      this.drawBall(this.ballPos[0], this.ballPos[1]);
-      return console.log("" + this.yPositions[self.side] + ", " + this.yPositions[self.enemySide] + ", ball: " + this.ballPos);
+      return this.drawBall(this.ballPos[0], this.ballPos[1]);
     };
 
     Game.prototype.gameLoop = function() {
@@ -103,35 +102,34 @@
     };
 
     Game.prototype.startGame = function() {
-      var canvas, self;
+      var canvas,
+        _this = this;
       canvas = document.getElementById('game_board_canvas');
       this.ctx = canvas.getContext('2d');
-      self = this;
       return setInterval((function() {
-        return self.gameLoop();
+        return _this.gameLoop();
       }), this.dt);
     };
 
     Game.prototype.start = function(socket) {
-      var self;
-      self = this;
+      var _this = this;
       this.socket = socket;
       socket.on('connect', function() {
         return console.log("Socket opened, Master!");
       });
       socket.on('joined', function(side) {
-        self.side = side;
-        self.enemySide = side === 0 ? 1 : 0;
+        _this.side = side;
+        _this.enemySide = side === 0 ? 1 : 0;
         $(window).on('keydown', function(e) {
-          return self.keyboardDown(e);
+          return _this.keyboardDown(e);
         });
         return $(window).on('keyup', function(e) {
-          return self.keyboardUp(e);
+          return _this.keyboardUp(e);
         });
       });
       socket.on('move', function(data) {
-        self.yPositions = data.positions;
-        return self.ballPos = data.ballPosition;
+        _this.yPositions = data.positions;
+        return _this.ballPos = data.ballPosition;
       });
       socket.on('busy', function(data) {});
       socket.emit('join');

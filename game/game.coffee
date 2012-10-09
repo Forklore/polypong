@@ -34,7 +34,7 @@ module.exports = class Game
     @xOffset = 20
     @count = 0
 
-    @gameLoop()
+    @startLoop()
 
 
   addGamer: (sid, socket, side) ->
@@ -97,11 +97,14 @@ module.exports = class Game
       @angle = Math.PI - @angle
       return
 
-  gameLoop: ->
+  startLoop: ->
     console.log 'loop started'
-    timers.setInterval =>
+    @loop = timers.setInterval =>
       @gameStep()
     , @dt
+
+  endLoop: ->
+    timers.clearInterval @loop
 
   gameStep:  ->
     @detectMove()
@@ -117,26 +120,27 @@ module.exports = class Game
     sid = cookie.parse(socket.handshake.headers.cookie)['connect.sid']
     console.log "Have a connection: #{sid} (socket id: #{socket.id})"
 
-    self = @
-    socket.on 'join', (data) ->
-      if sid of self.gamers
-        self.tellSide sid
-        self.sendMove sid
+    socket.on 'join', (data) =>
+      if sid of @gamers
+        @tellSide sid
+        @sendMove sid
         return
-      if self.count == 2
+      if @count == 2
         socket.emit 'busy'
         return
       console.log "I can has join: #{sid}"
-      self.addGamer sid, socket, self.count
-      self.sendMove sid
-      self.count++
+      @addGamer sid, socket, @count
+      @sendMove sid
+      @count++
+      @startLoop if @count > 0
 
-    socket.on 'state', (data) ->
+    socket.on 'state', (data) =>
       console.log "Player #{data.side} moving #{data.state}"
-      self.setState sid, data.state
+      @setState sid, data.state
 
-    socket.on 'disconnect', ->
-      return unless sid of self.gamers && self.gamers[sid].socket.id == socket.id
+    socket.on 'disconnect', =>
+      return unless sid of @gamers && @gamers[sid].socket.id == socket.id
       console.log "Disconnecting: #{sid}"
-      self.oneQuitted sid
-      self.count--
+      @oneQuitted sid
+      @count--
+      @endLoop if @count == 0

@@ -26,7 +26,7 @@
       this.yPositions = [initPos - this.racketHeight, initPos + this.racketHeight];
       this.xOffset = 20;
       this.count = 0;
-      this.gameLoop();
+      this.startLoop();
     }
 
     Game.prototype.addGamer = function(sid, socket, side) {
@@ -123,12 +123,16 @@
       }
     };
 
-    Game.prototype.gameLoop = function() {
+    Game.prototype.startLoop = function() {
       var _this = this;
       console.log('loop started');
-      return timers.setInterval(function() {
+      return this.loop = timers.setInterval(function() {
         return _this.gameStep();
       }, this.dt);
+    };
+
+    Game.prototype.endLoop = function() {
+      return timers.clearInterval(this.loop);
     };
 
     Game.prototype.gameStep = function() {
@@ -154,36 +158,42 @@
     };
 
     Game.prototype.connect = function(socket) {
-      var self, sid;
+      var sid,
+        _this = this;
       sid = cookie.parse(socket.handshake.headers.cookie)['connect.sid'];
       console.log("Have a connection: " + sid + " (socket id: " + socket.id + ")");
-      self = this;
       socket.on('join', function(data) {
-        if (sid in self.gamers) {
-          self.tellSide(sid);
-          self.sendMove(sid);
+        if (sid in _this.gamers) {
+          _this.tellSide(sid);
+          _this.sendMove(sid);
           return;
         }
-        if (self.count === 2) {
+        if (_this.count === 2) {
           socket.emit('busy');
           return;
         }
         console.log("I can has join: " + sid);
-        self.addGamer(sid, socket, self.count);
-        self.sendMove(sid);
-        return self.count++;
+        _this.addGamer(sid, socket, _this.count);
+        _this.sendMove(sid);
+        _this.count++;
+        if (_this.count > 0) {
+          return _this.startLoop;
+        }
       });
       socket.on('state', function(data) {
         console.log("Player " + data.side + " moving " + data.state);
-        return self.setState(sid, data.state);
+        return _this.setState(sid, data.state);
       });
       return socket.on('disconnect', function() {
-        if (!(sid in self.gamers && self.gamers[sid].socket.id === socket.id)) {
+        if (!(sid in _this.gamers && _this.gamers[sid].socket.id === socket.id)) {
           return;
         }
         console.log("Disconnecting: " + sid);
-        self.oneQuitted(sid);
-        return self.count--;
+        _this.oneQuitted(sid);
+        _this.count--;
+        if (_this.count === 0) {
+          return _this.endLoop;
+        }
       });
     };
 

@@ -133,6 +133,11 @@ window.Game = class Game extends GameCore
       @yPositions = data.positions
       @ballPos = data.ballPosition
 
+    socket.on 'score', (data) =>
+      console.log "scores #{data.scores}"
+      $('#score_' + @side).text data.scores[@side]
+      $('#score_' + @enemySide).text data.scores[@enemySide]
+
     socket.on 'busy', (data) =>
 
     socket.emit 'join'

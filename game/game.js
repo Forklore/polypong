@@ -25,6 +25,7 @@
       initPos = this.canvasHeight / 2 - 40;
       this.yPositions = [initPos - this.racketHeight, initPos + this.racketHeight];
       this.xOffset = 20;
+      this.scores = [0, 0];
       this.count = 0;
       this.startLoop();
     }
@@ -55,6 +56,21 @@
       _results = [];
       for (sid in this.gamers) {
         _results.push(this.sendMove(sid));
+      }
+      return _results;
+    };
+
+    Game.prototype.sendScore = function(sid) {
+      return this.gamers[sid].socket.emit('score', {
+        scores: this.scores
+      });
+    };
+
+    Game.prototype.sendScoreAll = function() {
+      var sid, _results;
+      _results = [];
+      for (sid in this.gamers) {
+        _results.push(this.sendScore(sid));
       }
       return _results;
     };
@@ -138,7 +154,8 @@
     Game.prototype.gameStep = function() {
       this.detectMove();
       this.detectBallMove();
-      return this.sendMoveAll();
+      this.sendMoveAll();
+      return this.sendScoreAll();
     };
 
     Game.prototype.oneQuitted = function(sidQuit) {

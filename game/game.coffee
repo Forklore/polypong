@@ -25,6 +25,7 @@ module.exports = class Game extends GameCore
     initPos = @canvasHeight / 2 - 40
     @yPositions = [initPos - @racketHeight, initPos + @racketHeight]
     @xOffset = 20
+    @scores = [0, 0]
     @count = 0
 
     @startLoop()
@@ -43,6 +44,13 @@ module.exports = class Game extends GameCore
   sendMoveAll: ->
     for sid of @gamers
       @sendMove sid
+
+  sendScore: (sid) ->
+    @gamers[sid].socket.emit 'score', {scores: @scores}
+
+  sendScoreAll: ->
+    for sid of @gamers
+      @sendScore sid
 
   setState: (sid, state) ->
     @gamers[sid].state = state
@@ -103,6 +111,7 @@ module.exports = class Game extends GameCore
     @detectMove()
     @detectBallMove()
     @sendMoveAll()
+    @sendScoreAll()
 
   oneQuitted: (sidQuit) ->
     delete @gamers[sidQuit]

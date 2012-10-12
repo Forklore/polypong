@@ -25,6 +25,7 @@ module.exports = class Game extends GameCore
     initPos = @canvasHeight / 2 - 40
     @yPositions = [initPos - @racketHeight, initPos + @racketHeight]
     @xOffset = 20
+    @ballResetOffset = 50
     @scores = [0, 0]
     @count = 0
 
@@ -54,6 +55,15 @@ module.exports = class Game extends GameCore
 
   setState: (sid, state) ->
     @gamers[sid].state = state
+
+  placeBall: (side) ->
+    @ballPosition[1] = @yPositions[side] + @racketHeight / 2
+    if side == 0
+      @ballPosition[0] = @ballResetOffset 
+      @angle = Math.asin((@yPositions[1] - @yPositions[0]) / @canvasWidth)
+    else 
+      @ballPosition[0] = @canvasWidth - @ballResetOffset
+      @angle = Math.PI + Math.asin((@yPositions[1] - @yPositions[0]) / @canvasWidth)
 
   detectMove: ->
     for sid, gamer of @gamers
@@ -101,12 +111,15 @@ module.exports = class Game extends GameCore
     @detectScoreUpdate()
 
   detectScoreUpdate: ->
-    if @ballPosition[0] < @xOffset or @ballPosition[0] > @canvasWidth - @xOffset
-      if @ballPosition[0] < @xOffset
+    if @ballPosition[0] < (@xOffset / 2) or @ballPosition[0] > (@canvasWidth - @xOffset / 2)
+      side = -1
+      if @ballPosition[0] < (@xOffset / 2)
         @scores[1] += 1
-      if @ballPosition[0] > @canvasWidth - @xOffset
+        side = 0
+      if @ballPosition[0] > (@canvasWidth - @xOffset / 2)
         @scores[0] += 1
-      @ballPosition = [@canvasWidth / 2, @canvasHeight / 2]
+        side = 1
+      @placeBall(side)
 
   startLoop: ->
     console.log 'loop started'

@@ -131,7 +131,6 @@
         return _this.ballPos = data.ballPosition;
       });
       socket.on('score', function(data) {
-        console.log("scores " + data.scores);
         $('#score_' + _this.side).text(data.scores[_this.side]);
         return $('#score_' + _this.enemySide).text(data.scores[_this.enemySide]);
       });

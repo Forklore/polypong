@@ -25,6 +25,7 @@
       initPos = this.canvasHeight / 2 - 40;
       this.yPositions = [initPos - this.racketHeight, initPos + this.racketHeight];
       this.xOffset = 20;
+      this.ballResetOffset = 50;
       this.scores = [0, 0];
       this.count = 0;
       this.startLoop();
@@ -77,6 +78,17 @@
 
     Game.prototype.setState = function(sid, state) {
       return this.gamers[sid].state = state;
+    };
+
+    Game.prototype.placeBall = function(side) {
+      this.ballPosition[1] = this.yPositions[side] + this.racketHeight / 2;
+      if (side === 0) {
+        this.ballPosition[0] = this.ballResetOffset;
+        return this.angle = Math.asin((this.yPositions[1] - this.yPositions[0]) / this.canvasWidth);
+      } else {
+        this.ballPosition[0] = this.canvasWidth - this.ballResetOffset;
+        return this.angle = Math.PI + Math.asin((this.yPositions[1] - this.yPositions[0]) / this.canvasWidth);
+      }
     };
 
     Game.prototype.detectMove = function() {
@@ -142,14 +154,18 @@
     };
 
     Game.prototype.detectScoreUpdate = function() {
-      if (this.ballPosition[0] < this.xOffset || this.ballPosition[0] > this.canvasWidth - this.xOffset) {
-        if (this.ballPosition[0] < this.xOffset) {
+      var side;
+      if (this.ballPosition[0] < (this.xOffset / 2) || this.ballPosition[0] > (this.canvasWidth - this.xOffset / 2)) {
+        side = -1;
+        if (this.ballPosition[0] < (this.xOffset / 2)) {
           this.scores[1] += 1;
+          side = 0;
         }
-        if (this.ballPosition[0] > this.canvasWidth - this.xOffset) {
+        if (this.ballPosition[0] > (this.canvasWidth - this.xOffset / 2)) {
           this.scores[0] += 1;
+          side = 1;
         }
-        return this.ballPosition = [this.canvasWidth / 2, this.canvasHeight / 2];
+        return this.placeBall(side);
       }
     };
 

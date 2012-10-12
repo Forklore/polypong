@@ -98,6 +98,16 @@ module.exports = class Game extends GameCore
       @angle = Math.PI - @angle
       return
 
+    @detectScoreUpdate()
+
+  detectScoreUpdate: ->
+    if @ballPosition[0] < @xOffset or @ballPosition[0] > @canvasWidth - @xOffset
+      if @ballPosition[0] < @xOffset
+        @scores[1] += 1
+      if @ballPosition[0] > @canvasWidth - @xOffset
+        @scores[0] += 1
+      @ballPosition = [@canvasWidth / 2, @canvasHeight / 2]
+
   startLoop: ->
     console.log 'loop started'
     @loop = timers.setInterval =>

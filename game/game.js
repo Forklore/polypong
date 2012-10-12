@@ -136,6 +136,20 @@
       if (this.ballPosition[0] > this.canvasWidth - this.xOffset && ballInRacket) {
         this.ballPosition[0] = this.canvasWidth - this.xOffset - this.ballSize;
         this.angle = Math.PI - this.angle;
+        return;
+      }
+      return this.detectScoreUpdate();
+    };
+
+    Game.prototype.detectScoreUpdate = function() {
+      if (this.ballPosition[0] < this.xOffset || this.ballPosition[0] > this.canvasWidth - this.xOffset) {
+        if (this.ballPosition[0] < this.xOffset) {
+          this.scores[1] += 1;
+        }
+        if (this.ballPosition[0] > this.canvasWidth - this.xOffset) {
+          this.scores[0] += 1;
+        }
+        return this.ballPosition = [this.canvasWidth / 2, this.canvasHeight / 2];
       }
     };
 

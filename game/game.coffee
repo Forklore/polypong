@@ -119,10 +119,10 @@ module.exports = class Game extends GameCore
       if @ballPosition[0] > (@canvasWidth - @xOffset / 2)
         @scores[0] += 1
         side = 1
-      @placeBall(side)
+      @placeBall side 
+      @sendScoreAll()
 
   startLoop: ->
-    console.log 'loop started'
     @loop = timers.setInterval =>
       @gameStep()
     , @dt
@@ -134,7 +134,7 @@ module.exports = class Game extends GameCore
     @detectMove()
     @detectBallMove()
     @sendMoveAll()
-    @sendScoreAll()
+    # @sendScoreAll()
 
   oneQuitted: (sidQuit) ->
     delete @gamers[sidQuit]
@@ -157,6 +157,7 @@ module.exports = class Game extends GameCore
       @addGamer sid, socket, @count
       @sendMove sid
       @count++
+      @sendScore sid
       @startLoop if @count > 0
 
     socket.on 'state', (data) =>

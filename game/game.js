@@ -165,13 +165,13 @@
           this.scores[0] += 1;
           side = 1;
         }
-        return this.placeBall(side);
+        this.placeBall(side);
+        return this.sendScoreAll();
       }
     };
 
     Game.prototype.startLoop = function() {
       var _this = this;
-      console.log('loop started');
       return this.loop = timers.setInterval(function() {
         return _this.gameStep();
       }, this.dt);
@@ -184,8 +184,7 @@
     Game.prototype.gameStep = function() {
       this.detectMove();
       this.detectBallMove();
-      this.sendMoveAll();
-      return this.sendScoreAll();
+      return this.sendMoveAll();
     };
 
     Game.prototype.oneQuitted = function(sidQuit) {
@@ -223,6 +222,7 @@
         _this.addGamer(sid, socket, _this.count);
         _this.sendMove(sid);
         _this.count++;
+        _this.sendScore(sid);
         if (_this.count > 0) {
           return _this.startLoop;
         }

@@ -16,6 +16,8 @@
       this.side = 0;
       this.enemySide = 1;
       this.ballPos = [100, 100];
+      this.scores = [0, 0];
+      this.updateScoreFlag = true;
       this.dy = 5;
       this.dt = 20;
       this.dtInSec = this.dt / 1000;
@@ -52,7 +54,10 @@
     };
 
     Game.prototype.gameLoop = function() {
-      return this.drawBoard();
+      this.drawBoard();
+      if (this.updateScoreFlag) {
+        return this.updateScores();
+      }
     };
 
     Game.prototype.updateState = function() {
@@ -100,6 +105,12 @@
       });
     };
 
+    Game.prototype.updateScores = function() {
+      $('#score_' + this.side).text(this.scores[this.side]);
+      $('#score_' + this.enemySide).text(this.scores[this.enemySide]);
+      return this.updateScoreFlag = false;
+    };
+
     Game.prototype.startGame = function() {
       var canvas,
         _this = this;
@@ -131,8 +142,8 @@
         return _this.ballPos = data.ballPosition;
       });
       socket.on('score', function(data) {
-        $('#score_' + _this.side).text(data.scores[_this.side]);
-        return $('#score_' + _this.enemySide).text(data.scores[_this.enemySide]);
+        _this.scores = data.scores;
+        return _this.updateScoreFlag = true;
       });
       socket.on('busy', function(data) {});
       socket.emit('join');

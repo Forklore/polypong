@@ -10,6 +10,10 @@ window.Game = class Game extends GameCore
     @side = 0
     @enemySide = 1
     @ballPos = [100, 100]
+    @scores = [0, 0]
+
+    # Game flags
+    @updateScoreFlag = true
 
     # Constants
     @dy = 5
@@ -53,6 +57,7 @@ window.Game = class Game extends GameCore
   gameLoop: ->
     # @updateState()
     @drawBoard()
+    @updateScores() if @updateScoreFlag
 
   updateState: ->
     @updateBall()
@@ -108,7 +113,13 @@ window.Game = class Game extends GameCore
   sendState: (dir) ->
     @socket.emit 'state', {side: @side, state: dir}
 
+  # Game view update
 
+  updateScores: ->
+    $('#score_' + @side).text @scores[@side]
+    $('#score_' + @enemySide).text @scores[@enemySide]
+    @updateScoreFlag = false
+  
   # Game control functions
 
   startGame: ->
@@ -134,8 +145,8 @@ window.Game = class Game extends GameCore
       @ballPos = data.ballPosition
 
     socket.on 'score', (data) =>
-      $('#score_' + @side).text data.scores[@side]
-      $('#score_' + @enemySide).text data.scores[@enemySide]
+      @scores = data.scores
+      @updateScoreFlag = true
 
     socket.on 'busy', (data) =>
 

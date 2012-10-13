@@ -33,7 +33,6 @@ window.Game = class Game extends GameCore
     @playersStartPos = [[10, 80], [760, @canvasHeight - 80 - @racketHeight]]
     @racketColor = '#fff'
 
-
   # Drawing functions
 
   drawRacket: (x, y, color) ->
@@ -65,38 +64,6 @@ window.Game = class Game extends GameCore
   updateBall: (ballPos) ->
     console.log(ballPos)
     @ballPos = ballPos
-    # ds = @ballV * @dtInSec
-    # @ballPos[0] += ds * Math.cos(@angle)
-    # @ballPos[1] += ds * Math.sin(@angle)
-    #
-    # if @ballPos[0] < 0
-    #   @ballPos[0] = 0
-    #   @angle = Math.PI - @angle
-    #   return
-    # if @ballPos[0] > @canvasWidth - @ballSize
-    #   @ballPos[0] = @canvasWidth - @ballSize
-    #   @angle = Math.PI - @angle
-    #   return
-    # if @ballPos[1] < 0
-    #   @ballPos[1] = 0
-    #   @angle = - @angle
-    #   return
-    # if @ballPos[1] > @canvasHeight - @ballSize
-    #   @ballPos[1] = @canvasHeight - @ballSize
-    #   @angle = - @angle
-    #   return
-    #
-    # ball_in_racket = @ballPos[1] >= @yPositions[0] && @ballPos[1] <= @yPositions[0] + @racketHeight
-    # if @ballPos[0] < 20 && ball_in_racket
-    #   @ballPos[0] = 20
-    #   @angle = Math.PI - @angle
-    #   return
-    # ball_in_racket = @ballPos[1] >= @yPositions[1] && @ballPos[1] <= @yPositions[1] + @racketHeight
-    # if @ballPos[0] > @canvasWidth - 20 && ball_in_racket
-    #   @ballPos[0] = @canvasWidth - 20 - @ballSize
-    #   @angle = Math.PI - @angle
-    #   return
-
 
   # Keyboard functions
 
@@ -151,6 +118,5 @@ window.Game = class Game extends GameCore
     socket.on 'busy', (data) =>
 
     socket.emit 'join'
-
 
     @startGame()

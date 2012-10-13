@@ -134,7 +134,6 @@ module.exports = class Game extends GameCore
     @detectMove()
     @detectBallMove()
     @sendMoveAll()
-    # @sendScoreAll()
 
   oneQuitted: (sidQuit) ->
     delete @gamers[sidQuit]

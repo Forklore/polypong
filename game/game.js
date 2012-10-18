@@ -118,16 +118,7 @@
       ds = this.ball_v * this.dt_in_sec;
       this.ballPosition[0] += Math.round(ds * Math.cos(this.angle));
       this.ballPosition[1] += Math.round(ds * Math.sin(this.angle));
-      if (this.ballPosition[0] < 0) {
-        this.ballPosition[0] = 0;
-        this.angle = Math.PI - this.angle;
-        return;
-      }
-      if (this.ballPosition[0] > this.canvasWidth - this.ballSize) {
-        this.ballPosition[0] = this.canvasWidth - this.ballSize;
-        this.angle = Math.PI - this.angle;
-        return;
-      }
+      this.detectScoreUpdate();
       if (this.ballPosition[1] < 0) {
         this.ballPosition[1] = 0;
         this.angle = -this.angle;
@@ -148,20 +139,18 @@
       if (this.ballPosition[0] > this.canvasWidth - this.xOffset && ballInRacket) {
         this.ballPosition[0] = this.canvasWidth - this.xOffset - this.ballSize;
         this.angle = Math.PI - this.angle;
-        return;
       }
-      return this.detectScoreUpdate();
     };
 
     Game.prototype.detectScoreUpdate = function() {
       var side;
-      if (this.ballPosition[0] < (this.xOffset / 2) || this.ballPosition[0] > (this.canvasWidth - this.xOffset / 2)) {
+      if (this.ballPosition[0] < 0 || this.ballPosition[0] > this.canvasWidth - this.ballSize) {
         side = -1;
-        if (this.ballPosition[0] < (this.xOffset / 2)) {
+        if (this.ballPosition[0] < 0) {
           this.scores[1] += 1;
           side = 0;
         }
-        if (this.ballPosition[0] > (this.canvasWidth - this.xOffset / 2)) {
+        if (this.ballPosition[0] > this.canvasWidth - this.ballSize) {
           this.scores[0] += 1;
           side = 1;
         }

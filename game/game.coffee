@@ -79,24 +79,17 @@ module.exports = class Game extends GameCore
     ds = @ball_v * @dt_in_sec
     @ballPosition[0] += Math.round( ds * Math.cos(@angle) )
     @ballPosition[1] += Math.round( ds * Math.sin(@angle) )
+    
+    @detectScoreUpdate()
 
-    if @ballPosition[0] < 0
-      @ballPosition[0] = 0
-      @angle = Math.PI - @angle
-      return
-    if @ballPosition[0] > @canvasWidth - @ballSize
-      @ballPosition[0] = @canvasWidth - @ballSize
-      @angle = Math.PI - @angle
-      return
     if @ballPosition[1] < 0
       @ballPosition[1] = 0
       @angle = - @angle
-      return
+      return     
     if @ballPosition[1] > @canvasHeight - @ballSize
       @ballPosition[1] = @canvasHeight - @ballSize
       @angle = - @angle
       return
-
     ballInRacket = @ballPosition[1] >= @yPositions[0] && @ballPosition[1] <= @yPositions[0] + @racketHeight
     if @ballPosition[0] < @xOffset && ballInRacket
       @ballPosition[0] = @xOffset
@@ -108,15 +101,15 @@ module.exports = class Game extends GameCore
       @angle = Math.PI - @angle
       return
 
-    @detectScoreUpdate()
+    
 
   detectScoreUpdate: ->
-    if @ballPosition[0] < (@xOffset / 2) or @ballPosition[0] > (@canvasWidth - @xOffset / 2)
+    if @ballPosition[0] < 0 or @ballPosition[0] > @canvasWidth - @ballSize
       side = -1
-      if @ballPosition[0] < (@xOffset / 2)
+      if @ballPosition[0] < 0
         @scores[1] += 1
         side = 0
-      if @ballPosition[0] > (@canvasWidth - @xOffset / 2)
+      if @ballPosition[0] > @canvasWidth - @ballSize
         @scores[0] += 1
         side = 1
       @placeBall side 

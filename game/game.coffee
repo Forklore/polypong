@@ -16,9 +16,6 @@ module.exports = class Game extends GameCore
 
   constructor: ->
     super()
-    @ball_v = 200 # pixels per second
-    @dt = 20
-    @dt_in_sec = @dt/1000
 
     @gamers = {}
     initPos = @canvasHeight / 2 - 40
@@ -37,7 +34,7 @@ module.exports = class Game extends GameCore
     @gamers[sid].socket.emit 'joined', @gamers[sid].side
 
   sendMove: (sid) ->
-    @gamers[sid].socket.emit 'move', {positions: @yPositions, ballPosition: @ballPosition}
+    @gamers[sid].socket.emit 'move', {positions: @yPositions, ball: {pos: @ballPosition, v: @ballV, angle: @angle}}
 
   sendMoveAll: ->
     for sid of @gamers
@@ -64,41 +61,20 @@ module.exports = class Game extends GameCore
 
   detectMove: ->
     for sid, gamer of @gamers
-      if gamer.state == -1
+      if gamer.state == @dirUp
         gamer.pos -= @racketStep
-      else if gamer.state == 1
+      else if gamer.state == @dirDown
         gamer.pos += @racketStep
       gamer.pos = 0 if gamer.pos < 0
       gamer.pos = @canvasHeight - @racketHeight if gamer.pos > @canvasHeight - @racketHeight
       @yPositions[gamer.side] = gamer.pos
 
   detectBallMove: ->
-    ds = @ball_v * @dt_in_sec
-    @ballPosition[0] += Math.round( ds * Math.cos(@angle) )
-    @ballPosition[1] += Math.round( ds * Math.sin(@angle) )
-    
-    @detectScoreUpdate()
+    @moveBall()
+    @checkScoreUpdate()
+    @checkBallCollision()
 
-    if @ballPosition[1] < 0
-      @ballPosition[1] = 0
-      @angle = - @angle
-      return     
-    if @ballPosition[1] > @canvasHeight - @ballSize
-      @ballPosition[1] = @canvasHeight - @ballSize
-      @angle = - @angle
-      return
-    ballInRacket = @ballPosition[1] >= @yPositions[0] && @ballPosition[1] <= @yPositions[0] + @racketHeight
-    if @ballPosition[0] < @xOffset && ballInRacket
-      @ballPosition[0] = @xOffset
-      @angle = Math.PI - @angle
-      return
-    ballInRacket = @ballPosition[1] >= @yPositions[1] && @ballPosition[1] <= @yPositions[1] + @racketHeight
-    if @ballPosition[0] > @canvasWidth - @xOffset && ballInRacket
-      @ballPosition[0] = @canvasWidth - @xOffset - @ballSize
-      @angle = Math.PI - @angle
-      return
-
-  detectScoreUpdate: ->
+  checkScoreUpdate: ->
     if @ballPosition[0] < 0 or @ballPosition[0] > @canvasWidth - @ballSize
       side = -1
       if @ballPosition[0] < 0
@@ -111,12 +87,10 @@ module.exports = class Game extends GameCore
       @sendScoreAll()
 
   startLoop: ->
-    console.log "Starting loop"
     return if @inDaLoop
     @loop = timers.setInterval =>
       @gameStep()
     , @dt
-    console.log "Started loop"
     @inDaLoop = true
 
   endLoop: ->

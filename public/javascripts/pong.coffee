@@ -16,9 +16,6 @@ window.Game = class Game extends GameCore
 
     # Constants
     @dy = 5
-    @dt = 20
-    @dtInSec = @dt/1000
-    @ballV = 200 # pixels per second
 
     @keyLeft = 37
     @keyUp = 38
@@ -26,9 +23,6 @@ window.Game = class Game extends GameCore
     @keyDown = 40
     @keySpace = 32
 
-    @dirUp = -1
-    @dirIdle = 0
-    @dirDown = 1
     @playersStartPos = [[10, 80], [760, @canvasHeight - 80 - @racketHeight]]
     @racketColor = '#fff'
 
@@ -53,16 +47,16 @@ window.Game = class Game extends GameCore
   # Game logic
 
   gameLoop: ->
-    # @updateState()
+    @updateState()
     @drawBoard()
     @updateScores() if @updateScoreFlag
 
   updateState: ->
     @updateBall()
 
-  updateBall: (ballPos) ->
-    console.log(ballPos)
-    @ballPosition = ballPos
+  updateBall: () ->
+    @moveBall()
+    @checkBallCollision()
 
   # Keyboard functions
 
@@ -108,7 +102,9 @@ window.Game = class Game extends GameCore
 
     socket.on 'move', (data) =>
       @yPositions = data.positions
-      @ballPosition = data.ballPosition
+      @ballPosition = data.ball.pos
+      @ballV = data.ball.v
+      @angle = data.ball.angle
 
     socket.on 'score', (data) =>
       @scores = data.scores

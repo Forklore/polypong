@@ -18,17 +18,11 @@
       this.scores = [0, 0];
       this.updateScoreFlag = true;
       this.dy = 5;
-      this.dt = 20;
-      this.dtInSec = this.dt / 1000;
-      this.ballV = 200;
       this.keyLeft = 37;
       this.keyUp = 38;
       this.keyRight = 39;
       this.keyDown = 40;
       this.keySpace = 32;
-      this.dirUp = -1;
-      this.dirIdle = 0;
-      this.dirDown = 1;
       this.playersStartPos = [[10, 80], [760, this.canvasHeight - 80 - this.racketHeight]];
       this.racketColor = '#fff';
     }
@@ -53,6 +47,7 @@
     };
 
     Game.prototype.gameLoop = function() {
+      this.updateState();
       this.drawBoard();
       if (this.updateScoreFlag) {
         return this.updateScores();
@@ -63,9 +58,9 @@
       return this.updateBall();
     };
 
-    Game.prototype.updateBall = function(ballPos) {
-      console.log(ballPos);
-      return this.ballPosition = ballPos;
+    Game.prototype.updateBall = function() {
+      this.moveBall();
+      return this.checkBallCollision();
     };
 
     Game.prototype.keyboardDown = function(evt) {
@@ -138,7 +133,9 @@
       });
       socket.on('move', function(data) {
         _this.yPositions = data.positions;
-        return _this.ballPosition = data.ballPosition;
+        _this.ballPosition = data.ball.pos;
+        _this.ballV = data.ball.v;
+        return _this.angle = data.ball.angle;
       });
       socket.on('score', function(data) {
         _this.scores = data.scores;

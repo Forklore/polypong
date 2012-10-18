@@ -11,6 +11,7 @@
       this.racketWidth = 10;
       this.racketStep = 10;
       this.ballSize = 8;
+      this.ballPosition = [this.canvasWidth / 2 - this.ballSize / 2, this.canvasHeight / 2 - this.ballSize / 2];
       this.angle = (20 + Math.random() * 50) * Math.PI / 180;
     }
 

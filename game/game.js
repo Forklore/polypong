@@ -17,7 +17,6 @@
     function Game() {
       var initPos;
       Game.__super__.constructor.call(this);
-      this.ballPosition = [this.canvasWidth / 2, this.canvasHeight / 2];
       this.ball_v = 200;
       this.dt = 20;
       this.dt_in_sec = this.dt / 1000;
@@ -28,7 +27,7 @@
       this.ballResetOffset = 50;
       this.scores = [0, 0];
       this.count = 0;
-      this.startLoop();
+      this.inDaLoop = false;
     }
 
     Game.prototype.addGamer = function(sid, socket, side) {
@@ -161,13 +160,24 @@
 
     Game.prototype.startLoop = function() {
       var _this = this;
-      return this.loop = timers.setInterval(function() {
+      console.log("Starting loop");
+      if (this.inDaLoop) {
+        return;
+      }
+      this.loop = timers.setInterval(function() {
         return _this.gameStep();
       }, this.dt);
+      console.log("Started loop");
+      return this.inDaLoop = true;
     };
 
     Game.prototype.endLoop = function() {
-      return timers.clearInterval(this.loop);
+      if (!this.inDaLoop) {
+        return;
+      }
+      timers.clearInterval(this.loop);
+      this.inDaLoop = false;
+      return this.scores = [0, 0];
     };
 
     Game.prototype.gameStep = function() {
@@ -209,12 +219,12 @@
         }
         console.log("I can has join: " + sid);
         _this.addGamer(sid, socket, _this.count);
-        _this.sendMove(sid);
         _this.count++;
-        _this.sendScore(sid);
         if (_this.count > 0) {
-          return _this.startLoop;
+          _this.startLoop();
         }
+        _this.sendMove(sid);
+        return _this.sendScore(sid);
       });
       socket.on('state', function(data) {
         console.log("Player " + data.side + " moving " + data.state);
@@ -228,7 +238,7 @@
         _this.oneQuitted(sid);
         _this.count--;
         if (_this.count === 0) {
-          return _this.endLoop;
+          return _this.endLoop();
         }
       });
     };

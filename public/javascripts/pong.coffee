@@ -9,7 +9,6 @@ window.Game = class Game extends GameCore
     @yPositions = [10, 10]
     @side = 0
     @enemySide = 1
-    @ballPos = [100, 100]
     @scores = [0, 0]
 
     # Game flags
@@ -49,7 +48,7 @@ window.Game = class Game extends GameCore
     @ctx.fillRect 389, 5, 1, 430
     @drawRacket @playersStartPos[@side][0], @yPositions[@side], @racketColor
     @drawRacket @playersStartPos[@enemySide][0], @yPositions[@enemySide], @racketColor
-    @drawBall @ballPos[0], @ballPos[1]
+    @drawBall @ballPosition[0], @ballPosition[1]
 
   # Game logic
 
@@ -63,7 +62,7 @@ window.Game = class Game extends GameCore
 
   updateBall: (ballPos) ->
     console.log(ballPos)
-    @ballPos = ballPos
+    @ballPosition = ballPos
 
   # Keyboard functions
 
@@ -109,7 +108,7 @@ window.Game = class Game extends GameCore
 
     socket.on 'move', (data) =>
       @yPositions = data.positions
-      @ballPos = data.ballPosition
+      @ballPosition = data.ballPosition
 
     socket.on 'score', (data) =>
       @scores = data.scores

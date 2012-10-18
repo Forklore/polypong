@@ -16,7 +16,6 @@ module.exports = class Game extends GameCore
 
   constructor: ->
     super()
-    @ballPosition = [@canvasWidth / 2, @canvasHeight / 2]
     @ball_v = 200 # pixels per second
     @dt = 20
     @dt_in_sec = @dt/1000
@@ -28,9 +27,7 @@ module.exports = class Game extends GameCore
     @ballResetOffset = 50
     @scores = [0, 0]
     @count = 0
-
-    @startLoop()
-
+    @inDaLoop = false
 
   addGamer: (sid, socket, side) ->
     @gamers[sid] = {socket: socket, state: 0, side: side, pos: @yPositions[side]}
@@ -101,8 +98,6 @@ module.exports = class Game extends GameCore
       @angle = Math.PI - @angle
       return
 
-    
-
   detectScoreUpdate: ->
     if @ballPosition[0] < 0 or @ballPosition[0] > @canvasWidth - @ballSize
       side = -1
@@ -116,12 +111,19 @@ module.exports = class Game extends GameCore
       @sendScoreAll()
 
   startLoop: ->
+    console.log "Starting loop"
+    return if @inDaLoop
     @loop = timers.setInterval =>
       @gameStep()
     , @dt
+    console.log "Started loop"
+    @inDaLoop = true
 
   endLoop: ->
+    return unless @inDaLoop
     timers.clearInterval @loop
+    @inDaLoop = false
+    @scores = [0, 0]
 
   gameStep:  ->
     @detectMove()
@@ -147,10 +149,10 @@ module.exports = class Game extends GameCore
         return
       console.log "I can has join: #{sid}"
       @addGamer sid, socket, @count
-      @sendMove sid
       @count++
+      @startLoop() if @count > 0
+      @sendMove sid
       @sendScore sid
-      @startLoop if @count > 0
 
     socket.on 'state', (data) =>
       console.log "Player #{data.side} moving #{data.state}"
@@ -161,4 +163,4 @@ module.exports = class Game extends GameCore
       console.log "Disconnecting: #{sid}"
       @oneQuitted sid
       @count--
-      @endLoop if @count == 0
+      @endLoop() if @count == 0

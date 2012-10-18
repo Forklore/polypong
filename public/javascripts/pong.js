@@ -15,7 +15,6 @@
       this.yPositions = [10, 10];
       this.side = 0;
       this.enemySide = 1;
-      this.ballPos = [100, 100];
       this.scores = [0, 0];
       this.updateScoreFlag = true;
       this.dy = 5;
@@ -50,7 +49,7 @@
       this.ctx.fillRect(389, 5, 1, 430);
       this.drawRacket(this.playersStartPos[this.side][0], this.yPositions[this.side], this.racketColor);
       this.drawRacket(this.playersStartPos[this.enemySide][0], this.yPositions[this.enemySide], this.racketColor);
-      return this.drawBall(this.ballPos[0], this.ballPos[1]);
+      return this.drawBall(this.ballPosition[0], this.ballPosition[1]);
     };
 
     Game.prototype.gameLoop = function() {
@@ -66,7 +65,7 @@
 
     Game.prototype.updateBall = function(ballPos) {
       console.log(ballPos);
-      return this.ballPos = ballPos;
+      return this.ballPosition = ballPos;
     };
 
     Game.prototype.keyboardDown = function(evt) {
@@ -139,7 +138,7 @@
       });
       socket.on('move', function(data) {
         _this.yPositions = data.positions;
-        return _this.ballPos = data.ballPosition;
+        return _this.ballPosition = data.ballPosition;
       });
       socket.on('score', function(data) {
         _this.scores = data.scores;

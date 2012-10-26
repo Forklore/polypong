@@ -7,6 +7,7 @@
     function GameCore() {
       this.canvasWidth = 780;
       this.canvasHeight = 440;
+      this.xOffset = 20;
       this.racketHeight = 55;
       this.racketWidth = 10;
       this.racketStep = 10;

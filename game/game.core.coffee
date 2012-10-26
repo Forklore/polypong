@@ -3,6 +3,7 @@ class GameCore
   constructor: ->
     @canvasWidth = 780
     @canvasHeight = 440
+    @xOffset = 20
 
     @racketHeight = 55
     @racketWidth = 10
@@ -34,12 +35,12 @@ class GameCore
       @ballPosition[1] = @canvasHeight - @ballSize
       @angle = - @angle
       return
-    if @ballPosition[0] <= @xOffset
+    if @ballPosition[0] <= @xOffset + @racketWidth
       if @ballPosition[1] >= @yPositions[0] && @ballPosition[1] <= @yPositions[0] + @racketHeight - @ballSize
         @ballPosition[0] = @xOffset
         @angle = Math.PI - @angle
         return
-    if @ballPosition[0] >= @canvasWidth - @xOffset - @ballSize
+    if @ballPosition[0] >= @canvasWidth - @xOffset - @racketWidth - @ballSize
       if @ballPosition[1] >= @yPositions[1] && @ballPosition[1] <= @yPositions[1] + @racketHeight - @ballSize
         @ballPosition[0] = @canvasWidth - @xOffset - @ballSize
         @angle = Math.PI - @angle

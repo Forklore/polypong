@@ -55,8 +55,7 @@
     };
 
     Game.prototype.updateState = function() {
-      this.updateBall();
-      return this.yPositions[this.side] = this.moveRacket(this.dir(), this.yPositions[this.side]);
+      return this.updateBall();
     };
 
     Game.prototype.dir = function() {

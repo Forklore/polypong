@@ -22,6 +22,18 @@
       this.dirDown = 1;
     }
 
+    GameCore.prototype.moveRacket = function(state, pos) {
+      var newPos;
+      newPos = state === this.dirUp ? pos - this.racketStep : state === this.dirDown ? pos + this.racketStep : pos;
+      if (newPos < 0) {
+        newPos = 0;
+      }
+      if (newPos > this.canvasHeight - this.racketHeight) {
+        newPos = this.canvasHeight - this.racketHeight;
+      }
+      return newPos;
+    };
+
     GameCore.prototype.moveBall = function() {
       var ds;
       ds = this.ballV * this.dtInSec;
@@ -30,20 +42,24 @@
     };
 
     GameCore.prototype.checkBallCollision = function() {
+      console.log("Ball collision: " + this.ballPosition);
       if (this.ballPosition[1] < 0) {
         this.ballPosition[1] = 0;
         this.angle = -this.angle;
+        console.log("Ball collision <0: " + this.ballPosition);
         return;
       }
       if (this.ballPosition[1] > this.canvasHeight - this.ballSize) {
         this.ballPosition[1] = this.canvasHeight - this.ballSize;
         this.angle = -this.angle;
+        console.log("Ball collision >height: " + this.ballPosition);
         return;
       }
       if (this.ballPosition[0] <= this.xOffset) {
         if (this.ballPosition[1] >= this.yPositions[0] && this.ballPosition[1] <= this.yPositions[0] + this.racketHeight - this.ballSize) {
           this.ballPosition[0] = this.xOffset;
           this.angle = Math.PI - this.angle;
+          console.log("Ball collision <xoffset: " + this.ballPosition);
           return;
         }
       }
@@ -51,6 +67,7 @@
         if (this.ballPosition[1] >= this.yPositions[1] && this.ballPosition[1] <= this.yPositions[1] + this.racketHeight - this.ballSize) {
           this.ballPosition[0] = this.canvasWidth - this.xOffset - this.ballSize;
           this.angle = Math.PI - this.angle;
+          console.log("Ball collision >width: " + this.ballPosition);
         }
       }
     };

@@ -55,7 +55,18 @@
     };
 
     Game.prototype.updateState = function() {
-      return this.updateBall();
+      this.updateBall();
+      return this.yPositions[this.side] = this.moveRacket(this.dir, this.yPositions[this.side]);
+    };
+
+    Game.prototype.dir = function() {
+      if (this.upPressed) {
+        return this.dirUp;
+      } else if (this.downPressed) {
+        return this.dirDown;
+      } else {
+        return this.dirIdle;
+      }
     };
 
     Game.prototype.updateBall = function() {

@@ -20,7 +20,6 @@ module.exports = class Game extends GameCore
     @gamers = {}
     initPos = @canvasHeight / 2 - 40
     @yPositions = [initPos - @racketHeight, initPos + @racketHeight]
-    @xOffset = 20
     @ballResetOffset = 50
     @scores = [0, 0]
     @count = 0
@@ -59,20 +58,10 @@ module.exports = class Game extends GameCore
       @ballPosition[0] = @canvasWidth - @ballResetOffset
       @angle = Math.PI + Math.asin((@yPositions[1] - @yPositions[0]) / @canvasWidth)
 
-  detectMove: ->
+  moveRackets: ->
     for sid, gamer of @gamers
-      if gamer.state == @dirUp
-        gamer.pos -= @racketStep
-      else if gamer.state == @dirDown
-        gamer.pos += @racketStep
-      gamer.pos = 0 if gamer.pos < 0
-      gamer.pos = @canvasHeight - @racketHeight if gamer.pos > @canvasHeight - @racketHeight
+      gamer.pos = @moveRacket gamer.state, gamer.pos
       @yPositions[gamer.side] = gamer.pos
-
-  detectBallMove: ->
-    @moveBall()
-    @checkScoreUpdate()
-    @checkBallCollision()
 
   checkScoreUpdate: ->
     if @ballPosition[0] < 0 or @ballPosition[0] > @canvasWidth - @ballSize
@@ -100,8 +89,10 @@ module.exports = class Game extends GameCore
     @scores = [0, 0]
 
   gameStep:  ->
-    @detectMove()
-    @detectBallMove()
+    @moveRackets()
+    @moveBall()
+    @checkScoreUpdate()
+    @checkBallCollision()
     @sendMoveAll()
 
   oneQuitted: (sidQuit) ->

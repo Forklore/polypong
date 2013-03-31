@@ -20,7 +20,6 @@
       this.gamers = {};
       initPos = this.canvasHeight / 2 - 40;
       this.yPositions = [initPos - this.racketHeight, initPos + this.racketHeight];
-      this.xOffset = 20;
       this.ballResetOffset = 50;
       this.scores = [0, 0];
       this.count = 0;
@@ -91,32 +90,16 @@
       }
     };
 
-    Game.prototype.detectMove = function() {
+    Game.prototype.moveRackets = function() {
       var gamer, sid, _ref, _results;
       _ref = this.gamers;
       _results = [];
       for (sid in _ref) {
         gamer = _ref[sid];
-        if (gamer.state === this.dirUp) {
-          gamer.pos -= this.racketStep;
-        } else if (gamer.state === this.dirDown) {
-          gamer.pos += this.racketStep;
-        }
-        if (gamer.pos < 0) {
-          gamer.pos = 0;
-        }
-        if (gamer.pos > this.canvasHeight - this.racketHeight) {
-          gamer.pos = this.canvasHeight - this.racketHeight;
-        }
+        gamer.pos = this.moveRacket(gamer.state, gamer.pos);
         _results.push(this.yPositions[gamer.side] = gamer.pos);
       }
       return _results;
-    };
-
-    Game.prototype.detectBallMove = function() {
-      this.moveBall();
-      this.checkScoreUpdate();
-      return this.checkBallCollision();
     };
 
     Game.prototype.checkScoreUpdate = function() {
@@ -157,8 +140,10 @@
     };
 
     Game.prototype.gameStep = function() {
-      this.detectMove();
-      this.detectBallMove();
+      this.moveRackets();
+      this.moveBall();
+      this.checkScoreUpdate();
+      this.checkBallCollision();
       return this.sendMoveAll();
     };
 

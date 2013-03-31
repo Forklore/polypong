@@ -53,7 +53,7 @@ window.Game = class Game extends GameCore
 
   updateState: ->
     @updateBall()
-    @yPositions[@side] = @moveRacket @dir(), @yPositions[@side]
+    # @yPositions[@side] = @moveRacket @dir(), @yPositions[@side]
 
   dir: ->
     if @upPressed then @dirUp else if @downPressed then @dirDown else @dirIdle

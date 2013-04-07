@@ -76,7 +76,7 @@ window.Game = class Game extends GameCore
       when @keyUp   then @upPressed = false; @sendState @dirIdle unless @downPressed
 
   sendState: (dir) ->
-    @socket.emit 'state', {state: dir}
+    @socket.emit 'state', {state: dir, side: @side}
 
   # Game view update
 
@@ -116,6 +116,11 @@ window.Game = class Game extends GameCore
       @updateScoreFlag = true
 
     socket.on 'busy', (data) =>
+
+    socket.on 'disconnect', =>
+      # TODO @stopGame()
+      $(window).off 'keydown'
+      $(window).off 'keyup'
 
     socket.emit 'join'
 

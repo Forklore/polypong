@@ -107,7 +107,8 @@
 
     Game.prototype.sendState = function(dir) {
       return this.socket.emit('state', {
-        state: dir
+        state: dir,
+        side: this.side
       });
     };
 
@@ -154,6 +155,10 @@
         return _this.updateScoreFlag = true;
       });
       socket.on('busy', function(data) {});
+      socket.on('disconnect', function() {
+        $(window).off('keydown');
+        return $(window).off('keyup');
+      });
       socket.emit('join');
       return this.startGame();
     };

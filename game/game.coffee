@@ -19,21 +19,22 @@ module.exports = class Game extends GameCore
 
     @gamers = {}
     initPos = @canvasHeight / 2 - 40
-    @yPositions = [initPos - @racketHeight, initPos + @racketHeight]
+    @gs = [{pos: initPos - @racketHeight, state: @dirIdle},
+           {pos: initPos + @racketHeight, state: @dirIdle}]
     @ballResetOffset = 50
     @scores = [0, 0]
     @count = 0
     @inDaLoop = false
 
   addGamer: (sid, socket, side) ->
-    @gamers[sid] = {socket: socket, state: 0, side: side, pos: @yPositions[side]}
+    @gamers[sid] = {socket: socket, state: 0, side: side, pos: @gs[side].pos}
     @tellSide sid
 
   tellSide: (sid) ->
     @gamers[sid].socket.emit 'joined', @gamers[sid].side
 
   sendMove: (sid) ->
-    @gamers[sid].socket.emit 'move', {positions: @yPositions, ball: {pos: @ballPosition, v: @ballV, angle: @angle}}
+    @gamers[sid].socket.emit 'move', {gamers: @gs, ball: {pos: @ballPosition, v: @ballV, angle: @angle}}
 
   sendMoveAll: ->
     for sid of @gamers
@@ -50,18 +51,18 @@ module.exports = class Game extends GameCore
     @gamers[sid].state = state
 
   placeBall: (side) ->
-    @ballPosition[1] = @yPositions[side] + @racketHeight / 2
+    @ballPosition[1] = @gs[side].pos + @racketHeight / 2
     if side == 0
       @ballPosition[0] = @ballResetOffset 
-      @angle = Math.asin((@yPositions[1] - @yPositions[0]) / @canvasWidth)
+      @angle = Math.asin((@gs[1].pos - @gs[0].pos - @racketHeight) / @canvasWidth)
     else 
       @ballPosition[0] = @canvasWidth - @ballResetOffset
-      @angle = Math.PI + Math.asin((@yPositions[1] - @yPositions[0]) / @canvasWidth)
+      @angle = Math.PI + Math.asin((@gs[1].pos - @gs[0].pos - @racketHeight) / @canvasWidth)
 
   moveRackets: ->
     for sid, gamer of @gamers
       gamer.pos = @moveRacket gamer.state, gamer.pos
-      @yPositions[gamer.side] = gamer.pos
+      @gs[gamer.side].pos = gamer.pos
 
   checkScoreUpdate: ->
     if @ballPosition[0] < 0 or @ballPosition[0] > @canvasWidth - @ballSize
@@ -77,14 +78,14 @@ module.exports = class Game extends GameCore
 
   startLoop: ->
     return if @inDaLoop
-    @loop = timers.setInterval =>
+    @gameLoop = timers.setInterval =>
       @gameStep()
     , @dt
     @inDaLoop = true
 
   endLoop: ->
     return unless @inDaLoop
-    timers.clearInterval @loop
+    timers.clearInterval @gameLoop
     @inDaLoop = false
     @scores = [0, 0]
 

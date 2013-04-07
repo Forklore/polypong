@@ -6,7 +6,6 @@ window.Game = class Game extends GameCore
     # Vars
     @upPressed = false
     @downPressed = false
-    @yPositions = [10, 10]
     @side = 0
     @enemySide = 1
     @scores = [0, 0]
@@ -15,8 +14,6 @@ window.Game = class Game extends GameCore
     @updateScoreFlag = true
 
     # Constants
-    @dy = 5
-
     @keyLeft = 37
     @keyUp = 38
     @keyRight = 39
@@ -40,8 +37,8 @@ window.Game = class Game extends GameCore
     @ctx.clearRect 0, 0, @canvasWidth, @canvasHeight
     @ctx.fillStyle = "rgb(200, 200, 200)"
     @ctx.fillRect 389, 5, 1, 430
-    @drawRacket @playersStartPos[@side][0], @yPositions[@side], @racketColor
-    @drawRacket @playersStartPos[@enemySide][0], @yPositions[@enemySide], @racketColor
+    @drawRacket @playersStartPos[@side][0], @gs[@side].pos, @racketColor
+    @drawRacket @playersStartPos[@enemySide][0], @gs[@enemySide].pos, @racketColor
     @drawBall @ballPosition[0], @ballPosition[1]
 
   # Game logic
@@ -53,12 +50,15 @@ window.Game = class Game extends GameCore
 
   updateState: ->
     @updateBall()
+    enemy = @gs[@enemySide]
+    # Interpolate enemy moves
+    enemy.pos = @moveRacket enemy.state, enemy.pos
     # @yPositions[@side] = @moveRacket @dir(), @yPositions[@side]
 
   dir: ->
     if @upPressed then @dirUp else if @downPressed then @dirDown else @dirIdle
 
-  updateBall: () ->
+  updateBall: ->
     @moveBall()
     @checkBallCollision()
 
@@ -75,7 +75,7 @@ window.Game = class Game extends GameCore
       when @keyUp   then @upPressed = false; @sendState @dirIdle unless @downPressed
 
   sendState: (dir) ->
-    @socket.emit 'state', {side: @side, state: dir}
+    @socket.emit 'state', {state: dir}
 
   # Game view update
 
@@ -105,7 +105,7 @@ window.Game = class Game extends GameCore
       $(window).on 'keyup', (e) => @keyboardUp e
 
     socket.on 'move', (data) =>
-      @yPositions = data.positions
+      @gs = data.gamers
       @ballPosition = data.ball.pos
       @ballV = data.ball.v
       @angle = data.ball.angle

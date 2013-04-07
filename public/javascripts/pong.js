@@ -12,12 +12,10 @@
       Game.__super__.constructor.call(this);
       this.upPressed = false;
       this.downPressed = false;
-      this.yPositions = [10, 10];
       this.side = 0;
       this.enemySide = 1;
       this.scores = [0, 0];
       this.updateScoreFlag = true;
-      this.dy = 5;
       this.keyLeft = 37;
       this.keyUp = 38;
       this.keyRight = 39;
@@ -41,8 +39,8 @@
       this.ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
       this.ctx.fillStyle = "rgb(200, 200, 200)";
       this.ctx.fillRect(389, 5, 1, 430);
-      this.drawRacket(this.playersStartPos[this.side][0], this.yPositions[this.side], this.racketColor);
-      this.drawRacket(this.playersStartPos[this.enemySide][0], this.yPositions[this.enemySide], this.racketColor);
+      this.drawRacket(this.playersStartPos[this.side][0], this.gs[this.side].pos, this.racketColor);
+      this.drawRacket(this.playersStartPos[this.enemySide][0], this.gs[this.enemySide].pos, this.racketColor);
       return this.drawBall(this.ballPosition[0], this.ballPosition[1]);
     };
 
@@ -55,7 +53,10 @@
     };
 
     Game.prototype.updateState = function() {
-      return this.updateBall();
+      var enemy;
+      this.updateBall();
+      enemy = this.gs[this.enemySide];
+      return enemy.pos = this.moveRacket(enemy.state, enemy.pos);
     };
 
     Game.prototype.dir = function() {
@@ -104,7 +105,6 @@
 
     Game.prototype.sendState = function(dir) {
       return this.socket.emit('state', {
-        side: this.side,
         state: dir
       });
     };
@@ -142,7 +142,7 @@
         });
       });
       socket.on('move', function(data) {
-        _this.yPositions = data.positions;
+        _this.gs = data.gamers;
         _this.ballPosition = data.ball.pos;
         _this.ballV = data.ball.v;
         return _this.angle = data.ball.angle;

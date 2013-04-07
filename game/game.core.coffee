@@ -9,17 +9,19 @@ class GameCore
     @racketWidth = 10
     @racketStep = 10
 
+    @dirUp = -1
+    @dirIdle = 0
+    @dirDown = 1
+
     @ballSize = 8
+
+    @gs = [{pos: 10, state: @dirIdle}, {pos: 10, state: @dirIdle}]
     @ballPosition = [@canvasWidth / 2 - @ballSize / 2, @canvasHeight / 2 - @ballSize / 2]
 
     @angle = (20 + Math.random()*50)*Math.PI/180
     @ballV = 200 # pixels per second
     @dt = 20
     @dtInSec = @dt/1000
-
-    @dirUp = -1
-    @dirIdle = 0
-    @dirDown = 1
 
   moveRacket: (state, pos) ->
     newPos =
@@ -38,28 +40,23 @@ class GameCore
     @ballPosition[1] += Math.round( ds * Math.sin(@angle) )
 
   checkBallCollision: ->
-    console.log "Ball collision: #{@ballPosition}"
     if @ballPosition[1] < 0
       @ballPosition[1] = 0
       @angle = - @angle
-      console.log "Ball collision <0: #{@ballPosition}"
       return
     if @ballPosition[1] > @canvasHeight - @ballSize
       @ballPosition[1] = @canvasHeight - @ballSize
       @angle = - @angle
-      console.log "Ball collision >height: #{@ballPosition}"
       return
     if @ballPosition[0] <= @xOffset
-      if @ballPosition[1] >= @yPositions[0] && @ballPosition[1] <= @yPositions[0] + @racketHeight - @ballSize
+      if @ballPosition[1] >= @gs[0].pos && @ballPosition[1] <= @gs[0].pos + @racketHeight - @ballSize
         @ballPosition[0] = @xOffset
         @angle = Math.PI - @angle
-        console.log "Ball collision <xoffset: #{@ballPosition}"
         return
     if @ballPosition[0] >= @canvasWidth - @xOffset - @ballSize
-      if @ballPosition[1] >= @yPositions[1] && @ballPosition[1] <= @yPositions[1] + @racketHeight - @ballSize
+      if @ballPosition[1] >= @gs[1].pos && @ballPosition[1] <= @gs[1].pos + @racketHeight - @ballSize
         @ballPosition[0] = @canvasWidth - @xOffset - @ballSize
         @angle = Math.PI - @angle
-        console.log "Ball collision >width: #{@ballPosition}"
         return
 
 

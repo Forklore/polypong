@@ -11,15 +11,24 @@
       this.racketHeight = 55;
       this.racketWidth = 10;
       this.racketStep = 10;
+      this.dirUp = -1;
+      this.dirIdle = 0;
+      this.dirDown = 1;
       this.ballSize = 8;
+      this.gs = [
+        {
+          pos: 10,
+          state: this.dirIdle
+        }, {
+          pos: 10,
+          state: this.dirIdle
+        }
+      ];
       this.ballPosition = [this.canvasWidth / 2 - this.ballSize / 2, this.canvasHeight / 2 - this.ballSize / 2];
       this.angle = (20 + Math.random() * 50) * Math.PI / 180;
       this.ballV = 200;
       this.dt = 20;
       this.dtInSec = this.dt / 1000;
-      this.dirUp = -1;
-      this.dirIdle = 0;
-      this.dirDown = 1;
     }
 
     GameCore.prototype.moveRacket = function(state, pos) {
@@ -42,32 +51,27 @@
     };
 
     GameCore.prototype.checkBallCollision = function() {
-      console.log("Ball collision: " + this.ballPosition);
       if (this.ballPosition[1] < 0) {
         this.ballPosition[1] = 0;
         this.angle = -this.angle;
-        console.log("Ball collision <0: " + this.ballPosition);
         return;
       }
       if (this.ballPosition[1] > this.canvasHeight - this.ballSize) {
         this.ballPosition[1] = this.canvasHeight - this.ballSize;
         this.angle = -this.angle;
-        console.log("Ball collision >height: " + this.ballPosition);
         return;
       }
       if (this.ballPosition[0] <= this.xOffset) {
-        if (this.ballPosition[1] >= this.yPositions[0] && this.ballPosition[1] <= this.yPositions[0] + this.racketHeight - this.ballSize) {
+        if (this.ballPosition[1] >= this.gs[0].pos && this.ballPosition[1] <= this.gs[0].pos + this.racketHeight - this.ballSize) {
           this.ballPosition[0] = this.xOffset;
           this.angle = Math.PI - this.angle;
-          console.log("Ball collision <xoffset: " + this.ballPosition);
           return;
         }
       }
       if (this.ballPosition[0] >= this.canvasWidth - this.xOffset - this.ballSize) {
-        if (this.ballPosition[1] >= this.yPositions[1] && this.ballPosition[1] <= this.yPositions[1] + this.racketHeight - this.ballSize) {
+        if (this.ballPosition[1] >= this.gs[1].pos && this.ballPosition[1] <= this.gs[1].pos + this.racketHeight - this.ballSize) {
           this.ballPosition[0] = this.canvasWidth - this.xOffset - this.ballSize;
           this.angle = Math.PI - this.angle;
-          console.log("Ball collision >width: " + this.ballPosition);
         }
       }
     };

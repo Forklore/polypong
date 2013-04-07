@@ -19,7 +19,15 @@
       Game.__super__.constructor.call(this);
       this.gamers = {};
       initPos = this.canvasHeight / 2 - 40;
-      this.yPositions = [initPos - this.racketHeight, initPos + this.racketHeight];
+      this.gs = [
+        {
+          pos: initPos - this.racketHeight,
+          state: this.dirIdle
+        }, {
+          pos: initPos + this.racketHeight,
+          state: this.dirIdle
+        }
+      ];
       this.ballResetOffset = 50;
       this.scores = [0, 0];
       this.count = 0;
@@ -31,7 +39,7 @@
         socket: socket,
         state: 0,
         side: side,
-        pos: this.yPositions[side]
+        pos: this.gs[side].pos
       };
       return this.tellSide(sid);
     };
@@ -42,7 +50,7 @@
 
     Game.prototype.sendMove = function(sid) {
       return this.gamers[sid].socket.emit('move', {
-        positions: this.yPositions,
+        gamers: this.gs,
         ball: {
           pos: this.ballPosition,
           v: this.ballV,
@@ -80,13 +88,13 @@
     };
 
     Game.prototype.placeBall = function(side) {
-      this.ballPosition[1] = this.yPositions[side] + this.racketHeight / 2;
+      this.ballPosition[1] = this.gs[side].pos + this.racketHeight / 2;
       if (side === 0) {
         this.ballPosition[0] = this.ballResetOffset;
-        return this.angle = Math.asin((this.yPositions[1] - this.yPositions[0]) / this.canvasWidth);
+        return this.angle = Math.asin((this.gs[1].pos - this.gs[0].pos - this.racketHeight) / this.canvasWidth);
       } else {
         this.ballPosition[0] = this.canvasWidth - this.ballResetOffset;
-        return this.angle = Math.PI + Math.asin((this.yPositions[1] - this.yPositions[0]) / this.canvasWidth);
+        return this.angle = Math.PI + Math.asin((this.gs[1].pos - this.gs[0].pos - this.racketHeight) / this.canvasWidth);
       }
     };
 
@@ -97,7 +105,7 @@
       for (sid in _ref) {
         gamer = _ref[sid];
         gamer.pos = this.moveRacket(gamer.state, gamer.pos);
-        _results.push(this.yPositions[gamer.side] = gamer.pos);
+        _results.push(this.gs[gamer.side].pos = gamer.pos);
       }
       return _results;
     };
@@ -124,7 +132,7 @@
       if (this.inDaLoop) {
         return;
       }
-      this.loop = timers.setInterval(function() {
+      this.gameLoop = timers.setInterval(function() {
         return _this.gameStep();
       }, this.dt);
       return this.inDaLoop = true;
@@ -134,7 +142,7 @@
       if (!this.inDaLoop) {
         return;
       }
-      timers.clearInterval(this.loop);
+      timers.clearInterval(this.gameLoop);
       this.inDaLoop = false;
       return this.scores = [0, 0];
     };

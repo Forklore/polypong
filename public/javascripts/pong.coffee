@@ -20,7 +20,7 @@ window.Game = class Game extends GameCore
     @keyDown = 40
     @keySpace = 32
 
-    @playersStartPos = [[10, 80], [760, @canvasHeight - 80 - @racketHeight]]
+    @startPos = [[10, 80], [760, @canvasHeight - 80 - @racketHeight]]
     @racketColor = '#fff'
 
   # Drawing functions
@@ -37,8 +37,8 @@ window.Game = class Game extends GameCore
     @ctx.clearRect 0, 0, @canvasWidth, @canvasHeight
     @ctx.fillStyle = "rgb(200, 200, 200)"
     @ctx.fillRect 389, 5, 1, 430
-    @drawRacket @playersStartPos[@side][0], @gs[@side].pos, @racketColor
-    @drawRacket @playersStartPos[@enemySide][0], @gs[@enemySide].pos, @racketColor
+    @drawRacket @startPos[@side][0], @gs[@side].pos, @racketColor
+    @drawRacket @startPos[@enemySide][0], @gs[@enemySide].pos, @racketColor
     @drawBall @ballPosition[0], @ballPosition[1]
 
   # Game logic
@@ -53,7 +53,8 @@ window.Game = class Game extends GameCore
     enemy = @gs[@enemySide]
     # Interpolate enemy moves
     enemy.pos = @moveRacket enemy.state, enemy.pos
-    # @yPositions[@side] = @moveRacket @dir(), @yPositions[@side]
+    me = @gs[@side]
+    me.pos = @moveRacket @dir(), me.pos
 
   dir: ->
     if @upPressed then @dirUp else if @downPressed then @dirDown else @dirIdle

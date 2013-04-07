@@ -21,7 +21,7 @@
       this.keyRight = 39;
       this.keyDown = 40;
       this.keySpace = 32;
-      this.playersStartPos = [[10, 80], [760, this.canvasHeight - 80 - this.racketHeight]];
+      this.startPos = [[10, 80], [760, this.canvasHeight - 80 - this.racketHeight]];
       this.racketColor = '#fff';
     }
 
@@ -39,8 +39,8 @@
       this.ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
       this.ctx.fillStyle = "rgb(200, 200, 200)";
       this.ctx.fillRect(389, 5, 1, 430);
-      this.drawRacket(this.playersStartPos[this.side][0], this.gs[this.side].pos, this.racketColor);
-      this.drawRacket(this.playersStartPos[this.enemySide][0], this.gs[this.enemySide].pos, this.racketColor);
+      this.drawRacket(this.startPos[this.side][0], this.gs[this.side].pos, this.racketColor);
+      this.drawRacket(this.startPos[this.enemySide][0], this.gs[this.enemySide].pos, this.racketColor);
       return this.drawBall(this.ballPosition[0], this.ballPosition[1]);
     };
 
@@ -53,10 +53,12 @@
     };
 
     Game.prototype.updateState = function() {
-      var enemy;
+      var enemy, me;
       this.updateBall();
       enemy = this.gs[this.enemySide];
-      return enemy.pos = this.moveRacket(enemy.state, enemy.pos);
+      enemy.pos = this.moveRacket(enemy.state, enemy.pos);
+      me = this.gs[this.side];
+      return me.pos = this.moveRacket(this.dir(), me.pos);
     };
 
     Game.prototype.dir = function() {

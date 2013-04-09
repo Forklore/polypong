@@ -20,22 +20,24 @@ module.exports = class Game extends GameCore
 
     @gamers = {}
     initPos = @canvasHeight / 2 - 40
-    @gs = [{pos: initPos - @racketHeight, state: @dirIdle},
-           {pos: initPos + @racketHeight, state: @dirIdle}]
+    @gs = [{pos: initPos - @racketHeight, dir: @dirIdle, updates: []},
+           {pos: initPos + @racketHeight, dir: @dirIdle, updates: []}]
     @ballResetOffset = 50
     @scores = [0, 0]
     @count = 0
     @inDaLoop = false
 
   addGamer: (sid, socket, side) ->
-    @gamers[sid] = {socket: socket, state: 0, side: side, pos: @gs[side].pos}
+    @gamers[sid] = {socket: socket, updates: [], side: side, pos: @gs[side].pos}
     @sendJoined sid
 
   sendJoined: (sid) ->
     @gamers[sid].socket.emit 'joined', @gamers[sid].side
 
   sendMove: (sid) ->
-    @gamers[sid].socket.emit 'move', {gamers: @gs, ball: {pos: @ballPosition, v: @ballV, angle: @angle}}
+    g = @gamers[sid]
+    @gs[g.side].updates = g.updates
+    g.socket.emit 'move', {gamers: @gs, ball: {pos: @ballPosition, v: @ballV, angle: @angle}}
 
   sendMoveAll: ->
     for sid of @gamers
@@ -48,8 +50,8 @@ module.exports = class Game extends GameCore
     for sid of @gamers
       @sendScore sid
 
-  setState: (sid, state) ->
-    @gamers[sid].state = state
+  updateState: (sid, dir, seq) ->
+    @gamers[sid].updates.push {dir: dir, seq: seq}
 
   placeBall: (side) ->
     @ballPosition[1] = @gs[side].pos + @racketHeight / 2
@@ -62,7 +64,8 @@ module.exports = class Game extends GameCore
 
   moveRackets: ->
     for sid, gamer of @gamers
-      gamer.pos = @moveRacket gamer.state, gamer.pos
+      gamer.pos = @moveRacket gamer.updates, gamer.pos
+      gamer.updates = []
       @gs[gamer.side].pos = gamer.pos
 
   checkScoreUpdate: ->
@@ -94,7 +97,6 @@ module.exports = class Game extends GameCore
     @moveRackets()
     @moveBall()
     @checkScoreUpdate()
-    @checkBallCollision()
     @sendMoveAll()
 
   oneQuitted: (sidQuit) ->
@@ -122,8 +124,8 @@ module.exports = class Game extends GameCore
       @sendScore sid
 
     socket.on 'state', (data) =>
-      console.log "Player #{data.side} moving #{data.state}"
-      @setState sid, data.state
+      console.log "Player #{data.side} moving #{data.dir}"
+      @updateState sid, data.dir, data.seq
 
     socket.on 'disconnect', =>
       return unless sid of @gamers && @gamers[sid].socket.id == socket.id

@@ -15,7 +15,7 @@ class GameCore
 
     @ballSize = 8
 
-    @gs = [{pos: 10, state: @dirIdle}, {pos: 10, state: @dirIdle}]
+    @gs = [{pos: 10, dir: @dirIdle}, {pos: 10, dir: @dirIdle}]
     @ballPosition = [@canvasWidth / 2 - @ballSize / 2, @canvasHeight / 2 - @ballSize / 2]
 
     @angle = (20 + Math.random()*50)*Math.PI/180
@@ -23,21 +23,26 @@ class GameCore
     @dt = 20
     @dtInSec = @dt/1000
 
-  moveRacket: (state, pos) ->
-    newPos =
-      if state == @dirUp
-        pos - @racketStep
-      else if state == @dirDown
-        pos + @racketStep
-      else pos
-    newPos = 0 if newPos < 0
-    newPos = @canvasHeight - @racketHeight if newPos > @canvasHeight - @racketHeight
+  moveRacket: (dirUpdates, pos) ->
+    newPos = pos
+    if dirUpdates.length
+      # FIXME just take last update for now
+      dir = dirUpdates[dirUpdates.length-1].dir
+      newPos =
+        if dir == @dirUp
+          pos - @racketStep
+        else if dir == @dirDown
+          pos + @racketStep
+        else pos
+      newPos = 0 if newPos < 0
+      newPos = @canvasHeight - @racketHeight if newPos > @canvasHeight - @racketHeight
     newPos
 
   moveBall: ->
     ds = @ballV * @dtInSec
     @ballPosition[0] += Math.round( ds * Math.cos(@angle) )
     @ballPosition[1] += Math.round( ds * Math.sin(@angle) )
+    @checkBallCollision()
 
   checkBallCollision: ->
     if @ballPosition[1] < 0

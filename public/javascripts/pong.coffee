@@ -6,9 +6,12 @@ window.Game = class Game extends GameCore
     # Vars
     @upPressed = false
     @downPressed = false
+    @dir = @dirIdle
     @side = 0
     @enemySide = 1
     @scores = [0, 0]
+    @dirUpdates = [] # arrays of games inputs
+    @seq = 0         # sequence number for acknowledgements
 
     # Game flags
     @updateScoreFlag = true
@@ -49,34 +52,37 @@ window.Game = class Game extends GameCore
     @updateScores() if @updateScoreFlag
 
   updateState: ->
-    @updateBall()
+    @moveBall()
     enemy = @gs[@enemySide]
     # Interpolate enemy moves
-    enemy.pos = @moveRacket enemy.state, enemy.pos
+    enemy.pos = @moveRacket enemy.updates, enemy.pos
     me = @gs[@side]
-    me.pos = @moveRacket @dir(), me.pos
-
-  dir: ->
-    if @upPressed then @dirUp else if @downPressed then @dirDown else @dirIdle
-
-  updateBall: ->
-    @moveBall()
-    @checkBallCollision()
+    me.pos = @moveRacket {dir: @dir}, me.pos #FIXME
 
   # Keyboard functions
 
   keyboardDown: (evt) ->
     switch evt.which
-      when @keyDown then @downPressed = true; @upPressed = false; @sendState @dirDown
-      when @keyUp   then @upPressed = true; @downPressed = false; @sendState @dirUp
+      when @keyDown then @downPressed = true; @upPressed = false; @dir = @dirDown
+      when @keyUp   then @upPressed = true; @downPressed = false; @dir = @dirUp
+    @sendState @dir
 
   keyboardUp: (evt) ->
     switch evt.which
-      when @keyDown then @downPressed = false; @sendState @dirIdle unless @upPressed
-      when @keyUp   then @upPressed = false; @sendState @dirIdle unless @downPressed
+      when @keyDown 
+        @downPressed = false
+        unless @upPressed
+          @dir = @dirIdle
+          @sendState @dirIdle
+      when @keyUp
+        @upPressed = false
+        unless @downPressed
+          @dir = @dirIdle
+          @sendState @dirIdle
 
   sendState: (dir) ->
-    @socket.emit 'state', {state: dir, side: @side}
+    @dirUpdates.push { dir: dir, seq: @seq++ }
+    @socket.emit 'state', {dir: dir, side: @side, seq: @seq}
 
   # Game view update
 

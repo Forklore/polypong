@@ -7,7 +7,6 @@ class GameCore
 
     @racketHeight = 55
     @racketWidth = 10
-    @racketStep = 10
 
     @dirUp = -1
     @dirIdle = 0
@@ -15,27 +14,36 @@ class GameCore
 
     @ballSize = 8
 
-    @gs = [{pos: 10, dir: @dirIdle}, {pos: 10, dir: @dirIdle}]
+    @gs = [{pos: 10, dir: @dirIdle, updates: []}, {pos: 10, dir: @dirIdle, updates: []}]
     @ballPosition = [@canvasWidth / 2 - @ballSize / 2, @canvasHeight / 2 - @ballSize / 2]
 
     @angle = (20 + Math.random()*50)*Math.PI/180
     @ballV = 200 # pixels per second
+    @racketV = 0.15 # pps
+
+    @updateTime = null
     @dt = 20
     @dtInSec = @dt/1000
 
-  moveRacket: (dirUpdates, pos) ->
-    newPos = pos
-    if dirUpdates.length
-      # FIXME just take last update for now
-      dir = dirUpdates[dirUpdates.length-1].dir
-      newPos =
-        if dir == @dirUp
-          pos - @racketStep
-        else if dir == @dirDown
-          pos + @racketStep
-        else pos
-      newPos = 0 if newPos < 0
-      newPos = @canvasHeight - @racketHeight if newPos > @canvasHeight - @racketHeight
+  time: ->
+    new Date().getTime()
+
+  moveRacket: (dir, dirUpdates, pos, currentTime, lastTime) ->
+    for upd in dirUpdates
+      pos = @moveRacketBit pos, dir, (upd.t - lastTime)
+      lastTime = upd.t
+      dir = upd.dir
+    return @moveRacketBit pos, dir, (currentTime - lastTime)
+
+  moveRacketBit: (pos, dir, dt) ->
+    newPos =
+      if dir == @dirUp
+        pos - @racketV * dt
+      else if dir == @dirDown
+        pos + @racketV * dt
+      else pos
+    newPos = 0 if newPos < 0
+    newPos = @canvasHeight - @racketHeight if newPos > @canvasHeight - @racketHeight
     newPos
 
   moveBall: ->

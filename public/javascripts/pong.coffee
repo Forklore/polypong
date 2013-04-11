@@ -49,15 +49,17 @@ window.Game = class Game extends GameCore
   gameLoop: ->
     @updateState()
     @drawBoard()
-    @updateScores() if @updateScoreFlag
+    @updateScore() if @updateScoreFlag
 
   updateState: ->
+    lastTime = @updateTime
+    @updateTime = @time()
     @moveBall()
     enemy = @gs[@enemySide]
-    # Interpolate enemy moves
-    enemy.pos = @moveRacket enemy.updates, enemy.pos
+    # FIXME Interpolate enemy moves
+    enemy.pos = @moveRacket enemy.dir, enemy.updates, enemy.pos, @updateTime, lastTime
     me = @gs[@side]
-    me.pos = @moveRacket {dir: @dir}, me.pos #FIXME
+    me.pos = @moveRacket me.dir, @dirUpdates, me.pos, @updateTime, lastTime #FIXME
 
   # Keyboard functions
 
@@ -81,12 +83,12 @@ window.Game = class Game extends GameCore
           @sendState @dirIdle
 
   sendState: (dir) ->
-    @dirUpdates.push { dir: dir, seq: @seq++ }
+    @dirUpdates.push { dir: dir, seq: @seq++, t: @time() }
     @socket.emit 'state', {dir: dir, side: @side, seq: @seq}
 
   # Game view update
 
-  updateScores: ->
+  updateScore: ->
     $('#score_' + @side).text @scores[@side]
     $('#score_' + @enemySide).text @scores[@enemySide]
     @updateScoreFlag = false
@@ -96,6 +98,7 @@ window.Game = class Game extends GameCore
   startGame: ->
     canvas = document.getElementById('game_board_canvas')
     @ctx = canvas.getContext '2d'
+    @updateTime = @time()
     setInterval (=> @gameLoop()), @dt
 
   start: (socket) ->

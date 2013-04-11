@@ -51,7 +51,7 @@ module.exports = class Game extends GameCore
       @sendScore sid
 
   updateState: (sid, dir, seq) ->
-    @gamers[sid].updates.push {dir: dir, seq: seq}
+    @gamers[sid].updates.push {dir: dir, seq: seq, t: @time()}
 
   placeBall: (side) ->
     @ballPosition[1] = @gs[side].pos + @racketHeight / 2
@@ -62,9 +62,10 @@ module.exports = class Game extends GameCore
       @ballPosition[0] = @canvasWidth - @ballResetOffset
       @angle = Math.PI + Math.asin((@gs[1].pos - @gs[0].pos + @racketHeight) / @canvasWidth)
 
-  moveRackets: ->
+  moveRackets: (lastTime) ->
     for sid, gamer of @gamers
-      gamer.pos = @moveRacket gamer.updates, gamer.pos
+      gamer.pos = @moveRacket gamer.dir, gamer.updates, gamer.pos, @updateTime, lastTime
+      gamer.dir = gamer.updates[gamer.updates.length-1].dir if gamer.updates.length
       gamer.updates = []
       @gs[gamer.side].pos = gamer.pos
 
@@ -93,8 +94,10 @@ module.exports = class Game extends GameCore
     @inDaLoop = false
     @scores = [0, 0]
 
-  gameStep:  ->
-    @moveRackets()
+  gameStep: ->
+    lastTime = @updateTime - @dt # FIXME do as in client code
+    @updateTime = @time()
+    @moveRackets lastTime
     @moveBall()
     @checkScoreUpdate()
     @sendMoveAll()

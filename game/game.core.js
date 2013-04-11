@@ -10,7 +10,6 @@
       this.xOffset = 20;
       this.racketHeight = 55;
       this.racketWidth = 10;
-      this.racketStep = 10;
       this.dirUp = -1;
       this.dirIdle = 0;
       this.dirDown = 1;
@@ -18,31 +17,46 @@
       this.gs = [
         {
           pos: 10,
-          dir: this.dirIdle
+          dir: this.dirIdle,
+          updates: []
         }, {
           pos: 10,
-          dir: this.dirIdle
+          dir: this.dirIdle,
+          updates: []
         }
       ];
       this.ballPosition = [this.canvasWidth / 2 - this.ballSize / 2, this.canvasHeight / 2 - this.ballSize / 2];
       this.angle = (20 + Math.random() * 50) * Math.PI / 180;
       this.ballV = 200;
+      this.racketV = 0.15;
+      this.updateTime = null;
       this.dt = 20;
       this.dtInSec = this.dt / 1000;
     }
 
-    GameCore.prototype.moveRacket = function(dirUpdates, pos) {
-      var dir, newPos;
-      newPos = pos;
-      if (dirUpdates.length) {
-        dir = dirUpdates[dirUpdates.length - 1].dir;
-        newPos = dir === this.dirUp ? pos - this.racketStep : dir === this.dirDown ? pos + this.racketStep : pos;
-        if (newPos < 0) {
-          newPos = 0;
-        }
-        if (newPos > this.canvasHeight - this.racketHeight) {
-          newPos = this.canvasHeight - this.racketHeight;
-        }
+    GameCore.prototype.time = function() {
+      return new Date().getTime();
+    };
+
+    GameCore.prototype.moveRacket = function(dir, dirUpdates, pos, currentTime, lastTime) {
+      var upd, _i, _len;
+      for (_i = 0, _len = dirUpdates.length; _i < _len; _i++) {
+        upd = dirUpdates[_i];
+        pos = this.moveRacketBit(pos, dir, upd.t - lastTime);
+        lastTime = upd.t;
+        dir = upd.dir;
+      }
+      return this.moveRacketBit(pos, dir, currentTime - lastTime);
+    };
+
+    GameCore.prototype.moveRacketBit = function(pos, dir, dt) {
+      var newPos;
+      newPos = dir === this.dirUp ? pos - this.racketV * dt : dir === this.dirDown ? pos + this.racketV * dt : pos;
+      if (newPos < 0) {
+        newPos = 0;
+      }
+      if (newPos > this.canvasHeight - this.racketHeight) {
+        newPos = this.canvasHeight - this.racketHeight;
       }
       return newPos;
     };

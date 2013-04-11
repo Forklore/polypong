@@ -91,7 +91,8 @@
     Game.prototype.updateState = function(sid, dir, seq) {
       return this.gamers[sid].updates.push({
         dir: dir,
-        seq: seq
+        seq: seq,
+        t: this.time()
       });
     };
 
@@ -106,13 +107,16 @@
       }
     };
 
-    Game.prototype.moveRackets = function() {
+    Game.prototype.moveRackets = function(lastTime) {
       var gamer, sid, _ref, _results;
       _ref = this.gamers;
       _results = [];
       for (sid in _ref) {
         gamer = _ref[sid];
-        gamer.pos = this.moveRacket(gamer.updates, gamer.pos);
+        gamer.pos = this.moveRacket(gamer.dir, gamer.updates, gamer.pos, this.updateTime, lastTime);
+        if (gamer.updates.length) {
+          gamer.dir = gamer.updates[gamer.updates.length - 1].dir;
+        }
         gamer.updates = [];
         _results.push(this.gs[gamer.side].pos = gamer.pos);
       }
@@ -157,7 +161,10 @@
     };
 
     Game.prototype.gameStep = function() {
-      this.moveRackets();
+      var lastTime;
+      lastTime = this.updateTime - this.dt;
+      this.updateTime = this.time();
+      this.moveRackets(lastTime);
       this.moveBall();
       this.checkScoreUpdate();
       return this.sendMoveAll();

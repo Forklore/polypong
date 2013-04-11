@@ -51,19 +51,19 @@
       this.updateState();
       this.drawBoard();
       if (this.updateScoreFlag) {
-        return this.updateScores();
+        return this.updateScore();
       }
     };
 
     Game.prototype.updateState = function() {
-      var enemy, me;
+      var enemy, lastTime, me;
+      lastTime = this.updateTime;
+      this.updateTime = this.time();
       this.moveBall();
       enemy = this.gs[this.enemySide];
-      enemy.pos = this.moveRacket(enemy.updates, enemy.pos);
+      enemy.pos = this.moveRacket(enemy.dir, enemy.updates, enemy.pos, this.updateTime, lastTime);
       me = this.gs[this.side];
-      return me.pos = this.moveRacket({
-        dir: this.dir
-      }, me.pos);
+      return me.pos = this.moveRacket(me.dir, this.dirUpdates, me.pos, this.updateTime, lastTime);
     };
 
     Game.prototype.keyboardDown = function(evt) {
@@ -102,7 +102,8 @@
     Game.prototype.sendState = function(dir) {
       this.dirUpdates.push({
         dir: dir,
-        seq: this.seq++
+        seq: this.seq++,
+        t: this.time()
       });
       return this.socket.emit('state', {
         dir: dir,
@@ -111,7 +112,7 @@
       });
     };
 
-    Game.prototype.updateScores = function() {
+    Game.prototype.updateScore = function() {
       $('#score_' + this.side).text(this.scores[this.side]);
       $('#score_' + this.enemySide).text(this.scores[this.enemySide]);
       return this.updateScoreFlag = false;
@@ -122,6 +123,7 @@
         _this = this;
       canvas = document.getElementById('game_board_canvas');
       this.ctx = canvas.getContext('2d');
+      this.updateTime = this.time();
       return setInterval((function() {
         return _this.gameLoop();
       }), this.dt);

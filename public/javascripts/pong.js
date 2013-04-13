@@ -97,7 +97,6 @@
     };
 
     Game.prototype.sendState = function(dir) {
-      this.debug("Changed state to " + dir + " in " + (this.time()));
       this.dirUpdates.push({
         dir: dir,
         seq: ++this.seq,
@@ -165,8 +164,10 @@
         if (_this.pos === void 0) {
           _this.pos = _this.gs[_this.side].pos;
         }
-        howmany = _this.seq2index(_this.gs[_this.side].lastSeq) + 1;
-        _this.dirUpdates.splice(0, howmany);
+        if (_this.gs[_this.side].lastSeq <= _this.lastProcessedSeq) {
+          howmany = _this.seq2index(_this.gs[_this.side].lastSeq) + 1;
+          _this.dirUpdates.splice(0, howmany);
+        }
         _this.ballPosition = data.ball.pos;
         _this.ballV = data.ball.v;
         return _this.angle = data.ball.angle;

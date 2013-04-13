@@ -79,7 +79,6 @@ window.Game = class Game extends GameCore
           @sendState @dirIdle
 
   sendState: (dir) ->
-    @debug "Changed state to #{dir} in #{@time()}"
     @dirUpdates.push { dir: dir, seq: ++@seq, t: @time() }
     @socket.emit 'state', { dir: dir, side: @side, seq: @seq }
 
@@ -118,8 +117,9 @@ window.Game = class Game extends GameCore
     socket.on 'move', (data) =>
       @gs = data.gamers
       @pos = @gs[@side].pos if @pos == undefined
-      howmany = @seq2index(@gs[@side].lastSeq) + 1
-      @dirUpdates.splice 0, howmany
+      if @gs[@side].lastSeq <= @lastProcessedSeq
+        howmany = @seq2index(@gs[@side].lastSeq) + 1
+        @dirUpdates.splice 0, howmany
       @ballPosition = data.ball.pos
       @ballV = data.ball.v
       @angle = data.ball.angle

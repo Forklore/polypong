@@ -121,7 +121,6 @@
           lastUpdate = gamer.updates[gamer.updates.length - 1];
           gamer.dir = lastUpdate.dir;
           this.gs[gamer.side].lastSeq = lastUpdate.seq;
-          this.debug("Last processed seq: " + lastUpdate.seq);
         }
         gamer.updates = [];
         _results.push(this.gs[gamer.side].updates = []);
@@ -217,7 +216,6 @@
         return _this.sendScore(sid);
       });
       socket.on('state', function(data) {
-        _this.debug("Player " + data.side + " moving " + data.dir);
         return _this.updateState(sid, data.dir, data.seq);
       });
       return socket.on('disconnect', function() {

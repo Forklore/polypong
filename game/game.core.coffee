@@ -13,8 +13,6 @@ class GameCore
     @dirIdle = 0
     @dirDown = 1
 
-    @debugOn = true
-
     @gs = [{pos: 10, dir: @dirIdle, updates: []}, {pos: 10, dir: @dirIdle, updates: []}]
     @ballPosition = [@canvasWidth / 2 - @ballSize / 2, @canvasHeight / 2 - @ballSize / 2]
 
@@ -25,24 +23,21 @@ class GameCore
     @updateTime = null
     @dt = 20
     @dtInSec = @dt/1000
+    @lastProcessedSeq = -1
 
   time: ->
     new Date().getTime()
 
-  debug: (str) ->
-    console.log str if @debugOn
-
   moveRacket: (dir, dirUpdates, pos, currentTime, lastTime) ->
     for upd in dirUpdates
       continue if upd.t <= lastTime or upd.t > currentTime
-      @debug "\tmoving #{upd.dir}, seq: #{upd.seq}, t: #{upd.t}"
-      pos = @moveRacketBit pos, dir, (upd.t - lastTime)
+      pos = @moveRacketBit pos, dir, (upd.t - lastTime), currentTime, lastTime
       lastTime = upd.t
       dir = upd.dir
-    return @moveRacketBit pos, dir, (currentTime - lastTime)
+      @lastProcessedSeq = upd.seq
+    return @moveRacketBit pos, dir, (currentTime - lastTime), currentTime, lastTime
 
-  moveRacketBit: (pos, dir, dt) ->
-    @debug "Moving bit: dt=#{dt}, pos=#{pos}" unless dir == @dirIdle
+  moveRacketBit: (pos, dir, dt, currentTime, lastTime) ->
     newPos =
       if dir == @dirUp
         pos - @racketV * dt

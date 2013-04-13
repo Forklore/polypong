@@ -14,7 +14,6 @@
       this.dirUp = -1;
       this.dirIdle = 0;
       this.dirDown = 1;
-      this.debugOn = true;
       this.gs = [
         {
           pos: 10,
@@ -33,16 +32,11 @@
       this.updateTime = null;
       this.dt = 20;
       this.dtInSec = this.dt / 1000;
+      this.lastProcessedSeq = -1;
     }
 
     GameCore.prototype.time = function() {
       return new Date().getTime();
-    };
-
-    GameCore.prototype.debug = function(str) {
-      if (this.debugOn) {
-        return console.log(str);
-      }
     };
 
     GameCore.prototype.moveRacket = function(dir, dirUpdates, pos, currentTime, lastTime) {
@@ -52,19 +46,16 @@
         if (upd.t <= lastTime || upd.t > currentTime) {
           continue;
         }
-        this.debug("\tmoving " + upd.dir + ", seq: " + upd.seq + ", t: " + upd.t);
-        pos = this.moveRacketBit(pos, dir, upd.t - lastTime);
+        pos = this.moveRacketBit(pos, dir, upd.t - lastTime, currentTime, lastTime);
         lastTime = upd.t;
         dir = upd.dir;
+        this.lastProcessedSeq = upd.seq;
       }
-      return this.moveRacketBit(pos, dir, currentTime - lastTime);
+      return this.moveRacketBit(pos, dir, currentTime - lastTime, currentTime, lastTime);
     };
 
-    GameCore.prototype.moveRacketBit = function(pos, dir, dt) {
+    GameCore.prototype.moveRacketBit = function(pos, dir, dt, currentTime, lastTime) {
       var newPos;
-      if (dir !== this.dirIdle) {
-        this.debug("Moving bit: dt=" + dt + ", pos=" + pos);
-      }
       newPos = dir === this.dirUp ? pos - this.racketV * dt : dir === this.dirDown ? pos + this.racketV * dt : pos;
       if (newPos < 0) {
         newPos = 0;

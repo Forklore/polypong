@@ -70,7 +70,6 @@ module.exports = class Game extends GameCore
         lastUpdate = gamer.updates[gamer.updates.length-1]
         gamer.dir = lastUpdate.dir
         @gs[gamer.side].lastSeq = lastUpdate.seq
-        @debug "Last processed seq: #{lastUpdate.seq}"
       gamer.updates = []
       @gs[gamer.side].updates = [] # FIXME seems wrong, clear after updates sent only
 
@@ -132,7 +131,6 @@ module.exports = class Game extends GameCore
       @sendScore sid
 
     socket.on 'state', (data) =>
-      @debug "Player #{data.side} moving #{data.dir}"
       @updateState sid, data.dir, data.seq
 
     socket.on 'disconnect', =>

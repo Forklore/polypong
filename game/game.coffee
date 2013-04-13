@@ -40,7 +40,9 @@ module.exports = class Game extends GameCore
     g.socket.emit 'move', {gamers: @gs, ball: {pos: @ballPosition, v: @ballV, angle: @angle}}
 
   sendMoveAll: ->
+    @debug "Senging move to all with last seqs:"
     for sid of @gamers
+      @debug "lastSeq: #{@gamers[sid].lastSeq}"
       @sendMove sid
 
   sendScore: (sid) ->

@@ -77,15 +77,16 @@ window.Game = class Game extends GameCore
           @sendState @dirIdle
 
   sendState: (dir) ->
+    @debug "Changed state in #{@time()}"
     @dirUpdates.push { dir: dir, seq: ++@seq, t: @time() }
-    @socket.emit 'state', {dir: dir, side: @side, seq: @seq}
+    @socket.emit 'state', { dir: dir, side: @side, seq: @seq }
 
   # Game view update
 
   updateScore: (scores) ->
     for scr, ind in scores
       $('#score_' + ind).text scr
-  
+
   # Game control functions
 
   startGame: ->
@@ -115,10 +116,7 @@ window.Game = class Game extends GameCore
     socket.on 'move', (data) =>
       @gs = data.gamers
       howmany = @seq2index(@gs[@side].lastSeq) + 1
-      @debug "Splices upto #{howmany} (lastSeq: #{@gs[@side].lastSeq}), now there is updates:" if @dirUpdates.length
       @dirUpdates.splice 0, howmany
-      for upd in @dirUpdates
-        @debug "\tseq: #{upd.seq}"
       @ballPosition = data.ball.pos
       @ballV = data.ball.v
       @angle = data.ball.angle

@@ -95,6 +95,7 @@
     };
 
     Game.prototype.sendState = function(dir) {
+      this.debug("Changed state in " + (this.time()));
       this.dirUpdates.push({
         dir: dir,
         seq: ++this.seq,
@@ -157,18 +158,10 @@
         });
       });
       socket.on('move', function(data) {
-        var howmany, upd, _i, _len, _ref;
+        var howmany;
         _this.gs = data.gamers;
         howmany = _this.seq2index(_this.gs[_this.side].lastSeq) + 1;
-        if (_this.dirUpdates.length) {
-          _this.debug("Splices upto " + howmany + " (lastSeq: " + _this.gs[_this.side].lastSeq + "), now there is updates:");
-        }
         _this.dirUpdates.splice(0, howmany);
-        _ref = _this.dirUpdates;
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          upd = _ref[_i];
-          _this.debug("\tseq: " + upd.seq);
-        }
         _this.ballPosition = data.ball.pos;
         _this.ballV = data.ball.v;
         return _this.angle = data.ball.angle;

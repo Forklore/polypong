@@ -54,9 +54,10 @@
       if (dirUpdates.length) {
         this.debug("Moving user to " + dirUpdates.length + " updates, firstly in " + dir + " dir (time is " + (this.time()) + "):");
       }
+      this.debug("Current time: " + currentTime + ", last time: " + lastTime);
       for (_i = 0, _len = dirUpdates.length; _i < _len; _i++) {
         upd = dirUpdates[_i];
-        if (upd.t <= lastTime) {
+        if (upd.t <= lastTime || upd.t > currentTime) {
           continue;
         }
         this.debug("\tmoving " + upd.dir + ", seq: " + upd.seq + ", t: " + upd.t);

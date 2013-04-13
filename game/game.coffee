@@ -20,15 +20,15 @@ module.exports = class Game extends GameCore
 
     @gamers = {}
     initPos = @canvasHeight / 2 - 40
-    @gs = [{pos: initPos - @racketHeight, dir: @dirIdle, updates: []},
-           {pos: initPos + @racketHeight, dir: @dirIdle, updates: []}]
+    @gs = [{pos: initPos - @racketHeight, dir: @dirIdle, updates: [], lastSeq: 0},
+           {pos: initPos + @racketHeight, dir: @dirIdle, updates: [], lastSeq: 0}]
     @ballResetOffset = 50
     @scores = [0, 0]
     @count = 0
     @inDaLoop = false
 
   addGamer: (sid, socket, side) ->
-    @gamers[sid] = {socket: socket, updates: [], side: side, pos: @gs[side].pos}
+    @gamers[sid] = {socket: socket, updates: [], side: side, pos: @gs[side].pos, lastSeq: 0}
     @sendJoined sid
 
   sendJoined: (sid) ->
@@ -65,9 +65,13 @@ module.exports = class Game extends GameCore
   moveRackets: (lastTime) ->
     for sid, gamer of @gamers
       gamer.pos = @moveRacket gamer.dir, gamer.updates, gamer.pos, @updateTime, lastTime
-      gamer.dir = gamer.updates[gamer.updates.length-1].dir if gamer.updates.length
-      gamer.updates = []
       @gs[gamer.side].pos = gamer.pos
+      if gamer.updates.length
+        lastUpdate = gamer.updates[gamer.updates.length-1]
+        gamer.dir = lastUpdate.dir
+        @gs[gamer.side].lastSeq = lastUpdate.seq
+      gamer.updates = []
+      @gs[gamer.side].updates = []
 
   checkScoreUpdate: ->
     if @ballPosition[0] < 0 or @ballPosition[0] > @canvasWidth - @ballSize

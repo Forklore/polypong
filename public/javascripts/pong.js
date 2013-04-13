@@ -17,8 +17,7 @@
       this.enemySide = 1;
       this.scores = [0, 0];
       this.dirUpdates = [];
-      this.seq = 0;
-      this.updateScoreFlag = true;
+      this.seq = -1;
       this.keyLeft = 37;
       this.keyUp = 38;
       this.keyRight = 39;
@@ -49,10 +48,7 @@
 
     Game.prototype.gameLoop = function() {
       this.updateState();
-      this.drawBoard();
-      if (this.updateScoreFlag) {
-        return this.updateScore();
-      }
+      return this.drawBoard();
     };
 
     Game.prototype.updateState = function() {
@@ -102,7 +98,7 @@
     Game.prototype.sendState = function(dir) {
       this.dirUpdates.push({
         dir: dir,
-        seq: this.seq++,
+        seq: ++this.seq,
         t: this.time()
       });
       return this.socket.emit('state', {
@@ -112,10 +108,14 @@
       });
     };
 
-    Game.prototype.updateScore = function() {
-      $('#score_' + this.side).text(this.scores[this.side]);
-      $('#score_' + this.enemySide).text(this.scores[this.enemySide]);
-      return this.updateScoreFlag = false;
+    Game.prototype.updateScore = function(scores) {
+      var ind, scr, _i, _len, _results;
+      _results = [];
+      for (ind = _i = 0, _len = scores.length; _i < _len; ind = ++_i) {
+        scr = scores[ind];
+        _results.push($('#score_' + ind).text(scr));
+      }
+      return _results;
     };
 
     Game.prototype.startGame = function() {
@@ -127,6 +127,18 @@
       return setInterval((function() {
         return _this.gameLoop();
       }), this.dt);
+    };
+
+    Game.prototype.seq2index = function(seq) {
+      var ind, upd, _i, _len, _ref;
+      _ref = this.dirUpdates;
+      for (ind = _i = 0, _len = _ref.length; _i < _len; ind = ++_i) {
+        upd = _ref[ind];
+        if (upd.seq === seq) {
+          return ind;
+        }
+      }
+      return -1;
     };
 
     Game.prototype.start = function(socket) {
@@ -146,14 +158,16 @@
         });
       });
       socket.on('move', function(data) {
+        var ind;
         _this.gs = data.gamers;
+        ind = _this.seq2index(_this.gs[_this.side].lastSeq);
+        _this.dirUpdates.splice(0, ind + 1);
         _this.ballPosition = data.ball.pos;
         _this.ballV = data.ball.v;
         return _this.angle = data.ball.angle;
       });
       socket.on('score', function(data) {
-        _this.scores = data.scores;
-        return _this.updateScoreFlag = true;
+        return _this.updateScore(data.scores);
       });
       socket.on('busy', function(data) {});
       socket.on('disconnect', function() {

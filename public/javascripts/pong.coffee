@@ -11,10 +11,7 @@ window.Game = class Game extends GameCore
     @enemySide = 1
     @scores = [0, 0]
     @dirUpdates = [] # arrays of games inputs
-    @seq = 0         # sequence number for acknowledgements
-
-    # Game flags
-    @updateScoreFlag = true
+    @seq = -1        # sequence number for acknowledgements
 
     # Constants
     @keyLeft = 37
@@ -49,14 +46,13 @@ window.Game = class Game extends GameCore
   gameLoop: ->
     @updateState()
     @drawBoard()
-    @updateScore() if @updateScoreFlag
 
   updateState: ->
     lastTime = @updateTime
     @updateTime = @time()
     @moveBall()
-    enemy = @gs[@enemySide]
     # FIXME Interpolate enemy moves
+    enemy = @gs[@enemySide]
     enemy.pos = @moveRacket enemy.dir, enemy.updates, enemy.pos, @updateTime, lastTime
     me = @gs[@side]
     me.pos = @moveRacket me.dir, @dirUpdates, me.pos, @updateTime, lastTime #FIXME
@@ -83,23 +79,27 @@ window.Game = class Game extends GameCore
           @sendState @dirIdle
 
   sendState: (dir) ->
-    @dirUpdates.push { dir: dir, seq: @seq++, t: @time() }
+    @dirUpdates.push { dir: dir, seq: ++@seq, t: @time() }
     @socket.emit 'state', {dir: dir, side: @side, seq: @seq}
 
   # Game view update
 
-  updateScore: ->
-    $('#score_' + @side).text @scores[@side]
-    $('#score_' + @enemySide).text @scores[@enemySide]
-    @updateScoreFlag = false
+  updateScore: (scores) ->
+    for scr, ind in scores
+      $('#score_' + ind).text scr
   
   # Game control functions
 
   startGame: ->
-    canvas = document.getElementById('game_board_canvas')
+    canvas = document.getElementById 'game_board_canvas'
     @ctx = canvas.getContext '2d'
     @updateTime = @time()
     setInterval (=> @gameLoop()), @dt
+
+  seq2index: (seq) ->
+    for upd, ind in @dirUpdates
+      return ind if upd.seq == seq
+    -1
 
   start: (socket) ->
     @socket = socket
@@ -116,13 +116,15 @@ window.Game = class Game extends GameCore
 
     socket.on 'move', (data) =>
       @gs = data.gamers
+      # FIXME need to current gamer position, if there difference in server moves and user's
+      ind = @seq2index @gs[@side].lastSeq
+      @dirUpdates.splice 0, (ind + 1)
       @ballPosition = data.ball.pos
       @ballV = data.ball.v
       @angle = data.ball.angle
 
     socket.on 'score', (data) =>
-      @scores = data.scores
-      @updateScoreFlag = true
+      @updateScore data.scores
 
     socket.on 'busy', (data) =>
 

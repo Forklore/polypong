@@ -23,11 +23,13 @@
         {
           pos: initPos - this.racketHeight,
           dir: this.dirIdle,
-          updates: []
+          updates: [],
+          lastSeq: 0
         }, {
           pos: initPos + this.racketHeight,
           dir: this.dirIdle,
-          updates: []
+          updates: [],
+          lastSeq: 0
         }
       ];
       this.ballResetOffset = 50;
@@ -41,7 +43,8 @@
         socket: socket,
         updates: [],
         side: side,
-        pos: this.gs[side].pos
+        pos: this.gs[side].pos,
+        lastSeq: 0
       };
       return this.sendJoined(sid);
     };
@@ -108,17 +111,20 @@
     };
 
     Game.prototype.moveRackets = function(lastTime) {
-      var gamer, sid, _ref, _results;
+      var gamer, lastUpdate, sid, _ref, _results;
       _ref = this.gamers;
       _results = [];
       for (sid in _ref) {
         gamer = _ref[sid];
         gamer.pos = this.moveRacket(gamer.dir, gamer.updates, gamer.pos, this.updateTime, lastTime);
+        this.gs[gamer.side].pos = gamer.pos;
         if (gamer.updates.length) {
-          gamer.dir = gamer.updates[gamer.updates.length - 1].dir;
+          lastUpdate = gamer.updates[gamer.updates.length - 1];
+          gamer.dir = lastUpdate.dir;
+          this.gs[gamer.side].lastSeq = lastUpdate.seq;
         }
         gamer.updates = [];
-        _results.push(this.gs[gamer.side].pos = gamer.pos);
+        _results.push(this.gs[gamer.side].updates = []);
       }
       return _results;
     };

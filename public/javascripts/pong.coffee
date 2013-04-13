@@ -116,7 +116,7 @@ window.Game = class Game extends GameCore
       @gs = data.gamers
       ind = @seq2index @gs[@side].lastSeq
       @dirUpdates.splice 0, (ind + 1)
-      @debug "Splices upto #{ind + 1}, now there is updates:" if @dirUpdates.length
+      @debug "Splices upto #{ind + 1} (lastSeq: #{@gs[@side].lastSeq}), now there is updates:" if @dirUpdates.length
       for upd in @dirUpdates
         @debug "\tseq: #{upd.seq}"
       @ballPosition = data.ball.pos

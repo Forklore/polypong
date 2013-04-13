@@ -42,6 +42,6 @@ console.log "Express server listening on port %d in %s mode", app.address().port
 game = new Game
 
 # Comment log:false to see sockets debug messages
-io = io.listen app, log:false
+io = io.listen app#, log:false
 io.sockets.on 'connection', (socket) ->
   game.connect socket

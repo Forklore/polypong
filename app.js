@@ -56,9 +56,7 @@
 
   game = new Game;
 
-  io = io.listen(app, {
-    log: false
-  });
+  io = io.listen(app);
 
   io.sockets.on('connection', function(socket) {
     return game.connect(socket);

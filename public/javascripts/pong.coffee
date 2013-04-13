@@ -53,10 +53,8 @@ window.Game = class Game extends GameCore
     @moveBall()
     enemy = @gs[@enemySide]
     # FIXME Interpolate enemy moves
-    @debug 'MOVE ENEMY'
     enemy.pos = @moveRacket enemy.dir, enemy.updates, enemy.pos, @updateTime, lastTime
     me = @gs[@side]
-    @debug 'MOVE ME'
     me.pos = @moveRacket me.dir, @dirUpdates, me.pos, @updateTime, lastTime #FIXME
 
   # Keyboard functions
@@ -120,7 +118,7 @@ window.Game = class Game extends GameCore
       @gs = data.gamers
       ind = @seq2index @gs[@side].lastSeq
       @dirUpdates.splice 0, (ind + 1)
-      @debug "Splices upto #{ind + 1}, now there is updates:"
+      @debug "Splices upto #{ind + 1}, now there is updates:" if @dirUpdates.length
       for upd in @dirUpdates
         @debug "\tseq: #{upd.seq}"
       @ballPosition = data.ball.pos

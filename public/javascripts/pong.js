@@ -57,10 +57,8 @@
       this.updateTime = this.time();
       this.moveBall();
       enemy = this.gs[this.enemySide];
-      this.debug('MOVE ENEMY');
       enemy.pos = this.moveRacket(enemy.dir, enemy.updates, enemy.pos, this.updateTime, lastTime);
       me = this.gs[this.side];
-      this.debug('MOVE ME');
       return me.pos = this.moveRacket(me.dir, this.dirUpdates, me.pos, this.updateTime, lastTime);
     };
 
@@ -164,7 +162,9 @@
         _this.gs = data.gamers;
         ind = _this.seq2index(_this.gs[_this.side].lastSeq);
         _this.dirUpdates.splice(0, ind + 1);
-        _this.debug("Splices upto " + (ind + 1) + ", now there is updates:");
+        if (_this.dirUpdates.length) {
+          _this.debug("Splices upto " + (ind + 1) + ", now there is updates:");
+        }
         _ref = _this.dirUpdates;
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           upd = _ref[_i];

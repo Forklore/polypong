@@ -36,8 +36,9 @@ class GameCore
     console.log str
 
   moveRacket: (dir, dirUpdates, pos, currentTime, lastTime) ->
-    @debug "Moving user #{dirUpdates}" if dirUpdates.length
+    @debug "Moving user:" if dirUpdates.length
     for upd in dirUpdates
+      @debug "\tmoving #{upd.dir}, seq: #{upd.seq}, t: #{upd.t}"
       pos = @moveRacketBit pos, dir, (upd.t - lastTime)
       lastTime = upd.t
       dir = upd.dir

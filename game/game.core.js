@@ -51,10 +51,11 @@ GameCore = (function() {
   GameCore.prototype.moveRacket = function(dir, dirUpdates, pos, currentTime, lastTime) {
     var upd, _i, _len;
     if (dirUpdates.length) {
-      this.debug("Moving user " + dirUpdates);
+      this.debug("Moving user:");
     }
     for (_i = 0, _len = dirUpdates.length; _i < _len; _i++) {
       upd = dirUpdates[_i];
+      this.debug("\tmoving " + upd.dir + ", seq: " + upd.seq + ", t: " + upd.t);
       pos = this.moveRacketBit(pos, dir, upd.t - lastTime);
       lastTime = upd.t;
       dir = upd.dir;

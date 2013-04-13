@@ -38,6 +38,7 @@ class GameCore
   moveRacket: (dir, dirUpdates, pos, currentTime, lastTime) ->
     @debug "Moving user:" if dirUpdates.length
     for upd in dirUpdates
+      continue if upd.t <= lastTime
       @debug "\tmoving #{upd.dir}, seq: #{upd.seq}, t: #{upd.t}"
       pos = @moveRacketBit pos, dir, (upd.t - lastTime)
       lastTime = upd.t

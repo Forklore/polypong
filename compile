@@ -1,3 +1,5 @@
+echo "COMPILING"
+
 coffee -c app.coffee
 cd routes
 coffee -c index.coffee

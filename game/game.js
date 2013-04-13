@@ -122,6 +122,7 @@
           lastUpdate = gamer.updates[gamer.updates.length - 1];
           gamer.dir = lastUpdate.dir;
           this.gs[gamer.side].lastSeq = lastUpdate.seq;
+          this.debug("Last processed seq: " + lastUpdate.seq);
         }
         gamer.updates = [];
         _results.push(this.gs[gamer.side].updates = []);
@@ -196,7 +197,7 @@
       var sid,
         _this = this;
       sid = cookie.parse(socket.handshake.headers.cookie)['connect.sid'];
-      console.log("Have a connection: " + sid + " (socket id: " + socket.id + ")");
+      this.info("Have a connection: " + sid + " (socket id: " + socket.id + ")");
       socket.on('join', function(data) {
         if (sid in _this.gamers) {
           _this.sendJoined(sid);
@@ -207,7 +208,7 @@
           socket.emit('busy');
           return;
         }
-        console.log("I can has join: " + sid);
+        _this.info("I can has join: " + sid);
         _this.addGamer(sid, socket, _this.count);
         _this.count++;
         if (_this.count > 0) {
@@ -217,14 +218,14 @@
         return _this.sendScore(sid);
       });
       socket.on('state', function(data) {
-        console.log("Player " + data.side + " moving " + data.dir);
+        _this.debug("Player " + data.side + " moving " + data.dir);
         return _this.updateState(sid, data.dir, data.seq);
       });
       return socket.on('disconnect', function() {
         if (!(sid in _this.gamers && _this.gamers[sid].socket.id === socket.id)) {
           return;
         }
-        console.log("Disconnecting: " + sid);
+        _this.info("Disconnecting: " + sid);
         _this.oneQuitted(sid);
         _this.count--;
         if (_this.count === 0) {

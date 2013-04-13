@@ -7,12 +7,13 @@ class GameCore
 
     @racketHeight = 55
     @racketWidth = 10
+    @ballSize = 8
 
     @dirUp = -1
     @dirIdle = 0
     @dirDown = 1
 
-    @ballSize = 8
+    @debugOn = true
 
     @gs = [{pos: 10, dir: @dirIdle, updates: []}, {pos: 10, dir: @dirIdle, updates: []}]
     @ballPosition = [@canvasWidth / 2 - @ballSize / 2, @canvasHeight / 2 - @ballSize / 2]
@@ -28,7 +29,14 @@ class GameCore
   time: ->
     new Date().getTime()
 
+  debug: (str) ->
+    console.log str if @debugOn
+
+  info: (str) ->
+    console.log str
+
   moveRacket: (dir, dirUpdates, pos, currentTime, lastTime) ->
+    @debug "Moving user #{dirUpdates}" if dirUpdates.length
     for upd in dirUpdates
       pos = @moveRacketBit pos, dir, (upd.t - lastTime)
       lastTime = upd.t

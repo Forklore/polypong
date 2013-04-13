@@ -51,10 +51,12 @@ window.Game = class Game extends GameCore
     lastTime = @updateTime
     @updateTime = @time()
     @moveBall()
-    # FIXME Interpolate enemy moves
     enemy = @gs[@enemySide]
+    # FIXME Interpolate enemy moves
+    @debug 'MOVE ENEMY'
     enemy.pos = @moveRacket enemy.dir, enemy.updates, enemy.pos, @updateTime, lastTime
     me = @gs[@side]
+    @debug 'MOVE ME'
     me.pos = @moveRacket me.dir, @dirUpdates, me.pos, @updateTime, lastTime #FIXME
 
   # Keyboard functions
@@ -105,7 +107,7 @@ window.Game = class Game extends GameCore
     @socket = socket
 
     socket.on 'connect', =>
-      console.log "Socket opened, Master!"
+      @info "Socket opened, Master!"
 
     socket.on 'joined', (side) =>
       @side = side
@@ -116,9 +118,11 @@ window.Game = class Game extends GameCore
 
     socket.on 'move', (data) =>
       @gs = data.gamers
-      # FIXME need to current gamer position, if there difference in server moves and user's
       ind = @seq2index @gs[@side].lastSeq
       @dirUpdates.splice 0, (ind + 1)
+      @debug "Splices upto #{ind + 1}, now there is updates:"
+      for upd in @dirUpdates
+        @debug "\tseq: #{upd.seq}"
       @ballPosition = data.ball.pos
       @ballV = data.ball.v
       @angle = data.ball.angle

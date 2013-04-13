@@ -52,7 +52,7 @@
     GameCore.prototype.moveRacket = function(dir, dirUpdates, pos, currentTime, lastTime) {
       var upd, _i, _len;
       if (dirUpdates.length) {
-        this.debug("Moving user:");
+        this.debug("Moving user to " + dirUpdates.length + " updates:");
       }
       for (_i = 0, _len = dirUpdates.length; _i < _len; _i++) {
         upd = dirUpdates[_i];

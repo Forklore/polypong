@@ -20,15 +20,15 @@ module.exports = class Game extends GameCore
 
     @gamers = {}
     initPos = @canvasHeight / 2 - 40
-    @gs = [{pos: initPos - @racketHeight, dir: @dirIdle, updates: [], lastSeq: 0},
-           {pos: initPos + @racketHeight, dir: @dirIdle, updates: [], lastSeq: 0}]
+    @gs = [{pos: initPos - @racketHeight, dir: @dirIdle, updates: [], lastSeq: -1},
+           {pos: initPos + @racketHeight, dir: @dirIdle, updates: [], lastSeq: -1}]
     @ballResetOffset = 50
     @scores = [0, 0]
     @count = 0
     @inDaLoop = false
 
   addGamer: (sid, socket, side) ->
-    @gamers[sid] = {socket: socket, updates: [], side: side, pos: @gs[side].pos, lastSeq: 0}
+    @gamers[sid] = {socket: socket, updates: [], side: side, pos: @gs[side].pos}
     @sendJoined sid
 
   sendJoined: (sid) ->
@@ -40,9 +40,8 @@ module.exports = class Game extends GameCore
     g.socket.emit 'move', {gamers: @gs, ball: {pos: @ballPosition, v: @ballV, angle: @angle}}
 
   sendMoveAll: ->
-    @debug "Senging move to all with last seqs:"
     for sid of @gamers
-      @debug "lastSeq: #{@gamers[sid].lastSeq}"
+      @debug "lastSeq for #{@gamers[sid].side}: #{@gs[@gamers[sid].side].lastSeq}"
       @sendMove sid
 
   sendScore: (sid) ->

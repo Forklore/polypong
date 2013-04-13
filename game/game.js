@@ -24,12 +24,12 @@
           pos: initPos - this.racketHeight,
           dir: this.dirIdle,
           updates: [],
-          lastSeq: 0
+          lastSeq: -1
         }, {
           pos: initPos + this.racketHeight,
           dir: this.dirIdle,
           updates: [],
-          lastSeq: 0
+          lastSeq: -1
         }
       ];
       this.ballResetOffset = 50;
@@ -43,8 +43,7 @@
         socket: socket,
         updates: [],
         side: side,
-        pos: this.gs[side].pos,
-        lastSeq: 0
+        pos: this.gs[side].pos
       };
       return this.sendJoined(sid);
     };
@@ -69,10 +68,9 @@
 
     Game.prototype.sendMoveAll = function() {
       var sid, _results;
-      this.debug("Senging move to all with last seqs:");
       _results = [];
       for (sid in this.gamers) {
-        this.debug("lastSeq: " + this.gamers[sid].lastSeq);
+        this.debug("lastSeq for " + this.gamers[sid].side + ": " + this.gs[this.gamers[sid].side].lastSeq);
         _results.push(this.sendMove(sid));
       }
       return _results;

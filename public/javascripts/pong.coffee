@@ -44,7 +44,6 @@ window.Game = class Game extends GameCore
   # Game logic
 
   gameLoop: ->
-    @debug "Draw loop: #{@time()}"
     @updateState()
     @drawBoard()
 

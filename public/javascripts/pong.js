@@ -47,7 +47,6 @@
     };
 
     Game.prototype.gameLoop = function() {
-      this.debug("Draw loop: " + (this.time()));
       this.updateState();
       return this.drawBoard();
     };

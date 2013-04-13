@@ -36,7 +36,7 @@ class GameCore
     console.log str
 
   moveRacket: (dir, dirUpdates, pos, currentTime, lastTime) ->
-    @debug "Moving user to #{dirUpdates.length} updates:" if dirUpdates.length
+    @debug "Moving user to #{dirUpdates.length} updates, firstly in #{dir} dir:" if dirUpdates.length
     for upd in dirUpdates
       continue if upd.t <= lastTime
       @debug "\tmoving #{upd.dir}, seq: #{upd.seq}, t: #{upd.t}"

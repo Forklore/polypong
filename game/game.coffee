@@ -26,6 +26,7 @@ module.exports = class Game extends GameCore
     @scores = [0, 0]
     @count = 0
     @inDaLoop = false
+    @temp = -1
 
   addGamer: (sid, socket, side) ->
     @gamers[sid] = {socket: socket, updates: [], side: side, pos: @gs[side].pos}
@@ -37,11 +38,12 @@ module.exports = class Game extends GameCore
   sendMove: (sid) ->
     g = @gamers[sid]
     @gs[g.side].updates = g.updates
+    @debug "lastSeq for #{g.side}: #{@gs[g.side].lastSeq}" if @temp != @gs[g.side].lastSeq
+    @temp = @gs[g.side].lastSeq
     g.socket.emit 'move', {gamers: @gs, ball: {pos: @ballPosition, v: @ballV, angle: @angle}}
 
   sendMoveAll: ->
     for sid of @gamers
-      @debug "lastSeq for #{@gamers[sid].side}: #{@gs[@gamers[sid].side].lastSeq}"
       @sendMove sid
 
   sendScore: (sid) ->

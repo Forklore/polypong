@@ -36,6 +36,7 @@
       this.scores = [0, 0];
       this.count = 0;
       this.inDaLoop = false;
+      this.temp = -1;
     }
 
     Game.prototype.addGamer = function(sid, socket, side) {
@@ -56,6 +57,10 @@
       var g;
       g = this.gamers[sid];
       this.gs[g.side].updates = g.updates;
+      if (this.temp !== this.gs[g.side].lastSeq) {
+        this.debug("lastSeq for " + g.side + ": " + this.gs[g.side].lastSeq);
+      }
+      this.temp = this.gs[g.side].lastSeq;
       return g.socket.emit('move', {
         gamers: this.gs,
         ball: {
@@ -70,7 +75,6 @@
       var sid, _results;
       _results = [];
       for (sid in this.gamers) {
-        this.debug("lastSeq for " + this.gamers[sid].side + ": " + this.gs[this.gamers[sid].side].lastSeq);
         _results.push(this.sendMove(sid));
       }
       return _results;

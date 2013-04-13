@@ -59,7 +59,10 @@
       enemy = this.gs[this.enemySide];
       enemy.pos = this.moveRacket(enemy.dir, enemy.updates, enemy.pos, this.updateTime, lastTime);
       me = this.gs[this.side];
-      return me.pos = this.moveRacket(me.dir, this.dirUpdates, me.pos, this.updateTime, lastTime);
+      me.pos = this.moveRacket(this.dir, this.dirUpdates, me.pos, this.updateTime, lastTime);
+      if (this.dirUpdates.length) {
+        return this.dir = this.dirUpdates[this.dirUpdates.length - 1].dir;
+      }
     };
 
     Game.prototype.keyboardDown = function(evt) {
@@ -67,13 +70,11 @@
         case this.keyDown:
           this.downPressed = true;
           this.upPressed = false;
-          this.dir = this.dirDown;
-          return this.sendState(this.dir);
+          return this.sendState(this.dirDown);
         case this.keyUp:
           this.upPressed = true;
           this.downPressed = false;
-          this.dir = this.dirUp;
-          return this.sendState(this.dir);
+          return this.sendState(this.dirUp);
       }
     };
 
@@ -82,14 +83,12 @@
         case this.keyDown:
           this.downPressed = false;
           if (!this.upPressed) {
-            this.dir = this.dirIdle;
             return this.sendState(this.dirIdle);
           }
           break;
         case this.keyUp:
           this.upPressed = false;
           if (!this.downPressed) {
-            this.dir = this.dirIdle;
             return this.sendState(this.dirIdle);
           }
       }

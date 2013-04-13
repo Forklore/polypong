@@ -6,7 +6,7 @@ window.Game = class Game extends GameCore
     # Vars
     @upPressed = false
     @downPressed = false
-    @dir = @dirIdle
+    @dir = @dirIdle # Current moving direction on the moment of updateState function (or last moving direction after update, if you prefer)
     @side = 0
     @enemySide = 1
     @scores = [0, 0]
@@ -55,26 +55,25 @@ window.Game = class Game extends GameCore
     # FIXME Interpolate enemy moves
     enemy.pos = @moveRacket enemy.dir, enemy.updates, enemy.pos, @updateTime, lastTime
     me = @gs[@side]
-    me.pos = @moveRacket me.dir, @dirUpdates, me.pos, @updateTime, lastTime #FIXME
+    me.pos = @moveRacket @dir, @dirUpdates, me.pos, @updateTime, lastTime #FIXME
+    @dir = @dirUpdates[@dirUpdates.length-1].dir if @dirUpdates.length # FIXME: this can go in @gs structure, but shouldn't be rewritten by server
 
   # Keyboard functions
 
   keyboardDown: (evt) ->
     switch evt.which
-      when @keyDown then @downPressed = true; @upPressed = false; @dir = @dirDown; @sendState @dir
-      when @keyUp   then @upPressed = true; @downPressed = false; @dir = @dirUp; @sendState @dir
+      when @keyDown then @downPressed = true; @upPressed = false; @sendState @dirDown
+      when @keyUp   then @upPressed = true; @downPressed = false; @sendState @dirUp
 
   keyboardUp: (evt) ->
     switch evt.which
-      when @keyDown 
+      when @keyDown
         @downPressed = false
         unless @upPressed
-          @dir = @dirIdle
           @sendState @dirIdle
       when @keyUp
         @upPressed = false
         unless @downPressed
-          @dir = @dirIdle
           @sendState @dirIdle
 
   sendState: (dir) ->

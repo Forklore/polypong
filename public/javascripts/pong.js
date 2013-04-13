@@ -157,13 +157,13 @@
         });
       });
       socket.on('move', function(data) {
-        var ind, upd, _i, _len, _ref;
+        var howmany, upd, _i, _len, _ref;
         _this.gs = data.gamers;
-        ind = _this.seq2index(_this.gs[_this.side].lastSeq);
-        _this.dirUpdates.splice(0, ind + 1);
+        howmany = _this.seq2index(_this.gs[_this.side].lastSeq + 1);
         if (_this.dirUpdates.length) {
-          _this.debug("Splices upto " + (ind + 1) + " (lastSeq: " + _this.gs[_this.side].lastSeq + "), now there is updates:");
+          _this.debug("Splices upto " + howmany + " (lastSeq: " + _this.gs[_this.side].lastSeq + "), now there is updates:");
         }
+        _this.dirUpdates.splice(0, howmany);
         _ref = _this.dirUpdates;
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           upd = _ref[_i];

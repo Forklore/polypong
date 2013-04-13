@@ -114,9 +114,9 @@ window.Game = class Game extends GameCore
 
     socket.on 'move', (data) =>
       @gs = data.gamers
-      ind = @seq2index @gs[@side].lastSeq
-      @dirUpdates.splice 0, (ind + 1)
-      @debug "Splices upto #{ind + 1} (lastSeq: #{@gs[@side].lastSeq}), now there is updates:" if @dirUpdates.length
+      howmany = @seq2index @gs[@side].lastSeq + 1
+      @debug "Splices upto #{howmany} (lastSeq: #{@gs[@side].lastSeq}), now there is updates:" if @dirUpdates.length
+      @dirUpdates.splice 0, howmany
       for upd in @dirUpdates
         @debug "\tseq: #{upd.seq}"
       @ballPosition = data.ball.pos

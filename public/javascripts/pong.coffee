@@ -61,9 +61,8 @@ window.Game = class Game extends GameCore
 
   keyboardDown: (evt) ->
     switch evt.which
-      when @keyDown then @downPressed = true; @upPressed = false; @dir = @dirDown
-      when @keyUp   then @upPressed = true; @downPressed = false; @dir = @dirUp
-    @sendState @dir
+      when @keyDown then @downPressed = true; @upPressed = false; @dir = @dirDown; @sendState @dir
+      when @keyUp   then @upPressed = true; @downPressed = false; @dir = @dirUp; @sendState @dir
 
   keyboardUp: (evt) ->
     switch evt.which

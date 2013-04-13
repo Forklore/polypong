@@ -54,7 +54,6 @@
       if (dirUpdates.length) {
         this.debug("Moving user to " + dirUpdates.length + " updates, firstly in " + dir + " dir (time is " + (this.time()) + "):");
       }
-      this.debug("Current time: " + currentTime + ", last time: " + lastTime);
       for (_i = 0, _len = dirUpdates.length; _i < _len; _i++) {
         upd = dirUpdates[_i];
         if (upd.t <= lastTime || upd.t > currentTime) {
@@ -70,6 +69,9 @@
 
     GameCore.prototype.moveRacketBit = function(pos, dir, dt) {
       var newPos;
+      if (dir !== this.dirIdle) {
+        this.debug("Moving bit: dt=" + dt + ", pos=" + pos);
+      }
       newPos = dir === this.dirUp ? pos - this.racketV * dt : dir === this.dirDown ? pos + this.racketV * dt : pos;
       if (newPos < 0) {
         newPos = 0;

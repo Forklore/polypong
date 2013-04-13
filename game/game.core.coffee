@@ -41,7 +41,7 @@ class GameCore
       continue if upd.t <= lastTime
       @debug "\tmoving #{upd.dir}, seq: #{upd.seq}, t: #{upd.t}"
       pos = @moveRacketBit pos, dir, (upd.t - lastTime)
-      lastTime = new Date(upd.t)
+      lastTime = upd.t
       dir = upd.dir
     return @moveRacketBit pos, dir, (currentTime - lastTime)
 

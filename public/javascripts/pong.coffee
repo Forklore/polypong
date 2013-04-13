@@ -44,11 +44,12 @@ window.Game = class Game extends GameCore
   # Game logic
 
   gameLoop: ->
+    @debug "Draw loop: #{@time()}"
     @updateState()
     @drawBoard()
 
   updateState: ->
-    lastTime = new Date(@updateTime)
+    lastTime = @updateTime
     @updateTime = @time()
     @moveBall()
     enemy = @gs[@enemySide]

@@ -72,7 +72,7 @@ module.exports = class Game extends GameCore
         @gs[gamer.side].lastSeq = lastUpdate.seq
         @debug "Last processed seq: #{lastUpdate.seq}"
       gamer.updates = []
-      @gs[gamer.side].updates = []
+      @gs[gamer.side].updates = [] # FIXME seems wrong, clear after updates sent only
 
   checkScoreUpdate: ->
     if @ballPosition[0] < 0 or @ballPosition[0] > @canvasWidth - @ballSize
@@ -101,7 +101,7 @@ module.exports = class Game extends GameCore
 
   gameStep: ->
     @updateTime = @time()
-    lastTime = new Date(@updateTime - @dt) # FIXME do as in client code
+    lastTime = @updateTime - @dt # FIXME do as in client code
     @moveRackets lastTime
     @moveBall()
     @checkScoreUpdate()

@@ -47,13 +47,14 @@
     };
 
     Game.prototype.gameLoop = function() {
+      this.debug("Draw loop: " + (this.time()));
       this.updateState();
       return this.drawBoard();
     };
 
     Game.prototype.updateState = function() {
       var enemy, lastTime, me;
-      lastTime = new Date(this.updateTime);
+      lastTime = this.updateTime;
       this.updateTime = this.time();
       this.moveBall();
       enemy = this.gs[this.enemySide];

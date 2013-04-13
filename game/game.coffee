@@ -26,7 +26,6 @@ module.exports = class Game extends GameCore
     @scores = [0, 0]
     @count = 0
     @inDaLoop = false
-    @temp = -1
 
   addGamer: (sid, socket, side) ->
     @gamers[sid] = {socket: socket, updates: [], side: side, pos: @gs[side].pos}
@@ -38,8 +37,6 @@ module.exports = class Game extends GameCore
   sendMove: (sid) ->
     g = @gamers[sid]
     @gs[g.side].updates = g.updates
-    @debug "lastSeq for #{g.side}: #{@gs[g.side].lastSeq}" if @temp != @gs[g.side].lastSeq
-    @temp = @gs[g.side].lastSeq
     g.socket.emit 'move', {gamers: @gs, ball: {pos: @ballPosition, v: @ballV, angle: @angle}}
 
   sendMoveAll: ->
@@ -117,7 +114,7 @@ module.exports = class Game extends GameCore
 
   connect: (socket) ->
     sid = cookie.parse(socket.handshake.headers.cookie)['connect.sid']
-    @info "Have a connection: #{sid} (socket id: #{socket.id})"
+    console.log "Have a connection: #{sid} (socket id: #{socket.id})"
 
     socket.on 'join', (data) =>
       if sid of @gamers
@@ -127,7 +124,7 @@ module.exports = class Game extends GameCore
       if @count == 2
         socket.emit 'busy'
         return
-      @info "I can has join: #{sid}"
+      console.log "I can has join: #{sid}"
       @addGamer sid, socket, @count
       @count++
       @startLoop() if @count > 0
@@ -140,7 +137,7 @@ module.exports = class Game extends GameCore
 
     socket.on 'disconnect', =>
       return unless sid of @gamers && @gamers[sid].socket.id == socket.id
-      @info "Disconnecting: #{sid}"
+      console.log "Disconnecting: #{sid}"
       @oneQuitted sid
       @count--
       @endLoop() if @count == 0

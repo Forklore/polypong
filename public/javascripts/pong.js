@@ -18,6 +18,7 @@
       this.scores = [0, 0];
       this.dirUpdates = [];
       this.seq = -1;
+      this.pos;
       this.keyLeft = 37;
       this.keyUp = 38;
       this.keyRight = 39;
@@ -59,7 +60,8 @@
       enemy = this.gs[this.enemySide];
       enemy.pos = this.moveRacket(enemy.dir, enemy.updates, enemy.pos, this.updateTime, lastTime);
       me = this.gs[this.side];
-      me.pos = this.moveRacket(this.dir, this.dirUpdates, me.pos, this.updateTime, lastTime);
+      this.pos = this.moveRacket(this.dir, this.dirUpdates, this.pos, this.updateTime, lastTime);
+      me.pos = this.pos;
       if (this.dirUpdates.length) {
         return this.dir = this.dirUpdates[this.dirUpdates.length - 1].dir;
       }
@@ -95,7 +97,7 @@
     };
 
     Game.prototype.sendState = function(dir) {
-      this.debug("Changed state in " + (this.time()));
+      this.debug("Changed state to " + dir + " in " + (this.time()));
       this.dirUpdates.push({
         dir: dir,
         seq: ++this.seq,
@@ -145,7 +147,7 @@
       var _this = this;
       this.socket = socket;
       socket.on('connect', function() {
-        return _this.info("Socket opened, Master!");
+        return console.log("Socket opened, Master!");
       });
       socket.on('joined', function(side) {
         _this.side = side;
@@ -160,6 +162,9 @@
       socket.on('move', function(data) {
         var howmany;
         _this.gs = data.gamers;
+        if (_this.pos === void 0) {
+          _this.pos = _this.gs[_this.side].pos;
+        }
         howmany = _this.seq2index(_this.gs[_this.side].lastSeq) + 1;
         _this.dirUpdates.splice(0, howmany);
         _this.ballPosition = data.ball.pos;

@@ -32,12 +32,7 @@ class GameCore
   debug: (str) ->
     console.log str if @debugOn
 
-  info: (str) ->
-    console.log str
-
   moveRacket: (dir, dirUpdates, pos, currentTime, lastTime) ->
-    @debug "Moving user to #{dirUpdates.length} updates, firstly in #{dir} dir (time is #{@time()}):" if dirUpdates.length
-    # @debug "Current time: #{currentTime}, last time: #{lastTime}"
     for upd in dirUpdates
       continue if upd.t <= lastTime or upd.t > currentTime
       @debug "\tmoving #{upd.dir}, seq: #{upd.seq}, t: #{upd.t}"

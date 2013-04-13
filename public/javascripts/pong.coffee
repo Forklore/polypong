@@ -12,6 +12,7 @@ window.Game = class Game extends GameCore
     @scores = [0, 0]
     @dirUpdates = [] # arrays of games inputs
     @seq = -1        # sequence number for acknowledgements
+    @pos
 
     # Constants
     @keyLeft = 37
@@ -55,7 +56,8 @@ window.Game = class Game extends GameCore
     # FIXME Interpolate enemy moves
     enemy.pos = @moveRacket enemy.dir, enemy.updates, enemy.pos, @updateTime, lastTime
     me = @gs[@side]
-    me.pos = @moveRacket @dir, @dirUpdates, me.pos, @updateTime, lastTime #FIXME
+    @pos = @moveRacket @dir, @dirUpdates, @pos, @updateTime, lastTime
+    me.pos = @pos # FIXME from gs shoulg go, just don't replace it ffrom the server
     @dir = @dirUpdates[@dirUpdates.length-1].dir if @dirUpdates.length # FIXME: this can go in @gs structure, but shouldn't be rewritten by server
 
   # Keyboard functions
@@ -77,7 +79,7 @@ window.Game = class Game extends GameCore
           @sendState @dirIdle
 
   sendState: (dir) ->
-    @debug "Changed state in #{@time()}"
+    @debug "Changed state to #{dir} in #{@time()}"
     @dirUpdates.push { dir: dir, seq: ++@seq, t: @time() }
     @socket.emit 'state', { dir: dir, side: @side, seq: @seq }
 
@@ -104,7 +106,7 @@ window.Game = class Game extends GameCore
     @socket = socket
 
     socket.on 'connect', =>
-      @info "Socket opened, Master!"
+      console.log "Socket opened, Master!"
 
     socket.on 'joined', (side) =>
       @side = side
@@ -115,6 +117,7 @@ window.Game = class Game extends GameCore
 
     socket.on 'move', (data) =>
       @gs = data.gamers
+      @pos = @gs[@side].pos if @pos == undefined
       howmany = @seq2index(@gs[@side].lastSeq) + 1
       @dirUpdates.splice 0, howmany
       @ballPosition = data.ball.pos

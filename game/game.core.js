@@ -45,15 +45,8 @@
       }
     };
 
-    GameCore.prototype.info = function(str) {
-      return console.log(str);
-    };
-
     GameCore.prototype.moveRacket = function(dir, dirUpdates, pos, currentTime, lastTime) {
       var upd, _i, _len;
-      if (dirUpdates.length) {
-        this.debug("Moving user to " + dirUpdates.length + " updates, firstly in " + dir + " dir (time is " + (this.time()) + "):");
-      }
       for (_i = 0, _len = dirUpdates.length; _i < _len; _i++) {
         upd = dirUpdates[_i];
         if (upd.t <= lastTime || upd.t > currentTime) {

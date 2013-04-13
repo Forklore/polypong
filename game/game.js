@@ -36,7 +36,6 @@
       this.scores = [0, 0];
       this.count = 0;
       this.inDaLoop = false;
-      this.temp = -1;
     }
 
     Game.prototype.addGamer = function(sid, socket, side) {
@@ -57,10 +56,6 @@
       var g;
       g = this.gamers[sid];
       this.gs[g.side].updates = g.updates;
-      if (this.temp !== this.gs[g.side].lastSeq) {
-        this.debug("lastSeq for " + g.side + ": " + this.gs[g.side].lastSeq);
-      }
-      this.temp = this.gs[g.side].lastSeq;
       return g.socket.emit('move', {
         gamers: this.gs,
         ball: {
@@ -201,7 +196,7 @@
       var sid,
         _this = this;
       sid = cookie.parse(socket.handshake.headers.cookie)['connect.sid'];
-      this.info("Have a connection: " + sid + " (socket id: " + socket.id + ")");
+      console.log("Have a connection: " + sid + " (socket id: " + socket.id + ")");
       socket.on('join', function(data) {
         if (sid in _this.gamers) {
           _this.sendJoined(sid);
@@ -212,7 +207,7 @@
           socket.emit('busy');
           return;
         }
-        _this.info("I can has join: " + sid);
+        console.log("I can has join: " + sid);
         _this.addGamer(sid, socket, _this.count);
         _this.count++;
         if (_this.count > 0) {
@@ -229,7 +224,7 @@
         if (!(sid in _this.gamers && _this.gamers[sid].socket.id === socket.id)) {
           return;
         }
-        _this.info("Disconnecting: " + sid);
+        console.log("Disconnecting: " + sid);
         _this.oneQuitted(sid);
         _this.count--;
         if (_this.count === 0) {

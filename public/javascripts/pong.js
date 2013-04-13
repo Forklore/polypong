@@ -53,7 +53,7 @@
 
     Game.prototype.updateState = function() {
       var enemy, lastTime, me;
-      lastTime = this.updateTime;
+      lastTime = new Date(this.updateTime);
       this.updateTime = this.time();
       this.moveBall();
       enemy = this.gs[this.enemySide];

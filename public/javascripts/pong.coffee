@@ -48,7 +48,7 @@ window.Game = class Game extends GameCore
     @drawBoard()
 
   updateState: ->
-    lastTime = @updateTime
+    lastTime = new Date(@updateTime)
     @updateTime = @time()
     @moveBall()
     enemy = @gs[@enemySide]

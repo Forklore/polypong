@@ -99,8 +99,8 @@ module.exports = class Game extends GameCore
     @scores = [0, 0]
 
   gameStep: ->
+    lastTime = @updateTime
     @updateTime = @time()
-    lastTime = @updateTime - @dt # FIXME do as in client code
     @moveRackets lastTime
     @moveBall()
     @checkScoreUpdate()

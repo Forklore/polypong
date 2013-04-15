@@ -174,8 +174,8 @@
     Game.prototype.gameStep = function() {
       var lastTime;
 
+      lastTime = this.updateTime;
       this.updateTime = this.time();
-      lastTime = this.updateTime - this.dt;
       this.moveRackets(lastTime);
       this.moveBall();
       this.checkScoreUpdate();

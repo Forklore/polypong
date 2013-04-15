@@ -6,7 +6,7 @@ io = require 'socket.io'
 Game = require './game/game'
 
 # functions
-detect_move = require './game/game'
+# still no functions imported here...
 
 app = module.exports = express.createServer()
 app.configure ->

@@ -1,14 +1,17 @@
-div#game
-  div#scoreboard
-    div#p1
-      span Player 2:
-      span#score_1 20
-    div#p0
-      span Player 1:
-      span#score_0 10
-  div#game_board
-    canvas#game_board_canvas(width = 780, height = 440)
+extends layout
 
-:coffeescript
-  socket = io.connect "ws://#{window.location.host}"
-  (new Game).start socket
+block content
+  div#game
+    div#scoreboard
+      div#p1
+        span Player 2:
+        span#score_1 20
+      div#p0
+        span Player 1:
+        span#score_0 10
+    div#game_board
+      canvas#game_board_canvas(width = 780, height = 440)
+  
+  :coffeescript
+    socket = io.connect "ws://#{window.location.host}"
+    (new Game).start socket

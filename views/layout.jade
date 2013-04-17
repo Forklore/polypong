@@ -2,17 +2,18 @@
 html
   head
     title= title
-    link(rel='stylesheet', href='/stylesheets/style.css')
-    script(type='text/javascript', src='/javascripts/jquery.js')
-    script(type='text/javascript', src="/javascripts/socket.io.min.js")
+    link(rel='stylesheet', href='/public/stylesheets/style.css')
+    script(type='text/javascript', src='/public/javascripts/jquery.js')
+    script(type='text/javascript', src='/public/javascripts/socket.io.min.js')
+    script(type='text/javascript', src='/public/javascripts/animation.js')
     script(type='text/javascript', src='/game.core.js')
-    script(type='text/javascript', src='/javascripts/pong.js')
+    script(type='text/javascript', src='/public/javascripts/pong.js')
 
   body
     header
       h1= title
 
-    section#body!= body
+    block content
 
     footer
       span Powered by 

@@ -31,8 +31,6 @@ app.configure 'production', ->
 app.get '/', routes.index
 app.get '/game.core.js', express.static(__dirname + "/game")
 app.get '/about', routes.about
-app.get '/login', routes.loginPage
-app.post '/login', routes.loginAction
 
 port = process.env['app_port'] || 3000
 

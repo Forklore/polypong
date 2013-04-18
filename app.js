@@ -44,10 +44,6 @@
 
   app.get('/about', routes.about);
 
-  app.get('/login', routes.loginPage);
-
-  app.post('/login', routes.loginAction);
-
   port = process.env['app_port'] || 3000;
 
   srv = http.createServer(app);

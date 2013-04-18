@@ -1,7 +1,5 @@
 coffee -c app.coffee
-cd routes
-coffee -c index.coffee
-cd ..
+coffee -c routes.coffee
 cd public/javascripts
 coffee -c pong.coffee
 coffee -c animation.coffee

@@ -1,6 +1,7 @@
 express = require 'express'
 routes = require './routes'
 io = require 'socket.io'
+http = require 'http'
 
 # classes
 Game = require './game/game'
@@ -8,7 +9,7 @@ Game = require './game/game'
 # functions
 # still no functions imported here...
 
-app = module.exports = express.createServer()
+app = express()
 app.configure ->
   app.set "views", __dirname + "/views"
   app.set "view engine", "jade"
@@ -17,14 +18,12 @@ app.configure ->
   app.use express.session {secret: 'thisisasecretnobodyshouldseehoweverthisisdevwhowantstohackponggameanyway?' }
   app.use express.methodOverride()
   app.use app.router
-  app.use express.static(__dirname + "/public")
+  app.use '/public', express.static(__dirname + '/public')
 
 app.configure 'development', ->
   app.use express.errorHandler(
     dumpExceptions: true, showStack: true
   )
-
-port = process.env['app_port'] || 3000
 
 app.configure 'production', ->
   app.use express.errorHandler()
@@ -35,13 +34,17 @@ app.get '/about', routes.about
 app.get '/login', routes.loginPage
 app.post '/login', routes.loginAction
 
-app.listen port
+port = process.env['app_port'] || 3000
 
-console.log "Express server listening on port %d in %s mode", app.address().port, app.settings.env
+srv = http.createServer(app)
 
 game = new Game
 
 # Comment log:false to see sockets debug messages
-io = io.listen app, log:false
+io = io.listen srv, log:false
 io.sockets.on 'connection', (socket) ->
   game.connect socket
+
+srv.listen(port)
+
+console.log "Express server listening on port %d in %s mode", port, app.settings.env

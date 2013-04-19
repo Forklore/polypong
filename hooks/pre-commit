@@ -1,0 +1,12 @@
+#!/bin/sh
+
+# TODO We can compile only changed files using git diff
+
+# Exit with status 1 if any command below fails
+set -e
+
+./compile
+
+git add *.js
+# git commit --no-verify --amend -C HEAD
+

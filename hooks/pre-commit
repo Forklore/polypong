@@ -8,5 +8,4 @@ set -e
 ./compile
 
 git add *.js
-# git commit --no-verify --amend -C HEAD
 

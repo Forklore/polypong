@@ -1,10 +1,14 @@
-coffee -c app.coffee
-coffee -c routes.coffee
-cd public/javascripts
-coffee -c pong.coffee
-coffee -c animation.coffee
-cd ../..
-cd game
-coffee -c game.core.coffee
-coffee -c game.coffee
+#!/bin/sh
+
+echo 'COMPILING'
+
+coffee -c app.coffee       &&
+coffee -c routes.coffee    &&
+cd public/javascripts      &&
+coffee -c pong.coffee      &&
+coffee -c animation.coffee &&
+cd ../..                   &&
+cd game                    &&
+coffee -c game.core.coffee &&
+coffee -c game.coffee      &&
 cd ..

@@ -1,38 +1,36 @@
 requestAnimFrame = () ->
-  return window.requestAnimationFrame       || 
-    window.webkitRequestAnimationFrame || 
-    window.mozRequestAnimationFrame    || 
-    window.oRequestAnimationFrame      || 
-    window.msRequestAnimationFrame     || 
+  return window.requestAnimationFrame  or 
+    window.webkitRequestAnimationFrame or 
+    window.mozRequestAnimationFrame    or 
+    window.oRequestAnimationFrame      or 
+    window.msRequestAnimationFrame     or 
     (callback, element) ->
       window.setTimeout(callback, 1000 / 60)
 
-
-loopy = (fn, start, delay, handle) ->
-  current = new Date().getTime()
-  delta = current - start
-			
-  if(delta >= delay)
-    fn.call()
-    start = new Date().getTime()
-  handle.value = requestAnimFrame(loopy(fn, start, delay, handle))
-  return
-
-
 requestInterval = (fn, delay) ->
-  if ( !window.requestAnimationFrame       && 
-	  !window.webkitRequestAnimationFrame && 
-	  !(window.mozRequestAnimationFrame && window.mozCancelRequestAnimationFrame) && 
-	  !window.oRequestAnimationFrame      && 
-	  !window.msRequestAnimationFrame)
-	    return window.setInterval(fn, delay)
-
+  if ( !window.requestAnimationFrame and 
+    !window.webkitRequestAnimationFrame and 
+    !(window.mozRequestAnimationFrame and window.mozCancelRequestAnimationFrame) and
+    !window.oRequestAnimationFrame and
+    !window.msRequestAnimationFrame)
+      return window.setInterval(fn, delay)
+      
   start = new Date().getTime()
   handle = new Object()
-  console.log "anim"
-  handle.value = requestAnimFrame(loopy(fn, start, delay, handle))
+    
+  loopy = () ->
+    current = new Date().getTime()
+    delta = current - start
+      
+    if(delta >= delay)
+      fn.call()
+      start = new Date().getTime()
+ 
+    handle.value = requestAnimFrame(loopy)
+  
+  handle.value = requestAnimFrame(loopy)
   handle
 
 
-window.requestAnimFrame = (requestAnimFrame).call(this)
-window.requestInterval = (requestInterval).call(this)
+window.requestAnimFrame = requestAnimFrame
+window.requestInterval = requestInterval

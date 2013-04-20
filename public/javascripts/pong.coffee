@@ -45,6 +45,7 @@ window.Game = class Game extends GameCore
   # Game logic
 
   gameLoop: ->
+    console.log "loop"
     @updateState()
     @drawBoard()
 

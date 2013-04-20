@@ -47,6 +47,7 @@
     };
 
     Game.prototype.gameLoop = function() {
+      console.log("loop");
       this.updateState();
       return this.drawBoard();
     };

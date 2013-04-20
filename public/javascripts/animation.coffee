@@ -27,11 +27,12 @@ requestInterval = (fn, delay) ->
       fn.call()
       start = new Date().getTime()
  
+    console.log "loopy"
     handle.value = requestAnimFrame(loopy)
   
-  handle.value = requestAnimFrame(loopy) 
+  handle.value = requestAnimFrame(loopy)
   handle
 
 
-window.requestAnimFrame = (requestAnimFrame).call this
-window.requestInterval = (requestInterval).call this
+window.requestAnimFrame = requestAnimFrame
+window.requestInterval = requestInterval

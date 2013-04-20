@@ -47,7 +47,7 @@
     };
 
     Game.prototype.gameLoop = function() {
-      console.log("loop");
+      console.log("inside game loop");
       this.updateState();
       return this.drawBoard();
     };
@@ -121,8 +121,8 @@
       canvas = document.getElementById('game_board_canvas');
       this.ctx = canvas.getContext('2d');
       this.updateTime = this.time();
-      return requestAnimFrame((function() {
-        return _this.gameLoop();
+      return requestInterval((function() {
+        return _this.gameLoop;
       }), this.dt);
     };
 

@@ -45,7 +45,7 @@ window.Game = class Game extends GameCore
   # Game logic
 
   gameLoop: ->
-    console.log "loop"
+    console.log "inside game loop"
     @updateState()
     @drawBoard()
 
@@ -95,7 +95,7 @@ window.Game = class Game extends GameCore
     canvas = document.getElementById 'game_board_canvas'
     @ctx = canvas.getContext '2d'
     @updateTime = @time()
-    requestAnimFrame (=> @gameLoop()), @dt
+    requestInterval ( => @gameLoop), @dt
 
   seq2index: (seq) ->
     for upd, ind in @dirUpdates

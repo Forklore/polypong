@@ -23,14 +23,15 @@
         fn.call();
         start = new Date().getTime();
       }
+      console.log("loopy");
       return handle.value = requestAnimFrame(loopy);
     };
     handle.value = requestAnimFrame(loopy);
     return handle;
   };
 
-  window.requestAnimFrame = requestAnimFrame.call(this);
+  window.requestAnimFrame = requestAnimFrame;
 
-  window.requestInterval = requestInterval.call(this);
+  window.requestInterval = requestInterval;
 
 }).call(this);

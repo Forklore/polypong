@@ -12,7 +12,6 @@
     if (!window.requestAnimationFrame && !window.webkitRequestAnimationFrame && !(window.mozRequestAnimationFrame && window.mozCancelRequestAnimationFrame) && !window.oRequestAnimationFrame && !window.msRequestAnimationFrame) {
       return window.setInterval(fn, delay);
     }
-    console.log("requestInterval");
     start = new Date().getTime();
     handle = new Object();
     loopy = function() {
@@ -23,7 +22,6 @@
         fn.call();
         start = new Date().getTime();
       }
-      console.log("loopy");
       return handle.value = requestAnimFrame(loopy);
     };
     handle.value = requestAnimFrame(loopy);

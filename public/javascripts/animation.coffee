@@ -14,8 +14,7 @@ requestInterval = (fn, delay) ->
     !window.oRequestAnimationFrame and
     !window.msRequestAnimationFrame)
       return window.setInterval(fn, delay)
-  
-  console.log "requestInterval"    
+     
   start = new Date().getTime()
   handle = new Object()
     
@@ -27,7 +26,6 @@ requestInterval = (fn, delay) ->
       fn.call()
       start = new Date().getTime()
  
-    console.log "loopy"
     handle.value = requestAnimFrame(loopy)
   
   handle.value = requestAnimFrame(loopy)

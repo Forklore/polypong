@@ -95,7 +95,7 @@ window.Game = class Game extends GameCore
     canvas = document.getElementById 'game_board_canvas'
     @ctx = canvas.getContext '2d'
     @updateTime = @time()
-    requestInterval ( => @gameLoop), @dt
+    requestInterval ( => @gameLoop()), @dt
 
   seq2index: (seq) ->
     for upd, ind in @dirUpdates

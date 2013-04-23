@@ -122,7 +122,7 @@
       this.ctx = canvas.getContext('2d');
       this.updateTime = this.time();
       return requestInterval((function() {
-        return _this.gameLoop;
+        return _this.gameLoop();
       }), this.dt);
     };
 

@@ -101,10 +101,10 @@
       this.ballPosition[1] = this.gs[side].pos + this.racketHeight / 2;
       if (side === 0) {
         this.ballPosition[0] = this.ballResetOffset;
-        return this.angle = Math.asin((this.gs[1].pos - this.gs[0].pos + this.racketHeight) / this.canvasWidth);
+        return this.angle = Math.asin((this.gs[1].pos - this.gs[0].pos) / this.canvasWidth);
       } else {
         this.ballPosition[0] = this.canvasWidth - this.ballResetOffset - this.ballSize;
-        return this.angle = Math.PI + Math.asin((this.gs[1].pos - this.gs[0].pos + this.racketHeight) / this.canvasWidth);
+        return this.angle = Math.PI + Math.asin((this.gs[1].pos - this.gs[0].pos) / this.canvasWidth);
       }
     };
 

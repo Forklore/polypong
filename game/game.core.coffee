@@ -19,6 +19,8 @@ class GameCore
     @angle = (20 + Math.random()*50)*Math.PI/180
     @ballV = 200 # pixels per second
     @maxBallV = 400
+    @initBallV = 200
+    @minBallV = 100
     @racketV = 0.15 # pps
     @speedUp = 0.9 # ball speed up coefficient, should be lte than 1
 
@@ -70,14 +72,23 @@ class GameCore
         @ballPosition[0] = @xOffset
         @angle = Math.PI - @angle
         @ballV = @ballV * (@speedUp + Math.abs(@ballPosition[1] - @gs[0].pos + @racketHeight / 2) / (@gs[0].pos + @racketHeight / 2))
-        @ballV = @maxBallV if @ballV > @maxBallV
+        if @ballV >= @maxBallV
+          @ballV = @maxBallV
+        else if @ballV <= @minBallV
+          @ballV = @minBallV
+        else
+          @ballV = @ballV * (@speedUp + Math.abs(@ballPosition[1] - @gs[0].pos + @racketHeight / 2) / (@gs[0].pos + @racketHeight / 2))
         return
     if @ballPosition[0] >= @canvasWidth - @xOffset - @ballSize
       if @ballPosition[1] >= @gs[1].pos && @ballPosition[1] <= @gs[1].pos + @racketHeight - @ballSize
         @ballPosition[0] = @canvasWidth - @xOffset - @ballSize
         @angle = Math.PI - @angle
-        @ballV = @ballV * (@speedUp + Math.abs(@ballPosition[1] - @gs[0].pos + @racketHeight / 2) / (@gs[0].pos + @racketHeight / 2))
-        @ballV = @maxBallV if @ballV > @maxBallV
+        if @ballV >= @maxBallV
+          @ballV = @maxBallV
+        else if @ballV <= @minBallV
+          @ballV = @minBallV
+        else
+          @ballV = @ballV * (@speedUp + Math.abs(@ballPosition[1] - @gs[0].pos + @racketHeight / 2) / (@gs[0].pos + @racketHeight / 2))
         return
 
 

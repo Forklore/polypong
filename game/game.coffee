@@ -61,6 +61,7 @@ module.exports = class Game extends GameCore
     else
       @ballPosition[0] = @canvasWidth - @ballResetOffset - @ballSize
       @angle = Math.PI + Math.asin((@gs[1].pos - @gs[0].pos) / (@canvasWidth - 2 * @xOffset))
+    @ballV = @initBallV
 
   moveRackets: (lastTime) ->
     for sid, gamer of @gamers

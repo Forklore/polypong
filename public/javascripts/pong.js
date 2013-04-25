@@ -61,6 +61,8 @@
       this.angle = (20 + Math.random() * 50) * Math.PI / 180;
       this.ballV = 200;
       this.maxBallV = 400;
+      this.initBallV = 200;
+      this.minBallV = 100;
       this.racketV = 0.15;
       this.speedUp = 0.9;
       this.updateTime = null;
@@ -120,7 +122,13 @@
           this.ballPosition[0] = this.xOffset;
           this.angle = Math.PI - this.angle;
           this.ballV = this.ballV * (this.speedUp + Math.abs(this.ballPosition[1] - this.gs[0].pos + this.racketHeight / 2) / (this.gs[0].pos + this.racketHeight / 2));
-          if (this.ballV > this.maxBallV) this.ballV = this.maxBallV;
+          if (this.ballV >= this.maxBallV) {
+            this.ballV = this.maxBallV;
+          } else if (this.ballV <= this.minBallV) {
+            this.ballV = this.minBallV;
+          } else {
+            this.ballV = this.ballV * (this.speedUp + Math.abs(this.ballPosition[1] - this.gs[0].pos + this.racketHeight / 2) / (this.gs[0].pos + this.racketHeight / 2));
+          }
           return;
         }
       }
@@ -128,8 +136,13 @@
         if (this.ballPosition[1] >= this.gs[1].pos && this.ballPosition[1] <= this.gs[1].pos + this.racketHeight - this.ballSize) {
           this.ballPosition[0] = this.canvasWidth - this.xOffset - this.ballSize;
           this.angle = Math.PI - this.angle;
-          this.ballV = this.ballV * (this.speedUp + Math.abs(this.ballPosition[1] - this.gs[0].pos + this.racketHeight / 2) / (this.gs[0].pos + this.racketHeight / 2));
-          if (this.ballV > this.maxBallV) this.ballV = this.maxBallV;
+          if (this.ballV >= this.maxBallV) {
+            this.ballV = this.maxBallV;
+          } else if (this.ballV <= this.minBallV) {
+            this.ballV = this.minBallV;
+          } else {
+            this.ballV = this.ballV * (this.speedUp + Math.abs(this.ballPosition[1] - this.gs[0].pos + this.racketHeight / 2) / (this.gs[0].pos + this.racketHeight / 2));
+          }
         }
       }
     };

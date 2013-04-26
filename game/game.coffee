@@ -12,13 +12,32 @@
 GameCore = require './game.core'
 cookie = require 'cookie'
 timers = require 'timers'
+_ = require 'underscore'
+
+class Room 
+  constructor: (id) ->
+    console.log "room #{id} created"
+    @id = id
+    @gamers = {}
+    @scores = [0, 0]
+    @count = 0
+    @inDaLoop = false
+    initPos = @canvasHeight / 2 - 40
+    @gs = [{pos: initPos - @racketHeight, dir: @dirIdle, updates: [], lastSeq: -1},
+           {pos: initPos + @racketHeight, dir: @dirIdle, updates: [], lastSeq: -1}]
+
+  addGamer: (sid, gamer) ->
+    console.log "gamer #{gamer} added for sid #{sid}"
+    @gamers[sid] = gamer 
+
 
 module.exports = class Game extends GameCore
 
   constructor: ->
     super()
-
+    @rooms = []
     @gamers = {}
+    @gamersCount = 0
     initPos = @canvasHeight / 2 - 40
     @gs = [{pos: initPos - @racketHeight, dir: @dirIdle, updates: [], lastSeq: -1},
            {pos: initPos + @racketHeight, dir: @dirIdle, updates: [], lastSeq: -1}]
@@ -29,7 +48,13 @@ module.exports = class Game extends GameCore
 
   addGamer: (sid, socket, side) ->
     @gamers[sid] = {socket: socket, updates: [], side: side, pos: @gs[side].pos}
+    console.log "Gamers #{_.size(@gamers)}"
+    if _.size(@gamers) % 2 == 1     
+      newRoom = new Room(@rooms.length + 1)
+      newRoom.addGamer sid, @gamers[sid]
+      @rooms.push newRoom 
     @sendJoined sid
+    console.log "Rooms #{@rooms.length}"
 
   sendJoined: (sid) ->
     @gamers[sid].socket.emit 'joined', @gamers[sid].side
@@ -122,8 +147,9 @@ module.exports = class Game extends GameCore
         @sendMove sid
         return
       if @count == 2
-        socket.emit 'busy'
-        return
+        @count = 0
+      #   socket.emit 'busy'
+      #   return
       console.log "I can has join: #{sid}"
       @addGamer sid, socket, @count
       @count++

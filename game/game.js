@@ -1,5 +1,5 @@
 (function() {
-  var Game, GameCore, cookie, timers,
+  var Game, GameCore, Room, cookie, timers, _,
     __hasProp = Object.prototype.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
 
@@ -9,6 +9,43 @@
 
   timers = require('timers');
 
+  _ = require('underscore');
+
+  Room = (function() {
+
+    function Room(id) {
+      var initPos;
+      console.log("room " + id + " created");
+      this.id = id;
+      this.gamers = {};
+      this.scores = [0, 0];
+      this.count = 0;
+      this.inDaLoop = false;
+      initPos = this.canvasHeight / 2 - 40;
+      this.gs = [
+        {
+          pos: initPos - this.racketHeight,
+          dir: this.dirIdle,
+          updates: [],
+          lastSeq: -1
+        }, {
+          pos: initPos + this.racketHeight,
+          dir: this.dirIdle,
+          updates: [],
+          lastSeq: -1
+        }
+      ];
+    }
+
+    Room.prototype.addGamer = function(sid, gamer) {
+      console.log("gamer " + gamer + " added for sid " + sid);
+      return this.gamers[sid] = gamer;
+    };
+
+    return Room;
+
+  })();
+
   module.exports = Game = (function(_super) {
 
     __extends(Game, _super);
@@ -16,7 +53,9 @@
     function Game() {
       var initPos;
       Game.__super__.constructor.call(this);
+      this.rooms = [];
       this.gamers = {};
+      this.gamersCount = 0;
       initPos = this.canvasHeight / 2 - 40;
       this.gs = [
         {
@@ -38,13 +77,21 @@
     }
 
     Game.prototype.addGamer = function(sid, socket, side) {
+      var newRoom;
       this.gamers[sid] = {
         socket: socket,
         updates: [],
         side: side,
         pos: this.gs[side].pos
       };
-      return this.sendJoined(sid);
+      console.log("Gamers " + (_.size(this.gamers)));
+      if (_.size(this.gamers) % 2 === 1) {
+        newRoom = new Room(this.rooms.length + 1);
+        newRoom.addGamer(sid, this.gamers[sid]);
+        this.rooms.push(newRoom);
+      }
+      this.sendJoined(sid);
+      return console.log("Rooms " + this.rooms.length);
     };
 
     Game.prototype.sendJoined = function(sid) {
@@ -198,10 +245,7 @@
           _this.sendMove(sid);
           return;
         }
-        if (_this.count === 2) {
-          socket.emit('busy');
-          return;
-        }
+        if (_this.count === 2) _this.count = 0;
         console.log("I can has join: " + sid);
         _this.addGamer(sid, socket, _this.count);
         _this.count++;

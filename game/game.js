@@ -62,12 +62,8 @@
       this.gs[g.side].updates = g.updates;
       return g.socket.emit('move', {
         gamers: this.gs,
-        ball: {
-          pos: this.ballPosition,
-          v: this.ballV,
-          angle: this.angle,
-          t: this.time()
-        }
+        ball: this.ball,
+        t: this.time()
       });
     };
 
@@ -106,13 +102,13 @@
     };
 
     Game.prototype.placeBall = function(side) {
-      this.ballPosition[1] = this.gs[side].pos + this.racketHeight / 2;
+      this.ball.pos.y = this.gs[side].pos + this.racketHeight / 2 - this.ballSize / 2;
       if (side === 0) {
-        this.ballPosition[0] = this.ballResetOffset;
-        return this.angle = Math.asin((this.gs[1].pos - this.gs[0].pos) / this.canvasWidth);
+        this.ball.pos.x = this.ballResetOffset;
+        return this.ball.angle = Math.asin((this.gs[1].pos - this.gs[0].pos) / this.canvasWidth);
       } else {
-        this.ballPosition[0] = this.canvasWidth - this.ballResetOffset - this.ballSize;
-        return this.angle = Math.PI + Math.asin((this.gs[1].pos - this.gs[0].pos) / this.canvasWidth);
+        this.ball.pos.x = this.canvasWidth - this.ballResetOffset - this.ballSize;
+        return this.ball.angle = Math.PI + Math.asin((this.gs[1].pos - this.gs[0].pos) / this.canvasWidth);
       }
     };
 
@@ -139,13 +135,13 @@
     Game.prototype.checkScoreUpdate = function() {
       var side;
 
-      if (this.ballPosition[0] < 0 || this.ballPosition[0] > this.canvasWidth - this.ballSize) {
+      if (this.ball.pos.x < 0 || this.ball.pos.x > this.canvasWidth - this.ballSize) {
         side = -1;
-        if (this.ballPosition[0] < 0) {
+        if (this.ball.pos.x < 0) {
           this.scores[1] += 1;
           side = 0;
         }
-        if (this.ballPosition[0] > this.canvasWidth - this.ballSize) {
+        if (this.ball.pos.x > this.canvasWidth - this.ballSize) {
           this.scores[0] += 1;
           side = 1;
         }

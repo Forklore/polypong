@@ -8,27 +8,27 @@ requestAnimFrame = (() ->
       window.setTimeout(callback, 1000 / 60))()
 
 requestInterval = (fn, delay) ->
-  if ( !window.requestAnimationFrame and 
+  if!window.requestAnimationFrame and 
     !window.webkitRequestAnimationFrame and 
     !(window.mozRequestAnimationFrame and window.mozCancelRequestAnimationFrame) and
     !window.oRequestAnimationFrame and
-    !window.msRequestAnimationFrame)
+    !window.msRequestAnimationFrame
       return window.setInterval(fn, delay)
      
   start = new Date().getTime()
   handle = new Object()
-    
+
   loopy = () ->
     current = new Date().getTime()
     delta = current - start
-      
-    if(delta >= delay)
-      fn.call()
-      start = new Date().getTime()
- 
-    handle.value = requestAnimFrame(loopy)
-  
-  handle.value = requestAnimFrame(loopy)
+
+    #if(delta >= delay)
+    fn.call()
+      #start = new Date().getTime()
+
+    handle.value = requestAnimFrame loopy
+
+  handle.value = requestAnimFrame loopy
   handle
 
 

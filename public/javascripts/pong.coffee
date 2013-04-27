@@ -42,7 +42,7 @@ window.Game = class Game extends GameCore
     @ctx.fillRect 389, 5, 1, 430
     @drawRacket @startPos[@side][0], @gs[@side].pos, @racketColor
     @drawRacket @startPos[@enemySide][0], @gs[@enemySide].pos, @racketColor
-    @drawBall @ballPosition[0], @ballPosition[1]
+    @drawBall @ball.pos.x, @ball.pos.y
 
   # Game logic
 
@@ -128,9 +128,9 @@ window.Game = class Game extends GameCore
       # Store ball updates incorporating ball position and time
       # since we can receive updates with network delays.
       @ballUpdates.push {pos: data.ball.pos, t: data.ball.t}
-      @ballPosition = data.ball.pos
-      @ballV = data.ball.v
-      @angle = data.ball.angle
+      @ball.pos = data.ball.pos # FIXME we need to approximate ball position, this will be removed
+      @ball.v = data.ball.v
+      @ball.angle = data.ball.angle
 
     socket.on 'score', (data) =>
       @updateScore data.scores

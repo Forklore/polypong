@@ -8,20 +8,23 @@ class GameCore
     @racketHeight = 55
     @racketWidth = 10
     @ballSize = 8
+    @racketV = 0.15 # px per ms
 
     @dirUp = -1
     @dirIdle = 0
     @dirDown = 1
 
     @gs = [{pos: 10, dir: @dirIdle, updates: []}, {pos: 10, dir: @dirIdle, updates: []}]
-    @ballPosition = [@canvasWidth / 2 - @ballSize / 2, @canvasHeight / 2 - @ballSize / 2]
 
-    @angle = (20 + Math.random()*50)*Math.PI/180
-    @ballV   = 0.2  # pixels per millisecond
-    @racketV = 0.15 # px per ms
+    @ball =
+      pos:
+        x: (@canvasWidth / 2 - @ballSize / 2)
+        y: (@canvasHeight / 2 - @ballSize / 2)
+      angle: ((20 + Math.random()*50)*Math.PI/180)
+      v: 0.2 # speed in px per ms
 
     @updateTime = null
-    @dt = 20
+    @dt = 20 # FIXME that's not a delta time anymore
     @lastProcessedSeq = -1
 
   time: ->
@@ -48,29 +51,29 @@ class GameCore
     newPos
 
   moveBall: (dt) ->
-    ds = @ballV * dt
-    @ballPosition[0] += Math.round( ds * Math.cos(@angle) )
-    @ballPosition[1] += Math.round( ds * Math.sin(@angle) )
+    ds = @ball.v * dt
+    @ball.pos.x += ds * Math.cos(@ball.angle)
+    @ball.pos.y += ds * Math.sin(@ball.angle)
     @checkBallCollision()
 
   checkBallCollision: ->
-    if @ballPosition[1] < 0
-      @ballPosition[1] = 0
-      @angle = - @angle
+    if @ball.pos.y < 0
+      @ball.pos.y = 0
+      @ball.angle = - @ball.angle
       return
-    if @ballPosition[1] > @canvasHeight - @ballSize
-      @ballPosition[1] = @canvasHeight - @ballSize
-      @angle = - @angle
+    if @ball.pos.y > @canvasHeight - @ballSize
+      @ball.pos.y = @canvasHeight - @ballSize
+      @ball.angle = - @ball.angle
       return
-    if @ballPosition[0] <= @xOffset
-      if @ballPosition[1] >= @gs[0].pos && @ballPosition[1] <= @gs[0].pos + @racketHeight - @ballSize
-        @ballPosition[0] = @xOffset
-        @angle = Math.PI - @angle
+    if @ball.pos.x <= @xOffset
+      if @ball.pos.y >= @gs[0].pos && @ball.pos.y <= @gs[0].pos + @racketHeight - @ballSize
+        @ball.pos.x = @xOffset
+        @ball.angle = Math.PI - @ball.angle
         return
-    if @ballPosition[0] >= @canvasWidth - @xOffset - @ballSize
-      if @ballPosition[1] >= @gs[1].pos && @ballPosition[1] <= @gs[1].pos + @racketHeight - @ballSize
-        @ballPosition[0] = @canvasWidth - @xOffset - @ballSize
-        @angle = Math.PI - @angle
+    if @ball.pos.x >= @canvasWidth - @xOffset - @ballSize
+      if @ball.pos.y >= @gs[1].pos && @ball.pos.y <= @gs[1].pos + @racketHeight - @ballSize
+        @ball.pos.x = @canvasWidth - @xOffset - @ballSize
+        @ball.angle = Math.PI - @ball.angle
         return
 
 

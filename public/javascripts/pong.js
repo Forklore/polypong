@@ -23,10 +23,7 @@
 
       current = new Date().getTime();
       delta = current - start;
-      if (delta >= delay) {
-        fn.call();
-        start = new Date().getTime();
-      }
+      fn.call();
       return handle.value = requestAnimFrame(loopy);
     };
     handle.value = requestAnimFrame(loopy);
@@ -45,6 +42,7 @@
       this.racketHeight = 55;
       this.racketWidth = 10;
       this.ballSize = 8;
+      this.racketV = 0.15;
       this.dirUp = -1;
       this.dirIdle = 0;
       this.dirDown = 1;
@@ -59,10 +57,14 @@
           updates: []
         }
       ];
-      this.ballPosition = [this.canvasWidth / 2 - this.ballSize / 2, this.canvasHeight / 2 - this.ballSize / 2];
-      this.angle = (20 + Math.random() * 50) * Math.PI / 180;
-      this.ballV = 0.2;
-      this.racketV = 0.15;
+      this.ball = {
+        pos: {
+          x: this.canvasWidth / 2 - this.ballSize / 2,
+          y: this.canvasHeight / 2 - this.ballSize / 2
+        },
+        angle: (20 + Math.random() * 50) * Math.PI / 180,
+        v: 0.2
+      };
       this.updateTime = null;
       this.dt = 20;
       this.lastProcessedSeq = -1;
@@ -104,34 +106,34 @@
     GameCore.prototype.moveBall = function(dt) {
       var ds;
 
-      ds = this.ballV * dt;
-      this.ballPosition[0] += Math.round(ds * Math.cos(this.angle));
-      this.ballPosition[1] += Math.round(ds * Math.sin(this.angle));
+      ds = this.ball.v * dt;
+      this.ball.pos.x += ds * Math.cos(this.ball.angle);
+      this.ball.pos.y += ds * Math.sin(this.ball.angle);
       return this.checkBallCollision();
     };
 
     GameCore.prototype.checkBallCollision = function() {
-      if (this.ballPosition[1] < 0) {
-        this.ballPosition[1] = 0;
-        this.angle = -this.angle;
+      if (this.ball.pos.y < 0) {
+        this.ball.pos.y = 0;
+        this.ball.angle = -this.ball.angle;
         return;
       }
-      if (this.ballPosition[1] > this.canvasHeight - this.ballSize) {
-        this.ballPosition[1] = this.canvasHeight - this.ballSize;
-        this.angle = -this.angle;
+      if (this.ball.pos.y > this.canvasHeight - this.ballSize) {
+        this.ball.pos.y = this.canvasHeight - this.ballSize;
+        this.ball.angle = -this.ball.angle;
         return;
       }
-      if (this.ballPosition[0] <= this.xOffset) {
-        if (this.ballPosition[1] >= this.gs[0].pos && this.ballPosition[1] <= this.gs[0].pos + this.racketHeight - this.ballSize) {
-          this.ballPosition[0] = this.xOffset;
-          this.angle = Math.PI - this.angle;
+      if (this.ball.pos.x <= this.xOffset) {
+        if (this.ball.pos.y >= this.gs[0].pos && this.ball.pos.y <= this.gs[0].pos + this.racketHeight - this.ballSize) {
+          this.ball.pos.x = this.xOffset;
+          this.ball.angle = Math.PI - this.ball.angle;
           return;
         }
       }
-      if (this.ballPosition[0] >= this.canvasWidth - this.xOffset - this.ballSize) {
-        if (this.ballPosition[1] >= this.gs[1].pos && this.ballPosition[1] <= this.gs[1].pos + this.racketHeight - this.ballSize) {
-          this.ballPosition[0] = this.canvasWidth - this.xOffset - this.ballSize;
-          this.angle = Math.PI - this.angle;
+      if (this.ball.pos.x >= this.canvasWidth - this.xOffset - this.ballSize) {
+        if (this.ball.pos.y >= this.gs[1].pos && this.ball.pos.y <= this.gs[1].pos + this.racketHeight - this.ballSize) {
+          this.ball.pos.x = this.canvasWidth - this.xOffset - this.ballSize;
+          this.ball.angle = Math.PI - this.ball.angle;
         }
       }
     };
@@ -187,7 +189,7 @@
       this.ctx.fillRect(389, 5, 1, 430);
       this.drawRacket(this.startPos[this.side][0], this.gs[this.side].pos, this.racketColor);
       this.drawRacket(this.startPos[this.enemySide][0], this.gs[this.enemySide].pos, this.racketColor);
-      return this.drawBall(this.ballPosition[0], this.ballPosition[1]);
+      return this.drawBall(this.ball.pos.x, this.ball.pos.y);
     };
 
     Game.prototype.gameLoop = function() {
@@ -322,9 +324,9 @@
           pos: data.ball.pos,
           t: data.ball.t
         });
-        _this.ballPosition = data.ball.pos;
-        _this.ballV = data.ball.v;
-        return _this.angle = data.ball.angle;
+        _this.ball.pos = data.ball.pos;
+        _this.ball.v = data.ball.v;
+        return _this.ball.angle = data.ball.angle;
       });
       socket.on('score', function(data) {
         return _this.updateScore(data.scores);

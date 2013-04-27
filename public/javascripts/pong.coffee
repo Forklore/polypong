@@ -13,6 +13,8 @@ window.Game = class Game extends GameCore
     @dirUpdates = [] # arrays of games inputs
     @seq = -1        # sequence number for acknowledgements
     @pos
+    @ballUpdates = []
+    @timeDiff = 0
 
     # Constants
     @keyLeft = 37
@@ -49,16 +51,16 @@ window.Game = class Game extends GameCore
     @drawBoard()
 
   updateState: ->
-    lastTime = @updateTime
-    @updateTime = @time()
-    @moveBall()
+    time = @time()
+    @moveBall(time - @updateTime)
     enemy = @gs[@enemySide]
     # FIXME Interpolate enemy moves
-    enemy.pos = @moveRacket enemy.dir, enemy.updates, enemy.pos, @updateTime, lastTime
+    enemy.pos = @moveRacket enemy.dir, enemy.updates, enemy.pos, time, @updateTime
     me = @gs[@side]
-    @pos = @moveRacket @dir, @dirUpdates, @pos, @updateTime, lastTime
-    me.pos = @pos # FIXME from gs shoulg go, just don't replace it ffrom the server
+    @pos = @moveRacket @dir, @dirUpdates, @pos, time, @updateTime
+    me.pos = @pos # FIXME from gs shoulg go, just don't replace it from the server
     @dir = @dirUpdates[@dirUpdates.length-1].dir if @dirUpdates.length # FIXME: this can go in @gs structure, but shouldn't be rewritten by server
+    @updateTime = @time()
 
   # Keyboard functions
 
@@ -107,9 +109,10 @@ window.Game = class Game extends GameCore
     socket.on 'connect', =>
       console.log "Socket opened, Master!"
 
-    socket.on 'joined', (side) =>
-      @side = side
-      @enemySide = if side == 0 then 1 else 0
+    socket.on 'joined', (data) =>
+      @timeDiff = @time() - data.t
+      @side = data.side
+      @enemySide = if @side == 0 then 1 else 0
       # Can't move while not joined
       $(window).on 'keydown', (e) => @keyboardDown e
       $(window).on 'keyup', (e) => @keyboardUp e
@@ -117,9 +120,14 @@ window.Game = class Game extends GameCore
     socket.on 'move', (data) =>
       @gs = data.gamers
       @pos = @gs[@side].pos if @pos == undefined
+
       if @gs[@side].lastSeq <= @lastProcessedSeq
         howmany = @seq2index(@gs[@side].lastSeq) + 1
         @dirUpdates.splice 0, howmany
+
+      # Store ball updates incorporating ball position and time
+      # since we can receive updates with network delays.
+      @ballUpdates.push {pos: data.ball.pos, t: data.ball.t}
       @ballPosition = data.ball.pos
       @ballV = data.ball.v
       @angle = data.ball.angle

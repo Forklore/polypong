@@ -61,11 +61,10 @@
       ];
       this.ballPosition = [this.canvasWidth / 2 - this.ballSize / 2, this.canvasHeight / 2 - this.ballSize / 2];
       this.angle = (20 + Math.random() * 50) * Math.PI / 180;
-      this.ballV = 200;
+      this.ballV = 0.2;
       this.racketV = 0.15;
       this.updateTime = null;
       this.dt = 20;
-      this.dtInSec = this.dt / 1000;
       this.lastProcessedSeq = -1;
     }
 
@@ -81,15 +80,15 @@
         if (upd.t <= lastTime || upd.t > currentTime) {
           continue;
         }
-        pos = this.moveRacketBit(pos, dir, upd.t - lastTime, currentTime, lastTime);
+        pos = this.moveRacketBit(pos, dir, upd.t - lastTime);
         lastTime = upd.t;
         dir = upd.dir;
         this.lastProcessedSeq = upd.seq;
       }
-      return this.moveRacketBit(pos, dir, currentTime - lastTime, currentTime, lastTime);
+      return this.moveRacketBit(pos, dir, currentTime - lastTime);
     };
 
-    GameCore.prototype.moveRacketBit = function(pos, dir, dt, currentTime, lastTime) {
+    GameCore.prototype.moveRacketBit = function(pos, dir, dt) {
       var newPos;
 
       newPos = dir === this.dirUp ? pos - this.racketV * dt : dir === this.dirDown ? pos + this.racketV * dt : pos;
@@ -102,10 +101,10 @@
       return newPos;
     };
 
-    GameCore.prototype.moveBall = function() {
+    GameCore.prototype.moveBall = function(dt) {
       var ds;
 
-      ds = this.ballV * this.dtInSec;
+      ds = this.ballV * dt;
       this.ballPosition[0] += Math.round(ds * Math.cos(this.angle));
       this.ballPosition[1] += Math.round(ds * Math.sin(this.angle));
       return this.checkBallCollision();
@@ -161,6 +160,8 @@
       this.dirUpdates = [];
       this.seq = -1;
       this.pos;
+      this.ballUpdates = [];
+      this.timeDiff = 0;
       this.keyLeft = 37;
       this.keyUp = 38;
       this.keyRight = 39;
@@ -195,19 +196,19 @@
     };
 
     Game.prototype.updateState = function() {
-      var enemy, lastTime, me;
+      var enemy, me, time;
 
-      lastTime = this.updateTime;
-      this.updateTime = this.time();
-      this.moveBall();
+      time = this.time();
+      this.moveBall(time - this.updateTime);
       enemy = this.gs[this.enemySide];
-      enemy.pos = this.moveRacket(enemy.dir, enemy.updates, enemy.pos, this.updateTime, lastTime);
+      enemy.pos = this.moveRacket(enemy.dir, enemy.updates, enemy.pos, time, this.updateTime);
       me = this.gs[this.side];
-      this.pos = this.moveRacket(this.dir, this.dirUpdates, this.pos, this.updateTime, lastTime);
+      this.pos = this.moveRacket(this.dir, this.dirUpdates, this.pos, time, this.updateTime);
       me.pos = this.pos;
       if (this.dirUpdates.length) {
-        return this.dir = this.dirUpdates[this.dirUpdates.length - 1].dir;
+        this.dir = this.dirUpdates[this.dirUpdates.length - 1].dir;
       }
+      return this.updateTime = this.time();
     };
 
     Game.prototype.keyboardDown = function(evt) {
@@ -295,9 +296,10 @@
       socket.on('connect', function() {
         return console.log("Socket opened, Master!");
       });
-      socket.on('joined', function(side) {
-        _this.side = side;
-        _this.enemySide = side === 0 ? 1 : 0;
+      socket.on('joined', function(data) {
+        _this.timeDiff = _this.time() - data.t;
+        _this.side = data.side;
+        _this.enemySide = _this.side === 0 ? 1 : 0;
         $(window).on('keydown', function(e) {
           return _this.keyboardDown(e);
         });
@@ -316,6 +318,10 @@
           howmany = _this.seq2index(_this.gs[_this.side].lastSeq) + 1;
           _this.dirUpdates.splice(0, howmany);
         }
+        _this.ballUpdates.push({
+          pos: data.ball.pos,
+          t: data.ball.t
+        });
         _this.ballPosition = data.ball.pos;
         _this.ballV = data.ball.v;
         return _this.angle = data.ball.angle;

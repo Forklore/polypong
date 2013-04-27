@@ -32,12 +32,12 @@ module.exports = class Game extends GameCore
     @sendJoined sid
 
   sendJoined: (sid) ->
-    @gamers[sid].socket.emit 'joined', @gamers[sid].side
+    @gamers[sid].socket.emit 'joined', {side: @gamers[sid].side, t: @time()}
 
   sendMove: (sid) ->
     g = @gamers[sid]
     @gs[g.side].updates = g.updates
-    g.socket.emit 'move', {gamers: @gs, ball: {pos: @ballPosition, v: @ballV, angle: @angle}}
+    g.socket.emit 'move', {gamers: @gs, ball: {pos: @ballPosition, v: @ballV, angle: @angle, t: @time()}}
 
   sendMoveAll: ->
     for sid of @gamers
@@ -62,9 +62,9 @@ module.exports = class Game extends GameCore
       @ballPosition[0] = @canvasWidth - @ballResetOffset - @ballSize
       @angle = Math.PI + Math.asin((@gs[1].pos - @gs[0].pos) / @canvasWidth)
 
-  moveRackets: (lastTime) ->
+  moveRackets: (currentTime) ->
     for sid, gamer of @gamers
-      gamer.pos = @moveRacket gamer.dir, gamer.updates, gamer.pos, @updateTime, lastTime
+      gamer.pos = @moveRacket gamer.dir, gamer.updates, gamer.pos, currentTime, @updateTime
       @gs[gamer.side].pos = gamer.pos
       if gamer.updates.length
         lastUpdate = gamer.updates[gamer.updates.length-1]
@@ -99,12 +99,12 @@ module.exports = class Game extends GameCore
     @scores = [0, 0]
 
   gameStep: ->
-    lastTime = @updateTime
-    @updateTime = @time()
-    @moveRackets lastTime
-    @moveBall()
+    time = @time()
+    @moveRackets time
+    @moveBall(time - @updateTime)
     @checkScoreUpdate()
     @sendMoveAll()
+    @updateTime = @time()
 
   oneQuitted: (sidQuit) ->
     delete @gamers[sidQuit]

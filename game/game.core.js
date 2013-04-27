@@ -26,11 +26,10 @@
       ];
       this.ballPosition = [this.canvasWidth / 2 - this.ballSize / 2, this.canvasHeight / 2 - this.ballSize / 2];
       this.angle = (20 + Math.random() * 50) * Math.PI / 180;
-      this.ballV = 200;
+      this.ballV = 0.2;
       this.racketV = 0.15;
       this.updateTime = null;
       this.dt = 20;
-      this.dtInSec = this.dt / 1000;
       this.lastProcessedSeq = -1;
     }
 
@@ -46,15 +45,15 @@
         if (upd.t <= lastTime || upd.t > currentTime) {
           continue;
         }
-        pos = this.moveRacketBit(pos, dir, upd.t - lastTime, currentTime, lastTime);
+        pos = this.moveRacketBit(pos, dir, upd.t - lastTime);
         lastTime = upd.t;
         dir = upd.dir;
         this.lastProcessedSeq = upd.seq;
       }
-      return this.moveRacketBit(pos, dir, currentTime - lastTime, currentTime, lastTime);
+      return this.moveRacketBit(pos, dir, currentTime - lastTime);
     };
 
-    GameCore.prototype.moveRacketBit = function(pos, dir, dt, currentTime, lastTime) {
+    GameCore.prototype.moveRacketBit = function(pos, dir, dt) {
       var newPos;
 
       newPos = dir === this.dirUp ? pos - this.racketV * dt : dir === this.dirDown ? pos + this.racketV * dt : pos;
@@ -67,10 +66,10 @@
       return newPos;
     };
 
-    GameCore.prototype.moveBall = function() {
+    GameCore.prototype.moveBall = function(dt) {
       var ds;
 
-      ds = this.ballV * this.dtInSec;
+      ds = this.ballV * dt;
       this.ballPosition[0] += Math.round(ds * Math.cos(this.angle));
       this.ballPosition[1] += Math.round(ds * Math.sin(this.angle));
       return this.checkBallCollision();

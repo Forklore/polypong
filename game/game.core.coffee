@@ -17,12 +17,11 @@ class GameCore
     @ballPosition = [@canvasWidth / 2 - @ballSize / 2, @canvasHeight / 2 - @ballSize / 2]
 
     @angle = (20 + Math.random()*50)*Math.PI/180
-    @ballV = 200 # pixels per second
-    @racketV = 0.15 # pps
+    @ballV   = 0.2  # pixels per millisecond
+    @racketV = 0.15 # px per ms
 
     @updateTime = null
     @dt = 20
-    @dtInSec = @dt/1000
     @lastProcessedSeq = -1
 
   time: ->
@@ -31,13 +30,13 @@ class GameCore
   moveRacket: (dir, dirUpdates, pos, currentTime, lastTime) ->
     for upd in dirUpdates
       continue if upd.t <= lastTime or upd.t > currentTime
-      pos = @moveRacketBit pos, dir, (upd.t - lastTime), currentTime, lastTime
+      pos = @moveRacketBit pos, dir, (upd.t - lastTime)
       lastTime = upd.t
       dir = upd.dir
       @lastProcessedSeq = upd.seq
-    return @moveRacketBit pos, dir, (currentTime - lastTime), currentTime, lastTime
+    return @moveRacketBit pos, dir, (currentTime - lastTime)
 
-  moveRacketBit: (pos, dir, dt, currentTime, lastTime) ->
+  moveRacketBit: (pos, dir, dt) ->
     newPos =
       if dir == @dirUp
         pos - @racketV * dt
@@ -48,8 +47,8 @@ class GameCore
     newPos = @canvasHeight - @racketHeight if newPos > @canvasHeight - @racketHeight
     newPos
 
-  moveBall: ->
-    ds = @ballV * @dtInSec
+  moveBall: (dt) ->
+    ds = @ballV * dt
     @ballPosition[0] += Math.round( ds * Math.cos(@angle) )
     @ballPosition[1] += Math.round( ds * Math.sin(@angle) )
     @checkBallCollision()

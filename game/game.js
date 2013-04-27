@@ -49,7 +49,10 @@
     };
 
     Game.prototype.sendJoined = function(sid) {
-      return this.gamers[sid].socket.emit('joined', this.gamers[sid].side);
+      return this.gamers[sid].socket.emit('joined', {
+        side: this.gamers[sid].side,
+        t: this.time()
+      });
     };
 
     Game.prototype.sendMove = function(sid) {
@@ -62,7 +65,8 @@
         ball: {
           pos: this.ballPosition,
           v: this.ballV,
-          angle: this.angle
+          angle: this.angle,
+          t: this.time()
         }
       });
     };
@@ -112,14 +116,14 @@
       }
     };
 
-    Game.prototype.moveRackets = function(lastTime) {
+    Game.prototype.moveRackets = function(currentTime) {
       var gamer, lastUpdate, sid, _ref, _results;
 
       _ref = this.gamers;
       _results = [];
       for (sid in _ref) {
         gamer = _ref[sid];
-        gamer.pos = this.moveRacket(gamer.dir, gamer.updates, gamer.pos, this.updateTime, lastTime);
+        gamer.pos = this.moveRacket(gamer.dir, gamer.updates, gamer.pos, currentTime, this.updateTime);
         this.gs[gamer.side].pos = gamer.pos;
         if (gamer.updates.length) {
           lastUpdate = gamer.updates[gamer.updates.length - 1];
@@ -172,14 +176,14 @@
     };
 
     Game.prototype.gameStep = function() {
-      var lastTime;
+      var time;
 
-      lastTime = this.updateTime;
-      this.updateTime = this.time();
-      this.moveRackets(lastTime);
-      this.moveBall();
+      time = this.time();
+      this.moveRackets(time);
+      this.moveBall(time - this.updateTime);
       this.checkScoreUpdate();
-      return this.sendMoveAll();
+      this.sendMoveAll();
+      return this.updateTime = this.time();
     };
 
     Game.prototype.oneQuitted = function(sidQuit) {

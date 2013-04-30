@@ -13,7 +13,6 @@ window.Game = class Game extends GameCore
     @dirUpdates = [] # arrays of games inputs
     @seq = -1        # sequence number for acknowledgements
     @pos
-    @ballUpdates = []
     @timeDiff = 0
 
     # Constants
@@ -123,12 +122,13 @@ window.Game = class Game extends GameCore
 
       if @gs[@side].lastSeq <= @lastProcessedSeq
         howmany = @seq2index(@gs[@side].lastSeq) + 1
-        @dirUpdates.splice 0, howmany
+        @dirUpdates.splice 0, howmany # FIXME splice is slow
 
-      # Store ball updates incorporating ball position and time
-      # since we can receive updates with network delays.
-      @ballUpdates.push {pos: data.ball.pos, t: data.ball.t}
-      @ball.pos = data.ball.pos # FIXME we need to approximate ball position, this will be removed
+      # We correct ball position by approximating it's position from server
+      approxBallPos = (pos, serverTime) ->
+        localTime = serverTime + @timeDiff
+        pos
+      @ball.pos = approxBallPos data.ball.pos, data.t
       @ball.v = data.ball.v
       @ball.angle = data.ball.angle
 
@@ -138,7 +138,7 @@ window.Game = class Game extends GameCore
     socket.on 'busy', (data) =>
 
     socket.on 'disconnect', =>
-      # TODO @stopGame()
+      # FIXME @stopGame()
       $(window).off 'keydown'
       $(window).off 'keyup'
 

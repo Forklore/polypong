@@ -63,7 +63,7 @@
       return g.socket.emit('move', {
         gamers: this.gs,
         ball: this.ball,
-        t: this.time()
+        t: this.updateTime
       });
     };
 

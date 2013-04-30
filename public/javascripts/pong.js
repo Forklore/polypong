@@ -23,7 +23,10 @@
 
       current = new Date().getTime();
       delta = current - start;
-      fn.call();
+      if (delta >= delay) {
+        start = new Date().getTime();
+        fn.call();
+      }
       return handle.value = requestAnimFrame(loopy);
     };
     handle.value = requestAnimFrame(loopy);
@@ -162,7 +165,6 @@
       this.dirUpdates = [];
       this.seq = -1;
       this.pos;
-      this.ballUpdates = [];
       this.timeDiff = 0;
       this.keyLeft = 37;
       this.keyUp = 38;
@@ -310,7 +312,7 @@
         });
       });
       socket.on('move', function(data) {
-        var howmany;
+        var approxBallPos, howmany;
 
         _this.gs = data.gamers;
         if (_this.pos === void 0) {
@@ -320,11 +322,13 @@
           howmany = _this.seq2index(_this.gs[_this.side].lastSeq) + 1;
           _this.dirUpdates.splice(0, howmany);
         }
-        _this.ballUpdates.push({
-          pos: data.ball.pos,
-          t: data.ball.t
-        });
-        _this.ball.pos = data.ball.pos;
+        approxBallPos = function(pos, serverTime) {
+          var localTime;
+
+          localTime = serverTime + this.timeDiff;
+          return pos;
+        };
+        _this.ball.pos = approxBallPos(data.ball.pos, data.t);
         _this.ball.v = data.ball.v;
         return _this.ball.angle = data.ball.angle;
       });

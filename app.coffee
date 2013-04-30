@@ -21,13 +21,17 @@ app.configure ->
   app.use '/public', express.static(__dirname + '/public')
 
 app.configure 'development', ->
-  app.use express.errorHandler(
+  app.use express.errorHandler
     dumpExceptions: true, showStack: true
-  )
 
 app.configure 'production', ->
   app.use express.errorHandler()
 
+# setup locals for views
+app.locals
+  production: (app.settings.env == 'production')
+
+# routing
 app.get '/', routes.index
 app.get '/about', routes.about
 

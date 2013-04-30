@@ -38,6 +38,10 @@
     return app.use(express.errorHandler());
   });
 
+  app.locals({
+    production: app.settings.env === 'production'
+  });
+
   app.get('/', routes.index);
 
   app.get('/about', routes.about);

@@ -119,6 +119,13 @@ window.Game = class Game extends GameCore
       return ind if upd.seq == seq
     -1
 
+  time2index: (leaveTime) ->
+    ind = -1
+    for b in @ballUpdates
+      break if b.t >= leaveTime # Leave a second worth of updates
+      ind += 1
+    ind
+
   start: (socket) ->
     @socket = socket
 
@@ -135,12 +142,14 @@ window.Game = class Game extends GameCore
 
     socket.on 'move', (data) =>
       @gs = data.gamers
+      howmany = 1 + @time2index (@serverTime - 1000)
+      @ballUpdates.splice 0, howmany # FIXME splice is slow
       @ballUpdates.push data.ball
       @ghost = data.ball
 
       @pos = @gs[@side].pos if @pos == undefined
       if @gs[@side].lastSeq <= @lastProcessedSeq
-        howmany = @seq2index(@gs[@side].lastSeq) + 1
+        howmany = 1 + @seq2index(@gs[@side].lastSeq)
         @dirUpdates.splice 0, howmany # FIXME splice is slow
 
 

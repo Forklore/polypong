@@ -59,7 +59,7 @@ window.Game = class Game extends GameCore
     dt = time - @updateTime
     if @serverTime > 0
       @serverTime += dt
-      @ball = @moveBall @ballUpdates, @serverTime, dt
+      @ball = @moveBall @ballUpdates, @serverTime, dt if @ballUpdates.length?
     else
       @ball.t = @updateTime
       @ball = @moveBall [@ball], time, dt

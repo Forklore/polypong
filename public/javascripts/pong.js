@@ -265,7 +265,9 @@
       dt = time - this.updateTime;
       if (this.serverTime > 0) {
         this.serverTime += dt;
-        this.ball = this.moveBall(this.ballUpdates, this.serverTime, dt);
+        if (this.ballUpdates.length != null) {
+          this.ball = this.moveBall(this.ballUpdates, this.serverTime, dt);
+        }
       } else {
         this.ball.t = this.updateTime;
         this.ball = this.moveBall([this.ball], time, dt);

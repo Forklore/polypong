@@ -31,6 +31,22 @@ requestInterval = (fn, delay) ->
   handle.value = requestAnimFrame loopy
   handle
 
+clearRequestInterval = (handle) ->
+  if window.cancelAnimationFrame
+    window.cancelAnimationFrame handle.value
+  else if window.webkitCancelAnimationFrame
+    window.webkitCancelAnimationFrame handle.value
+  else if window.webkitCancelRequestAnimationFrame
+    window.webkitCancelRequestAnimationFrame handle.value # Support for legacy API
+  else if window.mozCancelRequestAnimationFrame
+    window.mozCancelRequestAnimationFrame handle.value
+  else if window.oCancelRequestAnimationFrame
+    window.oCancelRequestAnimationFrame handle.value
+  else if window.msCancelRequestAnimationFrame
+    window.msCancelRequestAnimationFrame handle.value
+  else clearInterval handle
+
 
 window.requestAnimFrame = requestAnimFrame
 window.requestInterval = requestInterval
+window.clearRequestInterval = clearRequestInterval

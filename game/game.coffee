@@ -37,7 +37,8 @@ module.exports = class Game extends GameCore
   sendMove: (sid) ->
     g = @gamers[sid]
     @gs[g.side].updates = g.updates
-    g.socket.emit 'move', {gamers: @gs, ball: @ball, t: @updateTime}
+    @ball.t = @updateTime
+    g.socket.emit 'move', {gamers: @gs, ball: @ball}
 
   sendMoveAll: ->
     for sid of @gamers
@@ -101,10 +102,11 @@ module.exports = class Game extends GameCore
   gameStep: ->
     time = @time()
     @moveRackets time
-    @moveBall(time - @updateTime)
+    @ball.t = @updateTime
+    @ball = @moveBall [@ball], time, (time - @updateTime)
     @checkScoreUpdate()
     @sendMoveAll()
-    @updateTime = @time() # Should this be current @time() or time???
+    @updateTime = time
 
   oneQuitted: (sidQuit) ->
     delete @gamers[sidQuit]

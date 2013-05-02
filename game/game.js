@@ -60,10 +60,10 @@
 
       g = this.gamers[sid];
       this.gs[g.side].updates = g.updates;
+      this.ball.t = this.updateTime;
       return g.socket.emit('move', {
         gamers: this.gs,
-        ball: this.ball,
-        t: this.updateTime
+        ball: this.ball
       });
     };
 
@@ -176,10 +176,11 @@
 
       time = this.time();
       this.moveRackets(time);
-      this.moveBall(time - this.updateTime);
+      this.ball.t = this.updateTime;
+      this.ball = this.moveBall([this.ball], time, time - this.updateTime);
       this.checkScoreUpdate();
       this.sendMoveAll();
-      return this.updateTime = this.time();
+      return this.updateTime = time;
     };
 
     Game.prototype.oneQuitted = function(sidQuit) {

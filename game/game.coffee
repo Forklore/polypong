@@ -14,8 +14,9 @@ cookie = require 'cookie'
 timers = require 'timers'
 _ = require 'underscore'
 
-class Room 
+class Room extends GameCore
   constructor: (id) ->
+    super()
     console.log "room #{id} created"
     @id = id
     @gamers = {}
@@ -29,32 +30,7 @@ class Room
   addGamer: (sid, gamer) ->
     console.log "gamer #{gamer} added for sid #{sid}"
     @gamers[sid] = gamer 
-
-
-module.exports = class Game extends GameCore
-
-  constructor: ->
-    super()
-    @rooms = []
-    @gamers = {}
-    @gamersCount = 0
-    initPos = @canvasHeight / 2 - 40
-    @gs = [{pos: initPos - @racketHeight, dir: @dirIdle, updates: [], lastSeq: -1},
-           {pos: initPos + @racketHeight, dir: @dirIdle, updates: [], lastSeq: -1}]
-    @ballResetOffset = 50
-    @scores = [0, 0]
-    @count = 0
-    @inDaLoop = false
-
-  addGamer: (sid, socket, side) ->
-    @gamers[sid] = {socket: socket, updates: [], side: side, pos: @gs[side].pos}
-    console.log "Gamers #{_.size(@gamers)}"
-    if _.size(@gamers) % 2 == 1     
-      newRoom = new Room(@rooms.length + 1)
-      newRoom.addGamer sid, @gamers[sid]
-      @rooms.push newRoom 
     @sendJoined sid
-    console.log "Rooms #{@rooms.length}"
 
   sendJoined: (sid) ->
     @gamers[sid].socket.emit 'joined', @gamers[sid].side
@@ -76,7 +52,7 @@ module.exports = class Game extends GameCore
       @sendScore sid
 
   updateState: (sid, dir, seq) ->
-    @gamers[sid].updates.push {dir: dir, seq: seq, t: @time()}
+    @gamers[sid].updates.push {dir: dir, seq: seq, t: @time()} if (@gamers[sid])
 
   placeBall: (side) ->
     @ballPosition[1] = @gs[side].pos + @racketHeight / 2
@@ -111,6 +87,98 @@ module.exports = class Game extends GameCore
       @placeBall side 
       @sendScoreAll()
 
+  placeBall: (side) ->
+    @ballPosition[1] = @gs[side].pos + @racketHeight / 2
+    if side == 0
+      @ballPosition[0] = @ballResetOffset
+      @angle = Math.asin((@gs[1].pos - @gs[0].pos) / (@canvasWidth - 2 * @xOffset))
+    else
+      @ballPosition[0] = @canvasWidth - @ballResetOffset - @ballSize
+      @angle = Math.PI + Math.asin((@gs[1].pos - @gs[0].pos) / (@canvasWidth - 2 * @xOffset))
+    @ballV = @initBallV
+
+
+module.exports = class Game extends GameCore
+
+  constructor: ->
+    super()
+    @rooms = []
+    @gamers = {}
+    @gamersCount = 0
+    initPos = @canvasHeight / 2 - 40
+    @gs = [{pos: initPos - @racketHeight, dir: @dirIdle, updates: [], lastSeq: -1},
+           {pos: initPos + @racketHeight, dir: @dirIdle, updates: [], lastSeq: -1}]
+    @ballResetOffset = 50
+    @scores = [0, 0]
+    @count = 0
+    @inDaLoop = false
+
+  addGamer: (sid, socket, side) ->
+    @gamers[sid] = {socket: socket, updates: [], side: side, pos: @gs[side].pos}
+    console.log "Gamers #{_.size(@gamers)}"
+    if _.size(@gamers) % 2 == 1     
+      newRoom = new Room(@rooms.length + 1)
+      newRoom.addGamer sid, @gamers[sid]
+      newRoom.sendJoined sid
+      @rooms.push newRoom 
+    # @sendJoined sid
+    console.log "Rooms #{@rooms.length}"
+
+  sendJoined: (sid) ->
+    @gamers[sid].socket.emit 'joined', @gamers[sid].side
+
+  # sendMove: (sid) ->
+  #   g = @gamers[sid]
+  #   @gs[g.side].updates = g.updates
+  #   g.socket.emit 'move', {gamers: @gs, ball: {pos: @ballPosition, v: @ballV, angle: @angle}}
+
+  # sendMoveAll: ->
+  #   for sid of @gamers
+  #     @sendMove sid
+
+  # sendScore: (sid) ->
+  #   @gamers[sid].socket.emit 'score', {scores: @scores}
+
+  # sendScoreAll: ->
+  #   for sid of @gamers
+  #     @sendScore sid
+
+  updateState: (sid, dir, seq) ->
+    @gamers[sid].updates.push {dir: dir, seq: seq, t: @time()}
+
+  # placeBall: (side) ->
+  #   @ballPosition[1] = @gs[side].pos + @racketHeight / 2
+  #   if side == 0
+  #     @ballPosition[0] = @ballResetOffset
+  #     @angle = Math.asin((@gs[1].pos - @gs[0].pos) / (@canvasWidth - 2 * @xOffset))
+  #   else
+  #     @ballPosition[0] = @canvasWidth - @ballResetOffset - @ballSize
+  #     @angle = Math.PI + Math.asin((@gs[1].pos - @gs[0].pos) / (@canvasWidth - 2 * @xOffset))
+  #   @ballV = @initBallV
+
+  # moveRackets: (lastTime) ->
+  #   for sid, gamer of @gamers
+  #     gamer.pos = @moveRacket gamer.dir, gamer.updates, gamer.pos, @updateTime, lastTime
+  #     @gs[gamer.side].pos = gamer.pos
+  #     if gamer.updates.length
+  #       lastUpdate = gamer.updates[gamer.updates.length-1]
+  #       gamer.dir = lastUpdate.dir
+  #       @gs[gamer.side].lastSeq = lastUpdate.seq
+  #     gamer.updates = []
+  #     @gs[gamer.side].updates = [] # FIXME seems wrong, clear after updates sent only
+
+  # checkScoreUpdate: ->
+  #   if @ballPosition[0] < 0 or @ballPosition[0] > @canvasWidth - @ballSize
+  #     side = -1
+  #     if @ballPosition[0] < 0
+  #       @scores[1] += 1
+  #       side = 0
+  #     if @ballPosition[0] > @canvasWidth - @ballSize
+  #       @scores[0] += 1
+  #       side = 1
+  #     @placeBall side 
+  #     @sendScoreAll()
+
   startLoop: ->
     return if @inDaLoop
     @gameLoop = timers.setInterval =>
@@ -127,10 +195,12 @@ module.exports = class Game extends GameCore
   gameStep: ->
     lastTime = @updateTime
     @updateTime = @time()
-    @moveRackets lastTime
-    @moveBall()
-    @checkScoreUpdate()
-    @sendMoveAll()
+    _.map(@rooms, (room) ->
+      room.moveRackets lastTime
+      room.moveBall()
+      room.checkScoreUpdate()
+      room.sendMoveAll()
+    )
 
   oneQuitted: (sidQuit) ->
     delete @gamers[sidQuit]
@@ -153,12 +223,15 @@ module.exports = class Game extends GameCore
       console.log "I can has join: #{sid}"
       @addGamer sid, socket, @count
       @count++
-      @startLoop() if @count > 0
-      @sendMove sid
-      @sendScore sid
+      @startLoop()
+      # @startLoop() if @count > 0
+      # @sendMove sid
+      # @sendScore sid
 
     socket.on 'state', (data) =>
-      @updateState sid, data.dir, data.seq
+      _.map(@rooms, (room) ->
+        room.updateState sid, data.dir, data.seq
+      )
 
     socket.on 'disconnect', =>
       return unless sid of @gamers && @gamers[sid].socket.id == socket.id

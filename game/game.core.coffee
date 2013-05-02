@@ -54,6 +54,7 @@ class GameCore
 
   moveBall: ->
     ds = @ballV * @dtInSec
+    console.log "1: #{@ballPosition[0]}, #{@ballPosition[1]}"
     @ballPosition[0] += Math.round( ds * Math.cos(@angle) )
     @ballPosition[1] += Math.round( ds * Math.sin(@angle) )
     @checkBallCollision()

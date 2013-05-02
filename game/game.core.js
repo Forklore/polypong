@@ -68,6 +68,7 @@
     GameCore.prototype.moveBall = function() {
       var ds;
       ds = this.ballV * this.dtInSec;
+      console.log("1: " + this.ballPosition[0] + ", " + this.ballPosition[1]);
       this.ballPosition[0] += Math.round(ds * Math.cos(this.angle));
       this.ballPosition[1] += Math.round(ds * Math.sin(this.angle));
       return this.checkBallCollision();

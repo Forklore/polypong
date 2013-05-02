@@ -45,7 +45,7 @@ window.Game = class Game extends GameCore
     @drawRacket @startPos[@side][0], @gs[@side].pos, @racketColor
     @drawRacket @startPos[@enemySide][0], @gs[@enemySide].pos, @racketColor
     @drawBall @ball, 'rgb(200,200,200)'
-    @drawBall @ghost, '#0f0' if @ghost?
+    @drawBall @ghost, '#0f0' if @ghost
 
   # Game logic
 
@@ -59,7 +59,7 @@ window.Game = class Game extends GameCore
     dt = time - @updateTime
     if @serverTime > 0
       @serverTime += dt
-      @ball = @moveBall @ballUpdates, @serverTime, dt if @ballUpdates.length?
+      @ball = @moveBall @ballUpdates, @serverTime, dt if @ballUpdates.length
     else
       @ball.t = @updateTime
       @ball = @moveBall [@ball], time, dt

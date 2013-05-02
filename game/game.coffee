@@ -33,12 +33,13 @@ class Room extends GameCore
     @sendJoined sid
 
   sendJoined: (sid) ->
-    @gamers[sid].socket.emit 'joined', @gamers[sid].side
+    @gamers[sid].socket.emit 'joined', @gamers[sid].side if (@gamers[sid])
 
   sendMove: (sid) ->
     g = @gamers[sid]
-    @gs[g.side].updates = g.updates
-    g.socket.emit 'move', {gamers: @gs, ball: {pos: @ballPosition, v: @ballV, angle: @angle}}
+    if (g)
+      @gs[g.side].updates = g.updates
+      g.socket.emit 'move', {gamers: @gs, ball: {pos: @ballPosition, v: @ballV, angle: @angle}}
 
   sendMoveAll: ->
     for sid of @gamers
@@ -87,36 +88,31 @@ class Room extends GameCore
       @placeBall side 
       @sendScoreAll()
 
-  placeBall: (side) ->
-    @ballPosition[1] = @gs[side].pos + @racketHeight / 2
-    if side == 0
-      @ballPosition[0] = @ballResetOffset
-      @angle = Math.asin((@gs[1].pos - @gs[0].pos) / (@canvasWidth - 2 * @xOffset))
-    else
-      @ballPosition[0] = @canvasWidth - @ballResetOffset - @ballSize
-      @angle = Math.PI + Math.asin((@gs[1].pos - @gs[0].pos) / (@canvasWidth - 2 * @xOffset))
-    @ballV = @initBallV
 
-
-module.exports = class Game extends GameCore
+module.exports = class Game
 
   constructor: ->
-    super()
     @rooms = []
     @gamers = {}
     @gamersCount = 0
-    initPos = @canvasHeight / 2 - 40
     @count = 0
     @inDaLoop = false
+    @updateTime = null
+    @dt = 20
+    @dtInSec = @dt/1000
+    @lastProcessedSeq = -1
 
   addGamer: (sid, socket, side) ->
-    @gamers[sid] = {socket: socket, updates: [], side: side, pos: @gs[side].pos}
-    console.log "Gamers #{_.size(@gamers)}"
+    @gamers[sid] = {socket: socket, updates: [], side: side, room: ""}
+    room 
     if _.size(@gamers) % 2 == 1     
-      newRoom = new Room(@rooms.length + 1)
-      newRoom.addGamer sid, @gamers[sid]
-      newRoom.sendJoined sid
-      @rooms.push newRoom 
+      room = new Room(@rooms.length + 1)
+      @rooms.push room 
+    else 
+      room = @rooms[@rooms.length - 1]
+    room.addGamer sid, @gamers[sid]
+    room.sendJoined sid
+    @gamers[sid] = {socket: socket, updates: [], side: side, room: room.id}
     # @sendJoined sid
 
   # sendJoined: (sid) ->
@@ -173,6 +169,8 @@ module.exports = class Game extends GameCore
   #       side = 1
   #     @placeBall side 
   #     @sendScoreAll()
+  time: ->
+    new Date().getTime()
 
   startLoop: ->
     return if @inDaLoop
@@ -185,7 +183,6 @@ module.exports = class Game extends GameCore
     return unless @inDaLoop
     timers.clearInterval @gameLoop
     @inDaLoop = false
-    @scores = [0, 0]
 
   gameStep: ->
     lastTime = @updateTime
@@ -208,8 +205,10 @@ module.exports = class Game extends GameCore
 
     socket.on 'join', (data) =>
       if sid of @gamers
-        @sendJoined sid
-        @sendMove sid
+        _.map(@rooms, (room) ->
+          room.sendJoined sid
+          room.sendMove sid
+        )
         return
       if @count == 2
         @count = 0

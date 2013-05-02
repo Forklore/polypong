@@ -107,7 +107,6 @@ module.exports = class Game extends GameCore
     @ball = @moveBall [@ball], time, (time - @updateTime)
     @checkScoreUpdate()
     @sendMoveAll()
-    console.log "server time #{time}"
     @updateTime = time
 
   oneQuitted: (sidQuit) ->

@@ -45,7 +45,7 @@ window.Game = class Game extends GameCore
     @drawRacket @startPos[@side][0], @gs[@side].pos, @racketColor
     @drawRacket @startPos[@enemySide][0], @gs[@enemySide].pos, @racketColor
     @drawBall @ball, 'rgb(200,200,200)'
-    @drawBall @ghost, '#0f0' if @ghost
+    @drawBall @ghost, 'rgb(0,200,0)' if @ghost
 
   # Game logic
 
@@ -70,7 +70,6 @@ window.Game = class Game extends GameCore
     @pos = @moveRacket @dir, @dirUpdates, @pos, time, @updateTime
     me.pos = @pos # FIXME from gs shoulg go, just don't replace it from the server
     @dir = @dirUpdates[@dirUpdates.length-1].dir if @dirUpdates.length # FIXME: this can go in @gs structure, but shouldn't be rewritten by server
-    console.log "server time #{@serverTime}"
     @updateTime = time
 
   # Keyboard functions
@@ -119,12 +118,12 @@ window.Game = class Game extends GameCore
       return ind if upd.seq == seq
     -1
 
-  time2index: (leaveTime) ->
-    ind = -1
-    for b in @ballUpdates
-      break if b.t >= leaveTime # Leave a second worth of updates
-      ind += 1
-    ind
+  time2index: (keepTime) ->
+    indFromEnd = -1
+    for b in @ballUpdates by -1
+      break if b.t < keepTime # Leave a second worth of updates
+      indFromEnd += 1
+    @ballUpdates.length - 2 - indFromEnd
 
   start: (socket) ->
     @socket = socket
@@ -144,7 +143,7 @@ window.Game = class Game extends GameCore
 
     socket.on 'move', (data) =>
       @gs = data.gamers
-      howmany = 1 + @time2index (@serverTime - 1000)
+      howmany = 1 + @time2index(@serverTime - 1000)
       @ballUpdates.splice 0, howmany # FIXME splice is slow
       @ballUpdates.push data.ball
       @ghost = data.ball

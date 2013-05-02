@@ -249,7 +249,7 @@
       this.drawRacket(this.startPos[this.enemySide][0], this.gs[this.enemySide].pos, this.racketColor);
       this.drawBall(this.ball, 'rgb(200,200,200)');
       if (this.ghost) {
-        return this.drawBall(this.ghost, '#0f0');
+        return this.drawBall(this.ghost, 'rgb(0,200,0)');
       }
     };
 
@@ -280,7 +280,6 @@
       if (this.dirUpdates.length) {
         this.dir = this.dirUpdates[this.dirUpdates.length - 1].dir;
       }
-      console.log("server time " + this.serverTime);
       return this.updateTime = time;
     };
 
@@ -368,19 +367,19 @@
       return -1;
     };
 
-    Game.prototype.time2index = function(leaveTime) {
-      var b, ind, _i, _len, _ref;
+    Game.prototype.time2index = function(keepTime) {
+      var b, indFromEnd, _i, _ref;
 
-      ind = -1;
+      indFromEnd = -1;
       _ref = this.ballUpdates;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      for (_i = _ref.length - 1; _i >= 0; _i += -1) {
         b = _ref[_i];
-        if (b.t >= leaveTime) {
+        if (b.t < keepTime) {
           break;
         }
-        ind += 1;
+        indFromEnd += 1;
       }
-      return ind;
+      return this.ballUpdates.length - 2 - indFromEnd;
     };
 
     Game.prototype.start = function(socket) {

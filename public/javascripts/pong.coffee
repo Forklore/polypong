@@ -4,6 +4,7 @@ window.Game = class Game extends GameCore
     super()
 
     # Vars
+    @loopHandle
     @upPressed = false
     @downPressed = false
     @dir = @dirIdle # Current moving direction on the moment of updateState function (or last moving direction after update, if you prefer)
@@ -13,6 +14,9 @@ window.Game = class Game extends GameCore
     @dirUpdates = [] # arrays of games inputs
     @seq = -1        # sequence number for acknowledgements
     @pos
+    @serverTime = 0
+    @ballUpdates = []
+    @ghostBall
 
     # Constants
     @keyLeft = 37
@@ -30,17 +34,18 @@ window.Game = class Game extends GameCore
     @ctx.fillStyle = color
     @ctx.fillRect x, y, @racketWidth, @racketHeight
 
-  drawBall: (x, y) ->
-    @ctx.fillStyle = "rgb(200, 200, 200)"
-    @ctx.fillRect x, y, @ballSize, @ballSize
+  drawBall: (ball, color) ->
+    @ctx.fillStyle = color
+    @ctx.fillRect ball.pos.x, ball.pos.y, @ballSize, @ballSize
 
   drawBoard: ->
     @ctx.clearRect 0, 0, @canvasWidth, @canvasHeight
-    @ctx.fillStyle = "rgb(200, 200, 200)"
+    @ctx.fillStyle = 'rgb(200,200,200)'
     @ctx.fillRect 389, 5, 1, 430
     @drawRacket @startPos[@side][0], @gs[@side].pos, @racketColor
     @drawRacket @startPos[@enemySide][0], @gs[@enemySide].pos, @racketColor
-    @drawBall @ballPosition[0], @ballPosition[1]
+    @drawBall @ball, 'rgb(200,200,200)'
+    @drawBall @ghost, '#0f0' if @ghost?
 
   # Game logic
 
@@ -48,17 +53,24 @@ window.Game = class Game extends GameCore
     @updateState()
     @drawBoard()
 
+  # FIXME what a mess
   updateState: ->
-    lastTime = @updateTime
-    @updateTime = @time()
-    @moveBall()
+    time = @time()
+    dt = time - @updateTime
+    if @serverTime > 0
+      @serverTime += dt
+      @ball = @moveBall @ballUpdates, @serverTime, dt
+    else
+      @ball.t = @updateTime
+      @ball = @moveBall [@ball], time, dt
     enemy = @gs[@enemySide]
     # FIXME Interpolate enemy moves
-    enemy.pos = @moveRacket enemy.dir, enemy.updates, enemy.pos, @updateTime, lastTime
+    enemy.pos = @moveRacket enemy.dir, enemy.updates, enemy.pos, time, @updateTime # FIXME no need to save current @dir, store only previous update
     me = @gs[@side]
-    @pos = @moveRacket @dir, @dirUpdates, @pos, @updateTime, lastTime
-    me.pos = @pos # FIXME from gs shoulg go, just don't replace it ffrom the server
+    @pos = @moveRacket @dir, @dirUpdates, @pos, time, @updateTime
+    me.pos = @pos # FIXME from gs shoulg go, just don't replace it from the server
     @dir = @dirUpdates[@dirUpdates.length-1].dir if @dirUpdates.length # FIXME: this can go in @gs structure, but shouldn't be rewritten by server
+    @updateTime = time
 
   # Keyboard functions
 
@@ -94,12 +106,24 @@ window.Game = class Game extends GameCore
     canvas = document.getElementById 'game_board_canvas'
     @ctx = canvas.getContext '2d'
     @updateTime = @time()
-    requestInterval ( => @gameLoop()), @dt
+    @loopHandle = requestInterval (=> @gameLoop()), @dt
+
+  stopGame: ->
+    $(window).off 'keydown'
+    $(window).off 'keyup'
+    clearRequestInterval @loopHandle
 
   seq2index: (seq) ->
     for upd, ind in @dirUpdates
       return ind if upd.seq == seq
     -1
+
+  time2index: (leaveTime) ->
+    ind = -1
+    for b in @ballUpdates
+      break if b.t >= leaveTime # Leave a second worth of updates
+      ind += 1
+    ind
 
   start: (socket) ->
     @socket = socket
@@ -107,22 +131,25 @@ window.Game = class Game extends GameCore
     socket.on 'connect', =>
       console.log "Socket opened, Master!"
 
-    socket.on 'joined', (side) =>
-      @side = side
-      @enemySide = if side == 0 then 1 else 0
+    socket.on 'joined', (data) =>
+      @serverTime = data.t# + 100 # FIXME net delay
+      @side = data.side
+      @enemySide = if @side == 0 then 1 else 0
       # Can't move while not joined
       $(window).on 'keydown', (e) => @keyboardDown e
       $(window).on 'keyup', (e) => @keyboardUp e
 
     socket.on 'move', (data) =>
       @gs = data.gamers
+      howmany = 1 + @time2index (@serverTime - 1000)
+      @ballUpdates.splice 0, howmany # FIXME splice is slow
+      @ballUpdates.push data.ball
+      @ghost = data.ball
+
       @pos = @gs[@side].pos if @pos == undefined
       if @gs[@side].lastSeq <= @lastProcessedSeq
-        howmany = @seq2index(@gs[@side].lastSeq) + 1
-        @dirUpdates.splice 0, howmany
-      @ballPosition = data.ball.pos
-      @ballV = data.ball.v
-      @angle = data.ball.angle
+        howmany = 1 + @seq2index(@gs[@side].lastSeq)
+        @dirUpdates.splice 0, howmany # FIXME splice is slow
 
     socket.on 'score', (data) =>
       @updateScore data.scores
@@ -130,9 +157,8 @@ window.Game = class Game extends GameCore
     socket.on 'busy', (data) =>
 
     socket.on 'disconnect', =>
-      # TODO @stopGame()
-      $(window).off 'keydown'
-      $(window).off 'keyup'
+      console.log 'Server disconnect'
+      @stopGame()
 
     socket.emit 'join'
 

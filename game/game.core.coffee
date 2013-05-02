@@ -8,40 +8,44 @@ class GameCore
     @racketHeight = 55
     @racketWidth = 10
     @ballSize = 8
+    @racketV = 0.15 # px per ms
 
     @dirUp = -1
     @dirIdle = 0
     @dirDown = 1
 
     @gs = [{pos: 10, dir: @dirIdle, updates: []}, {pos: 10, dir: @dirIdle, updates: []}]
-    @ballPosition = [@canvasWidth / 2 - @ballSize / 2, @canvasHeight / 2 - @ballSize / 2]
 
-    @angle = (20 + Math.random()*50)*Math.PI/180
-    @ballV = 200 # pixels per second
-    @maxBallV = 400
-    @initBallV = 200
-    @minBallV = 100
-    @racketV = 0.15 # pps
+    @maxBallV = 0.4
+    @initBallV = 0.2
+    @minBallV = 0.1
     @speedUp = 0.9 # ball speed up coefficient, should be lte than 1
 
+    @ball =
+      pos:
+        x: (@canvasWidth / 2 - @ballSize / 2)
+        y: (@canvasHeight / 2 - @ballSize / 2)
+      angle: ((20 + Math.random()*50)*Math.PI/180)
+      v: 0.2 # speed in px per ms
+      t: 0
+
     @updateTime = null
-    @dt = 20
-    @dtInSec = @dt/1000
+    @dt = 20 # FIXME that's not a delta time anymore
     @lastProcessedSeq = -1
 
   time: ->
     new Date().getTime()
 
-  moveRacket: (dir, dirUpdates, pos, currentTime, lastTime) ->
+  moveRacket: (dir, dirUpdates, pos, currentTime, beforeTime) ->
     for upd in dirUpdates
-      continue if upd.t <= lastTime or upd.t > currentTime
-      pos = @moveRacketBit pos, dir, (upd.t - lastTime), currentTime, lastTime
-      lastTime = upd.t
+      continue if upd.t <= beforeTime or upd.t > currentTime
+      pos = @moveRacketBit pos, dir, (upd.t - beforeTime)
+      beforeTime = upd.t
       dir = upd.dir
       @lastProcessedSeq = upd.seq
-    return @moveRacketBit pos, dir, (currentTime - lastTime), currentTime, lastTime
+    return @moveRacketBit pos, dir, (currentTime - beforeTime)
 
-  moveRacketBit: (pos, dir, dt, currentTime, lastTime) ->
+  moveRacketBit: (pos, dir, dt) ->
     newPos =
       if dir == @dirUp
         pos - @racketV * dt
@@ -52,44 +56,49 @@ class GameCore
     newPos = @canvasHeight - @racketHeight if newPos > @canvasHeight - @racketHeight
     newPos
 
-  moveBall: ->
-    ds = @ballV * @dtInSec
-    @ballPosition[0] += Math.round( ds * Math.cos(@angle) )
-    @ballPosition[1] += Math.round( ds * Math.sin(@angle) )
-    @checkBallCollision()
+  moveBall: (ballUpdates, currentTime, dt) ->
+    beforeTime = currentTime - dt
+    # Find last ball update in this time interval and move it delta time
+    for b in ballUpdates by -1
+      ball = b
+      break if b.t >= beforeTime and b.t <= currentTime
+    return @moveBallBit ball, (currentTime - ball.t)
 
-  checkBallCollision: ->
-    if @ballPosition[1] < 0
-      @ballPosition[1] = 0
-      @angle = - @angle
-      return
-    if @ballPosition[1] > @canvasHeight - @ballSize
-      @ballPosition[1] = @canvasHeight - @ballSize
-      @angle = - @angle
-      return
-    if @ballPosition[0] <= @xOffset
-      if @ballPosition[1] >= @gs[0].pos && @ballPosition[1] <= @gs[0].pos + @racketHeight - @ballSize
-        @ballPosition[0] = @xOffset
-        @angle = Math.PI - @angle
-        @ballV = @ballV * (@speedUp + Math.abs(@ballPosition[1] - @gs[0].pos + @racketHeight / 2) / (@gs[0].pos + @racketHeight / 2))
-        if @ballV >= @maxBallV
-          @ballV = @maxBallV
-        else if @ballV <= @minBallV
-          @ballV = @minBallV
+  moveBallBit: (ball, dt) ->
+    ds = ball.v * dt
+    ball.pos.x += ds * Math.cos(ball.angle)
+    ball.pos.y += ds * Math.sin(ball.angle)
+    ball.t += dt
+    return @checkBallCollision ball
+
+  checkBallCollision: (ball) ->
+    if ball.pos.y < 0
+      ball.pos.y = 0
+      ball.angle = - ball.angle
+    else if ball.pos.y > @canvasHeight - @ballSize
+      ball.pos.y = @canvasHeight - @ballSize
+      ball.angle = - ball.angle
+    else if ball.pos.x <= @xOffset
+      if ball.pos.y >= @gs[0].pos && ball.pos.y <= @gs[0].pos + @racketHeight - @ballSize
+        ball.pos.x = @xOffset
+        ball.angle = Math.PI - ball.angle
+        ball.v = ball.v * (@speedUp + Math.abs(ball.pos.y - @gs[0].pos + @racketHeight / 2) / (@gs[0].pos + @racketHeight / 2))
+        if ball.v >= @maxBallV
+          ball.v = @maxBallV
+        else if ball.v <= @minBallV
+          ball.v = @minBallV
         else
-          @ballV = @ballV * (@speedUp + Math.abs(@ballPosition[1] - @gs[0].pos + @racketHeight / 2) / (@gs[0].pos + @racketHeight / 2))
-        return
-    if @ballPosition[0] >= @canvasWidth - @xOffset - @ballSize
-      if @ballPosition[1] >= @gs[1].pos && @ballPosition[1] <= @gs[1].pos + @racketHeight - @ballSize
-        @ballPosition[0] = @canvasWidth - @xOffset - @ballSize
-        @angle = Math.PI - @angle
-        if @ballV >= @maxBallV
-          @ballV = @maxBallV
-        else if @ballV <= @minBallV
-          @ballV = @minBallV
-        else
-          @ballV = @ballV * (@speedUp + Math.abs(@ballPosition[1] - @gs[0].pos + @racketHeight / 2) / (@gs[0].pos + @racketHeight / 2))
-        return
+          ball.v = ball.v * (@speedUp + Math.abs(ball.pos.y - @gs[0].pos + @racketHeight / 2) / (@gs[0].pos + @racketHeight / 2))
+    else if ball.pos.x >= @canvasWidth - @xOffset - @ballSize
+      if ball.pos.y >= @gs[1].pos && ball.pos.y <= @gs[1].pos + @racketHeight - @ballSize
+        ball.pos.x = @canvasWidth - @xOffset - @ballSize
+        ball.angle = Math.PI - ball.angle
+        ball.v = ball.v * (@speedUp + Math.abs(ball.pos.y - @gs[0].pos + @racketHeight / 2) / (@gs[0].pos + @racketHeight / 2))
+        if ball.v >= @maxBallV
+          ball.v = @maxBallV
+        else if ball.v <= @minBallV
+          ball.v = @minBallV
+    return ball
 
 
 if typeof(module) == 'undefined'

@@ -49,7 +49,10 @@
     };
 
     Game.prototype.sendJoined = function(sid) {
-      return this.gamers[sid].socket.emit('joined', this.gamers[sid].side);
+      return this.gamers[sid].socket.emit('joined', {
+        side: this.gamers[sid].side,
+        t: this.time()
+      });
     };
 
     Game.prototype.sendMove = function(sid) {
@@ -57,13 +60,10 @@
 
       g = this.gamers[sid];
       this.gs[g.side].updates = g.updates;
+      this.ball.t = this.updateTime;
       return g.socket.emit('move', {
         gamers: this.gs,
-        ball: {
-          pos: this.ballPosition,
-          v: this.ballV,
-          angle: this.angle
-        }
+        ball: this.ball
       });
     };
 
@@ -102,25 +102,25 @@
     };
 
     Game.prototype.placeBall = function(side) {
-      this.ballPosition[1] = this.gs[side].pos + this.racketHeight / 2;
+      this.ball.pos.y = this.gs[side].pos + this.racketHeight / 2 - this.ballSize / 2;
       if (side === 0) {
-        this.ballPosition[0] = this.ballResetOffset;
-        this.angle = Math.asin((this.gs[1].pos - this.gs[0].pos) / (this.canvasWidth - 2 * this.xOffset));
+        this.ball.pos.x = this.ballResetOffset;
+        this.ball.angle = Math.asin((this.gs[1].pos - this.gs[0].pos) / (this.canvasWidth - 2 * this.xOffset));
       } else {
-        this.ballPosition[0] = this.canvasWidth - this.ballResetOffset - this.ballSize;
-        this.angle = Math.PI + Math.asin((this.gs[1].pos - this.gs[0].pos) / (this.canvasWidth - 2 * this.xOffset));
+        this.ball.pos.x = this.canvasWidth - this.ballResetOffset - this.ballSize;
+        this.ball.angle = Math.PI + Math.asin((this.gs[1].pos - this.gs[0].pos) / (this.canvasWidth - 2 * this.xOffset));
       }
-      return this.ballV = this.initBallV;
+      return this.ball.v = this.initBallV;
     };
 
-    Game.prototype.moveRackets = function(lastTime) {
+    Game.prototype.moveRackets = function(currentTime) {
       var gamer, lastUpdate, sid, _ref, _results;
 
       _ref = this.gamers;
       _results = [];
       for (sid in _ref) {
         gamer = _ref[sid];
-        gamer.pos = this.moveRacket(gamer.dir, gamer.updates, gamer.pos, this.updateTime, lastTime);
+        gamer.pos = this.moveRacket(gamer.dir, gamer.updates, gamer.pos, currentTime, this.updateTime);
         this.gs[gamer.side].pos = gamer.pos;
         if (gamer.updates.length) {
           lastUpdate = gamer.updates[gamer.updates.length - 1];
@@ -136,13 +136,13 @@
     Game.prototype.checkScoreUpdate = function() {
       var side;
 
-      if (this.ballPosition[0] < 0 || this.ballPosition[0] > this.canvasWidth - this.ballSize) {
+      if (this.ball.pos.x < 0 || this.ball.pos.x > this.canvasWidth - this.ballSize) {
         side = -1;
-        if (this.ballPosition[0] < 0) {
+        if (this.ball.pos.x < 0) {
           this.scores[1] += 1;
           side = 0;
         }
-        if (this.ballPosition[0] > this.canvasWidth - this.ballSize) {
+        if (this.ball.pos.x > this.canvasWidth - this.ballSize) {
           this.scores[0] += 1;
           side = 1;
         }
@@ -173,14 +173,15 @@
     };
 
     Game.prototype.gameStep = function() {
-      var lastTime;
+      var time;
 
-      lastTime = this.updateTime;
-      this.updateTime = this.time();
-      this.moveRackets(lastTime);
-      this.moveBall();
+      time = this.time();
+      this.moveRackets(time);
+      this.ball.t = this.updateTime;
+      this.ball = this.moveBall([this.ball], time, time - this.updateTime);
       this.checkScoreUpdate();
-      return this.sendMoveAll();
+      this.sendMoveAll();
+      return this.updateTime = time;
     };
 
     Game.prototype.oneQuitted = function(sidQuit) {

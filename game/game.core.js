@@ -10,6 +10,7 @@
       this.racketHeight = 55;
       this.racketWidth = 10;
       this.ballSize = 8;
+      this.racketV = 0.15;
       this.dirUp = -1;
       this.dirIdle = 0;
       this.dirDown = 1;
@@ -24,17 +25,21 @@
           updates: []
         }
       ];
-      this.ballPosition = [this.canvasWidth / 2 - this.ballSize / 2, this.canvasHeight / 2 - this.ballSize / 2];
-      this.angle = (20 + Math.random() * 50) * Math.PI / 180;
-      this.ballV = 200;
-      this.maxBallV = 400;
-      this.initBallV = 200;
-      this.minBallV = 100;
-      this.racketV = 0.15;
+      this.maxBallV = 0.4;
+      this.initBallV = 0.2;
+      this.minBallV = 0.1;
       this.speedUp = 0.9;
+      this.ball = {
+        pos: {
+          x: this.canvasWidth / 2 - this.ballSize / 2,
+          y: this.canvasHeight / 2 - this.ballSize / 2
+        },
+        angle: (20 + Math.random() * 50) * Math.PI / 180,
+        v: 0.2,
+        t: 0
+      };
       this.updateTime = null;
       this.dt = 20;
-      this.dtInSec = this.dt / 1000;
       this.lastProcessedSeq = -1;
     }
 
@@ -42,23 +47,23 @@
       return new Date().getTime();
     };
 
-    GameCore.prototype.moveRacket = function(dir, dirUpdates, pos, currentTime, lastTime) {
+    GameCore.prototype.moveRacket = function(dir, dirUpdates, pos, currentTime, beforeTime) {
       var upd, _i, _len;
 
       for (_i = 0, _len = dirUpdates.length; _i < _len; _i++) {
         upd = dirUpdates[_i];
-        if (upd.t <= lastTime || upd.t > currentTime) {
+        if (upd.t <= beforeTime || upd.t > currentTime) {
           continue;
         }
-        pos = this.moveRacketBit(pos, dir, upd.t - lastTime, currentTime, lastTime);
-        lastTime = upd.t;
+        pos = this.moveRacketBit(pos, dir, upd.t - beforeTime);
+        beforeTime = upd.t;
         dir = upd.dir;
         this.lastProcessedSeq = upd.seq;
       }
-      return this.moveRacketBit(pos, dir, currentTime - lastTime, currentTime, lastTime);
+      return this.moveRacketBit(pos, dir, currentTime - beforeTime);
     };
 
-    GameCore.prototype.moveRacketBit = function(pos, dir, dt, currentTime, lastTime) {
+    GameCore.prototype.moveRacketBit = function(pos, dir, dt) {
       var newPos;
 
       newPos = dir === this.dirUp ? pos - this.racketV * dt : dir === this.dirDown ? pos + this.racketV * dt : pos;
@@ -71,54 +76,63 @@
       return newPos;
     };
 
-    GameCore.prototype.moveBall = function() {
-      var ds;
+    GameCore.prototype.moveBall = function(ballUpdates, currentTime, dt) {
+      var b, ball, beforeTime, _i;
 
-      ds = this.ballV * this.dtInSec;
-      this.ballPosition[0] += Math.round(ds * Math.cos(this.angle));
-      this.ballPosition[1] += Math.round(ds * Math.sin(this.angle));
-      return this.checkBallCollision();
+      beforeTime = currentTime - dt;
+      for (_i = ballUpdates.length - 1; _i >= 0; _i += -1) {
+        b = ballUpdates[_i];
+        ball = b;
+        if (b.t >= beforeTime && b.t <= currentTime) {
+          break;
+        }
+      }
+      return this.moveBallBit(ball, currentTime - ball.t);
     };
 
-    GameCore.prototype.checkBallCollision = function() {
-      if (this.ballPosition[1] < 0) {
-        this.ballPosition[1] = 0;
-        this.angle = -this.angle;
-        return;
-      }
-      if (this.ballPosition[1] > this.canvasHeight - this.ballSize) {
-        this.ballPosition[1] = this.canvasHeight - this.ballSize;
-        this.angle = -this.angle;
-        return;
-      }
-      if (this.ballPosition[0] <= this.xOffset) {
-        if (this.ballPosition[1] >= this.gs[0].pos && this.ballPosition[1] <= this.gs[0].pos + this.racketHeight - this.ballSize) {
-          this.ballPosition[0] = this.xOffset;
-          this.angle = Math.PI - this.angle;
-          this.ballV = this.ballV * (this.speedUp + Math.abs(this.ballPosition[1] - this.gs[0].pos + this.racketHeight / 2) / (this.gs[0].pos + this.racketHeight / 2));
-          if (this.ballV >= this.maxBallV) {
-            this.ballV = this.maxBallV;
-          } else if (this.ballV <= this.minBallV) {
-            this.ballV = this.minBallV;
+    GameCore.prototype.moveBallBit = function(ball, dt) {
+      var ds;
+
+      ds = ball.v * dt;
+      ball.pos.x += ds * Math.cos(ball.angle);
+      ball.pos.y += ds * Math.sin(ball.angle);
+      ball.t += dt;
+      return this.checkBallCollision(ball);
+    };
+
+    GameCore.prototype.checkBallCollision = function(ball) {
+      if (ball.pos.y < 0) {
+        ball.pos.y = 0;
+        ball.angle = -ball.angle;
+      } else if (ball.pos.y > this.canvasHeight - this.ballSize) {
+        ball.pos.y = this.canvasHeight - this.ballSize;
+        ball.angle = -ball.angle;
+      } else if (ball.pos.x <= this.xOffset) {
+        if (ball.pos.y >= this.gs[0].pos && ball.pos.y <= this.gs[0].pos + this.racketHeight - this.ballSize) {
+          ball.pos.x = this.xOffset;
+          ball.angle = Math.PI - ball.angle;
+          ball.v = ball.v * (this.speedUp + Math.abs(ball.pos.y - this.gs[0].pos + this.racketHeight / 2) / (this.gs[0].pos + this.racketHeight / 2));
+          if (ball.v >= this.maxBallV) {
+            ball.v = this.maxBallV;
+          } else if (ball.v <= this.minBallV) {
+            ball.v = this.minBallV;
           } else {
-            this.ballV = this.ballV * (this.speedUp + Math.abs(this.ballPosition[1] - this.gs[0].pos + this.racketHeight / 2) / (this.gs[0].pos + this.racketHeight / 2));
-          }
-          return;
-        }
-      }
-      if (this.ballPosition[0] >= this.canvasWidth - this.xOffset - this.ballSize) {
-        if (this.ballPosition[1] >= this.gs[1].pos && this.ballPosition[1] <= this.gs[1].pos + this.racketHeight - this.ballSize) {
-          this.ballPosition[0] = this.canvasWidth - this.xOffset - this.ballSize;
-          this.angle = Math.PI - this.angle;
-          if (this.ballV >= this.maxBallV) {
-            this.ballV = this.maxBallV;
-          } else if (this.ballV <= this.minBallV) {
-            this.ballV = this.minBallV;
-          } else {
-            this.ballV = this.ballV * (this.speedUp + Math.abs(this.ballPosition[1] - this.gs[0].pos + this.racketHeight / 2) / (this.gs[0].pos + this.racketHeight / 2));
+            ball.v = ball.v * (this.speedUp + Math.abs(ball.pos.y - this.gs[0].pos + this.racketHeight / 2) / (this.gs[0].pos + this.racketHeight / 2));
           }
         }
+      } else if (ball.pos.x >= this.canvasWidth - this.xOffset - this.ballSize) {
+        if (ball.pos.y >= this.gs[1].pos && ball.pos.y <= this.gs[1].pos + this.racketHeight - this.ballSize) {
+          ball.pos.x = this.canvasWidth - this.xOffset - this.ballSize;
+          ball.angle = Math.PI - ball.angle;
+          ball.v = ball.v * (this.speedUp + Math.abs(ball.pos.y - this.gs[0].pos + this.racketHeight / 2) / (this.gs[0].pos + this.racketHeight / 2));
+          if (ball.v >= this.maxBallV) {
+            ball.v = this.maxBallV;
+          } else if (ball.v <= this.minBallV) {
+            ball.v = this.minBallV;
+          }
+        }
       }
+      return ball;
     };
 
     return GameCore;

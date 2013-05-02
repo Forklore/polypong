@@ -132,15 +132,19 @@
     };
 
     GameCore.prototype.moveBall = function(ballUpdates, currentTime, dt) {
-      var b, ball, beforeTime, _i;
+      var b, ball, beforeTime, found, _i;
 
       beforeTime = currentTime - dt;
       for (_i = ballUpdates.length - 1; _i >= 0; _i += -1) {
         b = ballUpdates[_i];
         ball = b;
         if (b.t >= beforeTime && b.t <= currentTime) {
+          found = true;
           break;
         }
+      }
+      if (!found) {
+        ball = ballUpdates[ballUpdates.length - 1];
       }
       return this.moveBallBit(ball, currentTime - ball.t);
     };
@@ -274,6 +278,7 @@
       if (this.dirUpdates.length) {
         this.dir = this.dirUpdates[this.dirUpdates.length - 1].dir;
       }
+      console.log("server time " + this.serverTime);
       return this.updateTime = time;
     };
 
@@ -387,6 +392,8 @@
         _this.serverTime = data.t;
         _this.side = data.side;
         _this.enemySide = _this.side === 0 ? 1 : 0;
+        _this.ballUpdates = [];
+        _this.dirUpdates = [];
         $(window).on('keydown', function(e) {
           return _this.keyboardDown(e);
         });

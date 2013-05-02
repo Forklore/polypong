@@ -61,7 +61,8 @@ class GameCore
     # Find last ball update in this time interval and move it delta time
     for b in ballUpdates by -1
       ball = b
-      break if b.t >= beforeTime and b.t <= currentTime
+      (found = true; break) if b.t >= beforeTime and b.t <= currentTime
+    ball = ballUpdates[ballUpdates.length-1] unless found
     return @moveBallBit ball, (currentTime - ball.t)
 
   moveBallBit: (ball, dt) ->

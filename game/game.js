@@ -181,6 +181,7 @@
       this.ball = this.moveBall([this.ball], time, time - this.updateTime);
       this.checkScoreUpdate();
       this.sendMoveAll();
+      console.log("server time " + time);
       return this.updateTime = time;
     };
 

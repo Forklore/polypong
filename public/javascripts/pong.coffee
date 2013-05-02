@@ -70,6 +70,7 @@ window.Game = class Game extends GameCore
     @pos = @moveRacket @dir, @dirUpdates, @pos, time, @updateTime
     me.pos = @pos # FIXME from gs shoulg go, just don't replace it from the server
     @dir = @dirUpdates[@dirUpdates.length-1].dir if @dirUpdates.length # FIXME: this can go in @gs structure, but shouldn't be rewritten by server
+    console.log "server time #{@serverTime}"
     @updateTime = time
 
   # Keyboard functions
@@ -135,6 +136,8 @@ window.Game = class Game extends GameCore
       @serverTime = data.t# + 100 # FIXME net delay
       @side = data.side
       @enemySide = if @side == 0 then 1 else 0
+      @ballUpdates = []
+      @dirUpdates = []
       # Can't move while not joined
       $(window).on 'keydown', (e) => @keyboardDown e
       $(window).on 'keyup', (e) => @keyboardUp e

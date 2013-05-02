@@ -106,10 +106,6 @@ module.exports = class Game extends GameCore
     @gamers = {}
     @gamersCount = 0
     initPos = @canvasHeight / 2 - 40
-    @gs = [{pos: initPos - @racketHeight, dir: @dirIdle, updates: [], lastSeq: -1},
-           {pos: initPos + @racketHeight, dir: @dirIdle, updates: [], lastSeq: -1}]
-    @ballResetOffset = 50
-    @scores = [0, 0]
     @count = 0
     @inDaLoop = false
 
@@ -122,10 +118,9 @@ module.exports = class Game extends GameCore
       newRoom.sendJoined sid
       @rooms.push newRoom 
     # @sendJoined sid
-    console.log "Rooms #{@rooms.length}"
 
-  sendJoined: (sid) ->
-    @gamers[sid].socket.emit 'joined', @gamers[sid].side
+  # sendJoined: (sid) ->
+  #   @gamers[sid].socket.emit 'joined', @gamers[sid].side
 
   # sendMove: (sid) ->
   #   g = @gamers[sid]
@@ -143,8 +138,8 @@ module.exports = class Game extends GameCore
   #   for sid of @gamers
   #     @sendScore sid
 
-  updateState: (sid, dir, seq) ->
-    @gamers[sid].updates.push {dir: dir, seq: seq, t: @time()}
+  # updateState: (sid, dir, seq) ->
+  #   @gamers[sid].updates.push {dir: dir, seq: seq, t: @time()}
 
   # placeBall: (side) ->
   #   @ballPosition[1] = @gs[side].pos + @racketHeight / 2

@@ -25,6 +25,7 @@
         }
       ];
       this.ballPosition = [this.canvasWidth / 2 - this.ballSize / 2, this.canvasHeight / 2 - this.ballSize / 2];
+      this.ballResetOffset = 50;
       this.angle = (20 + Math.random() * 50) * Math.PI / 180;
       this.ballV = 200;
       this.maxBallV = 400;

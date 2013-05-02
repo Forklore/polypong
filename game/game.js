@@ -173,21 +173,6 @@
       this.gamers = {};
       this.gamersCount = 0;
       initPos = this.canvasHeight / 2 - 40;
-      this.gs = [
-        {
-          pos: initPos - this.racketHeight,
-          dir: this.dirIdle,
-          updates: [],
-          lastSeq: -1
-        }, {
-          pos: initPos + this.racketHeight,
-          dir: this.dirIdle,
-          updates: [],
-          lastSeq: -1
-        }
-      ];
-      this.ballResetOffset = 50;
-      this.scores = [0, 0];
       this.count = 0;
       this.inDaLoop = false;
     }
@@ -205,21 +190,8 @@
         newRoom = new Room(this.rooms.length + 1);
         newRoom.addGamer(sid, this.gamers[sid]);
         newRoom.sendJoined(sid);
-        this.rooms.push(newRoom);
+        return this.rooms.push(newRoom);
       }
-      return console.log("Rooms " + this.rooms.length);
-    };
-
-    Game.prototype.sendJoined = function(sid) {
-      return this.gamers[sid].socket.emit('joined', this.gamers[sid].side);
-    };
-
-    Game.prototype.updateState = function(sid, dir, seq) {
-      return this.gamers[sid].updates.push({
-        dir: dir,
-        seq: seq,
-        t: this.time()
-      });
     };
 
     Game.prototype.startLoop = function() {

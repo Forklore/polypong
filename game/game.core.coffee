@@ -15,6 +15,7 @@ class GameCore
 
     @gs = [{pos: 10, dir: @dirIdle, updates: []}, {pos: 10, dir: @dirIdle, updates: []}]
     @ballPosition = [@canvasWidth / 2 - @ballSize / 2, @canvasHeight / 2 - @ballSize / 2]
+    @ballResetOffset = 50
 
     @angle = (20 + Math.random()*50)*Math.PI/180
     @ballV = 200 # pixels per second

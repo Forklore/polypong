@@ -22,9 +22,8 @@ class GameCore
     @speedUp = 0.9 # ball speed up coefficient, should be lte than 1
 
     @ball =
-      pos:
-        x: (@canvasWidth / 2 - @ballSize / 2)
-        y: (@canvasHeight / 2 - @ballSize / 2)
+      x: (@canvasWidth / 2 - @ballSize / 2)
+      y: (@canvasHeight / 2 - @ballSize / 2)
       angle: ((20 + Math.random()*50)*Math.PI/180)
       v: 0.2 # speed in px per ms
       t: 0
@@ -67,34 +66,34 @@ class GameCore
 
   moveBallBit: (ball, dt) ->
     ds = ball.v * dt
-    ball.pos.x += ds * Math.cos(ball.angle)
-    ball.pos.y += ds * Math.sin(ball.angle)
+    ball.x += ds * Math.cos(ball.angle)
+    ball.y += ds * Math.sin(ball.angle)
     ball.t += dt
     return @checkBallCollision ball
 
   checkBallCollision: (ball) ->
-    if ball.pos.y < 0
-      ball.pos.y = 0
+    if ball.y < 0
+      ball.y = 0
       ball.angle = - ball.angle
-    else if ball.pos.y > @canvasHeight - @ballSize
-      ball.pos.y = @canvasHeight - @ballSize
+    else if ball.y > @canvasHeight - @ballSize
+      ball.y = @canvasHeight - @ballSize
       ball.angle = - ball.angle
-    else if ball.pos.x <= @xOffset
-      if ball.pos.y >= @gs[0].pos && ball.pos.y <= @gs[0].pos + @racketHeight - @ballSize
-        ball.pos.x = @xOffset
+    else if ball.x <= @xOffset
+      if ball.y >= @gs[0].pos && ball.y <= @gs[0].pos + @racketHeight - @ballSize
+        ball.x = @xOffset
         ball.angle = Math.PI - ball.angle
-        ball.v = ball.v * (@speedUp + Math.abs(ball.pos.y - @gs[0].pos + @racketHeight / 2) / (@gs[0].pos + @racketHeight / 2))
+        ball.v = ball.v * (@speedUp + Math.abs(ball.y - @gs[0].pos + @racketHeight / 2) / (@gs[0].pos + @racketHeight / 2))
         if ball.v >= @maxBallV
           ball.v = @maxBallV
         else if ball.v <= @minBallV
           ball.v = @minBallV
         else
-          ball.v = ball.v * (@speedUp + Math.abs(ball.pos.y - @gs[0].pos + @racketHeight / 2) / (@gs[0].pos + @racketHeight / 2))
-    else if ball.pos.x >= @canvasWidth - @xOffset - @ballSize
-      if ball.pos.y >= @gs[1].pos && ball.pos.y <= @gs[1].pos + @racketHeight - @ballSize
-        ball.pos.x = @canvasWidth - @xOffset - @ballSize
+          ball.v = ball.v * (@speedUp + Math.abs(ball.y - @gs[0].pos + @racketHeight / 2) / (@gs[0].pos + @racketHeight / 2))
+    else if ball.x >= @canvasWidth - @xOffset - @ballSize
+      if ball.y >= @gs[1].pos && ball.y <= @gs[1].pos + @racketHeight - @ballSize
+        ball.x = @canvasWidth - @xOffset - @ballSize
         ball.angle = Math.PI - ball.angle
-        ball.v = ball.v * (@speedUp + Math.abs(ball.pos.y - @gs[0].pos + @racketHeight / 2) / (@gs[0].pos + @racketHeight / 2))
+        ball.v = ball.v * (@speedUp + Math.abs(ball.y - @gs[0].pos + @racketHeight / 2) / (@gs[0].pos + @racketHeight / 2))
         if ball.v >= @maxBallV
           ball.v = @maxBallV
         else if ball.v <= @minBallV

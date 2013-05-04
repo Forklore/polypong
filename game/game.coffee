@@ -37,7 +37,6 @@ module.exports = class Game extends GameCore
   sendMove: (sid) ->
     g = @gamers[sid]
     @gs[g.side].updates = g.updates
-    @ball.t = @updateTime
     g.socket.emit 'move', {gamers: @gs, ball: @ball}
 
   sendMoveAll: ->
@@ -52,15 +51,15 @@ module.exports = class Game extends GameCore
       @sendScore sid
 
   updateState: (sid, dir, seq) ->
-    @gamers[sid].updates.push {dir: dir, seq: seq, t: @time()}
+    @gamers[sid].updates.push {dir: dir, seq: seq, t: @time()} # FIXME not serverTime this should be
 
   placeBall: (side) ->
-    @ball.pos.y = @gs[side].pos + @racketHeight / 2 - @ballSize / 2
+    @ball.y = @gs[side].pos + @racketHeight / 2 - @ballSize / 2
     if side == 0
-      @ball.pos.x = @ballResetOffset
+      @ball.x = @ballResetOffset
       @ball.angle = Math.asin((@gs[1].pos - @gs[0].pos) / (@canvasWidth - 2 * @xOffset))
     else
-      @ball.pos.x = @canvasWidth - @ballResetOffset - @ballSize
+      @ball.x = @canvasWidth - @ballResetOffset - @ballSize
       @ball.angle = Math.PI + Math.asin((@gs[1].pos - @gs[0].pos) / (@canvasWidth - 2 * @xOffset))
     @ball.v = @initBallV
 
@@ -76,12 +75,12 @@ module.exports = class Game extends GameCore
       @gs[gamer.side].updates = [] # FIXME seems wrong, clear after updates sent only
 
   checkScoreUpdate: ->
-    if @ball.pos.x < 0 or @ball.pos.x > @canvasWidth - @ballSize
+    if @ball.x < 0 or @ball.x > @canvasWidth - @ballSize
       side = -1
-      if @ball.pos.x < 0
+      if @ball.x < 0
         @scores[1] += 1
         side = 0
-      if @ball.pos.x > @canvasWidth - @ballSize
+      if @ball.x > @canvasWidth - @ballSize
         @scores[0] += 1
         side = 1
       @placeBall side 
@@ -105,6 +104,7 @@ module.exports = class Game extends GameCore
     @moveRackets time
     @ball.t = @updateTime
     @ball = @moveBall [@ball], time, (time - @updateTime)
+    @ball.t = time
     @checkScoreUpdate()
     @sendMoveAll()
     @updateTime = time

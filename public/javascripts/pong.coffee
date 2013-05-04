@@ -36,7 +36,7 @@ window.Game = class Game extends GameCore
 
   drawBall: (ball, color) ->
     @ctx.fillStyle = color
-    @ctx.fillRect ball.pos.x, ball.pos.y, @ballSize, @ballSize
+    @ctx.fillRect ball.x, ball.y, @ballSize, @ballSize
 
   drawBoard: ->
     @ctx.clearRect 0, 0, @canvasWidth, @canvasHeight

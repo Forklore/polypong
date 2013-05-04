@@ -85,10 +85,8 @@
       this.minBallV = 0.1;
       this.speedUp = 0.9;
       this.ball = {
-        pos: {
-          x: this.canvasWidth / 2 - this.ballSize / 2,
-          y: this.canvasHeight / 2 - this.ballSize / 2
-        },
+        x: this.canvasWidth / 2 - this.ballSize / 2,
+        y: this.canvasHeight / 2 - this.ballSize / 2,
         angle: (20 + Math.random() * 50) * Math.PI / 180,
         v: 0.2,
         t: 0
@@ -153,37 +151,37 @@
       var ds;
 
       ds = ball.v * dt;
-      ball.pos.x += ds * Math.cos(ball.angle);
-      ball.pos.y += ds * Math.sin(ball.angle);
+      ball.x += ds * Math.cos(ball.angle);
+      ball.y += ds * Math.sin(ball.angle);
       ball.t += dt;
       return this.checkBallCollision(ball);
     };
 
     GameCore.prototype.checkBallCollision = function(ball) {
-      if (ball.pos.y < 0) {
-        ball.pos.y = 0;
+      if (ball.y < 0) {
+        ball.y = 0;
         ball.angle = -ball.angle;
-      } else if (ball.pos.y > this.canvasHeight - this.ballSize) {
-        ball.pos.y = this.canvasHeight - this.ballSize;
+      } else if (ball.y > this.canvasHeight - this.ballSize) {
+        ball.y = this.canvasHeight - this.ballSize;
         ball.angle = -ball.angle;
-      } else if (ball.pos.x <= this.xOffset) {
-        if (ball.pos.y >= this.gs[0].pos && ball.pos.y <= this.gs[0].pos + this.racketHeight - this.ballSize) {
-          ball.pos.x = this.xOffset;
+      } else if (ball.x <= this.xOffset) {
+        if (ball.y >= this.gs[0].pos && ball.y <= this.gs[0].pos + this.racketHeight - this.ballSize) {
+          ball.x = this.xOffset;
           ball.angle = Math.PI - ball.angle;
-          ball.v = ball.v * (this.speedUp + Math.abs(ball.pos.y - this.gs[0].pos + this.racketHeight / 2) / (this.gs[0].pos + this.racketHeight / 2));
+          ball.v = ball.v * (this.speedUp + Math.abs(ball.y - this.gs[0].pos + this.racketHeight / 2) / (this.gs[0].pos + this.racketHeight / 2));
           if (ball.v >= this.maxBallV) {
             ball.v = this.maxBallV;
           } else if (ball.v <= this.minBallV) {
             ball.v = this.minBallV;
           } else {
-            ball.v = ball.v * (this.speedUp + Math.abs(ball.pos.y - this.gs[0].pos + this.racketHeight / 2) / (this.gs[0].pos + this.racketHeight / 2));
+            ball.v = ball.v * (this.speedUp + Math.abs(ball.y - this.gs[0].pos + this.racketHeight / 2) / (this.gs[0].pos + this.racketHeight / 2));
           }
         }
-      } else if (ball.pos.x >= this.canvasWidth - this.xOffset - this.ballSize) {
-        if (ball.pos.y >= this.gs[1].pos && ball.pos.y <= this.gs[1].pos + this.racketHeight - this.ballSize) {
-          ball.pos.x = this.canvasWidth - this.xOffset - this.ballSize;
+      } else if (ball.x >= this.canvasWidth - this.xOffset - this.ballSize) {
+        if (ball.y >= this.gs[1].pos && ball.y <= this.gs[1].pos + this.racketHeight - this.ballSize) {
+          ball.x = this.canvasWidth - this.xOffset - this.ballSize;
           ball.angle = Math.PI - ball.angle;
-          ball.v = ball.v * (this.speedUp + Math.abs(ball.pos.y - this.gs[0].pos + this.racketHeight / 2) / (this.gs[0].pos + this.racketHeight / 2));
+          ball.v = ball.v * (this.speedUp + Math.abs(ball.y - this.gs[0].pos + this.racketHeight / 2) / (this.gs[0].pos + this.racketHeight / 2));
           if (ball.v >= this.maxBallV) {
             ball.v = this.maxBallV;
           } else if (ball.v <= this.minBallV) {
@@ -238,7 +236,7 @@
 
     Game.prototype.drawBall = function(ball, color) {
       this.ctx.fillStyle = color;
-      return this.ctx.fillRect(ball.pos.x, ball.pos.y, this.ballSize, this.ballSize);
+      return this.ctx.fillRect(ball.x, ball.y, this.ballSize, this.ballSize);
     };
 
     Game.prototype.drawBoard = function() {

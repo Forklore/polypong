@@ -60,7 +60,6 @@
 
       g = this.gamers[sid];
       this.gs[g.side].updates = g.updates;
-      this.ball.t = this.updateTime;
       return g.socket.emit('move', {
         gamers: this.gs,
         ball: this.ball
@@ -102,12 +101,12 @@
     };
 
     Game.prototype.placeBall = function(side) {
-      this.ball.pos.y = this.gs[side].pos + this.racketHeight / 2 - this.ballSize / 2;
+      this.ball.y = this.gs[side].pos + this.racketHeight / 2 - this.ballSize / 2;
       if (side === 0) {
-        this.ball.pos.x = this.ballResetOffset;
+        this.ball.x = this.ballResetOffset;
         this.ball.angle = Math.asin((this.gs[1].pos - this.gs[0].pos) / (this.canvasWidth - 2 * this.xOffset));
       } else {
-        this.ball.pos.x = this.canvasWidth - this.ballResetOffset - this.ballSize;
+        this.ball.x = this.canvasWidth - this.ballResetOffset - this.ballSize;
         this.ball.angle = Math.PI + Math.asin((this.gs[1].pos - this.gs[0].pos) / (this.canvasWidth - 2 * this.xOffset));
       }
       return this.ball.v = this.initBallV;
@@ -136,13 +135,13 @@
     Game.prototype.checkScoreUpdate = function() {
       var side;
 
-      if (this.ball.pos.x < 0 || this.ball.pos.x > this.canvasWidth - this.ballSize) {
+      if (this.ball.x < 0 || this.ball.x > this.canvasWidth - this.ballSize) {
         side = -1;
-        if (this.ball.pos.x < 0) {
+        if (this.ball.x < 0) {
           this.scores[1] += 1;
           side = 0;
         }
-        if (this.ball.pos.x > this.canvasWidth - this.ballSize) {
+        if (this.ball.x > this.canvasWidth - this.ballSize) {
           this.scores[0] += 1;
           side = 1;
         }
@@ -179,6 +178,7 @@
       this.moveRackets(time);
       this.ball.t = this.updateTime;
       this.ball = this.moveBall([this.ball], time, time - this.updateTime);
+      this.ball.t = time;
       this.checkScoreUpdate();
       this.sendMoveAll();
       return this.updateTime = time;

@@ -136,7 +136,7 @@
       for (_i = ballUpdates.length - 1; _i >= 0; _i += -1) {
         b = ballUpdates[_i];
         ball = b;
-        if (b.t >= beforeTime && b.t <= currentTime) {
+        if (beforeTime <= b.t && b.t <= currentTime) {
           found = true;
           break;
         }
@@ -388,7 +388,7 @@
         return console.log("Socket opened, Master!");
       });
       socket.on('joined', function(data) {
-        _this.timeDiff = _this.time() - data.t;
+        _this.timeDiff = _this.time() - data.t + 100;
         _this.side = data.side;
         _this.enemySide = _this.side === 0 ? 1 : 0;
         _this.ballUpdates = [];

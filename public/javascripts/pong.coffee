@@ -132,7 +132,7 @@ window.Game = class Game extends GameCore
       console.log "Socket opened, Master!"
 
     socket.on 'joined', (data) =>
-      @timeDiff = @time() - data.t# + 100 # FIXME net delay
+      @timeDiff = @time() - data.t + 100 # FIXME net delay
       @side = data.side
       @enemySide = if @side == 0 then 1 else 0
       @ballUpdates = []

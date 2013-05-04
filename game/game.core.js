@@ -81,7 +81,7 @@
       for (_i = ballUpdates.length - 1; _i >= 0; _i += -1) {
         b = ballUpdates[_i];
         ball = b;
-        if (b.t >= beforeTime && b.t <= currentTime) {
+        if (beforeTime <= b.t && b.t <= currentTime) {
           found = true;
           break;
         }

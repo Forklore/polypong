@@ -14,7 +14,7 @@ window.Game = class Game extends GameCore
     @dirUpdates = [] # arrays of games inputs
     @seq = -1        # sequence number for acknowledgements
     @pos
-    @serverTime = 0
+    @timeDiff = null # = localTime - serverTime
     @ballUpdates = []
     @ghostBall
 
@@ -57,9 +57,9 @@ window.Game = class Game extends GameCore
   updateState: ->
     time = @time()
     dt = time - @updateTime
-    if @serverTime > 0
-      @serverTime += dt
-      @ball = @moveBall @ballUpdates, @serverTime, dt if @ballUpdates.length
+    if @timeDiff?
+      serverTime = time - @timeDiff
+      @ball = @moveBall @ballUpdates, serverTime, dt if @ballUpdates.length
     else
       @ball.t = @updateTime
       @ball = @moveBall [@ball], time, dt
@@ -132,7 +132,7 @@ window.Game = class Game extends GameCore
       console.log "Socket opened, Master!"
 
     socket.on 'joined', (data) =>
-      @serverTime = data.t# + 100 # FIXME net delay
+      @timeDiff = @time() - data.t# + 100 # FIXME net delay
       @side = data.side
       @enemySide = if @side == 0 then 1 else 0
       @ballUpdates = []
@@ -143,7 +143,7 @@ window.Game = class Game extends GameCore
 
     socket.on 'move', (data) =>
       @gs = data.gamers
-      howmany = 1 + @time2index(@serverTime - 1000)
+      howmany = 1 + @time2index(@time() - @timeDiff - 1000)
       @ballUpdates.splice 0, howmany # FIXME splice is slow
       @ballUpdates.push data.ball
       @ghost = data.ball

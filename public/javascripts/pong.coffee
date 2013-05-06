@@ -16,7 +16,7 @@ window.Game = class Game extends GameCore
     @ballUpdates = []
     @timeDiff = null # = localTime - serverTime
     @ghost = null
-    @debug = false
+    Game.debug = false
 
     # Constants
     @keyLeft = 37
@@ -45,7 +45,7 @@ window.Game = class Game extends GameCore
     @drawRacket @startPos[@side][0], @gs[@side].pos, @racketColor
     @drawRacket @startPos[@enemySide][0], @gs[@enemySide].pos, @racketColor
     @drawBall @ball, 'rgb(200,200,200)'
-    @drawBall @ghost, 'rgb(0,200,0)' if @debug and @ghost?
+    @drawBall @ghost, 'rgb(0,200,0)' if Game.debug and @ghost?
 
   # Game logic
 

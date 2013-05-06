@@ -219,7 +219,7 @@
       this.ballUpdates = [];
       this.timeDiff = null;
       this.ghost = null;
-      this.debug = false;
+      Game.debug = false;
       this.keyLeft = 37;
       this.keyUp = 38;
       this.keyRight = 39;
@@ -246,7 +246,7 @@
       this.drawRacket(this.startPos[this.side][0], this.gs[this.side].pos, this.racketColor);
       this.drawRacket(this.startPos[this.enemySide][0], this.gs[this.enemySide].pos, this.racketColor);
       this.drawBall(this.ball, 'rgb(200,200,200)');
-      if (this.debug && (this.ghost != null)) {
+      if (Game.debug && (this.ghost != null)) {
         return this.drawBall(this.ghost, 'rgb(0,200,0)');
       }
     };

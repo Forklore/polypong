@@ -213,13 +213,13 @@
       this.dir = this.dirIdle;
       this.side = 0;
       this.enemySide = 1;
-      this.scores = [0, 0];
       this.dirUpdates = [];
       this.seq = -1;
-      this.pos;
-      this.timeDiff = null;
+      this.pos = null;
       this.ballUpdates = [];
-      this.ghostBall;
+      this.timeDiff = null;
+      this.ghost = null;
+      this.debug = false;
       this.keyLeft = 37;
       this.keyUp = 38;
       this.keyRight = 39;
@@ -246,7 +246,7 @@
       this.drawRacket(this.startPos[this.side][0], this.gs[this.side].pos, this.racketColor);
       this.drawRacket(this.startPos[this.enemySide][0], this.gs[this.enemySide].pos, this.racketColor);
       this.drawBall(this.ball, 'rgb(200,200,200)');
-      if (this.ghost) {
+      if (this.debug && (this.ghost != null)) {
         return this.drawBall(this.ghost, 'rgb(0,200,0)');
       }
     };
@@ -408,7 +408,7 @@
         _this.ballUpdates.splice(0, howmany);
         _this.ballUpdates.push(data.ball);
         _this.ghost = data.ball;
-        if (_this.pos === void 0) {
+        if (_this.pos == null) {
           _this.pos = _this.gs[_this.side].pos;
         }
         if (_this.gs[_this.side].lastSeq <= _this.lastProcessedSeq) {

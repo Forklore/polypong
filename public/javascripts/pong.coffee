@@ -10,13 +10,13 @@ window.Game = class Game extends GameCore
     @dir = @dirIdle # Current moving direction on the moment of updateState function (or last moving direction after update, if you prefer)
     @side = 0
     @enemySide = 1
-    @scores = [0, 0]
     @dirUpdates = [] # arrays of games inputs
     @seq = -1        # sequence number for acknowledgements
-    @pos
-    @timeDiff = null # = localTime - serverTime
+    @pos = null
     @ballUpdates = []
-    @ghostBall
+    @timeDiff = null # = localTime - serverTime
+    @ghost = null
+    @debug = false
 
     # Constants
     @keyLeft = 37
@@ -45,7 +45,7 @@ window.Game = class Game extends GameCore
     @drawRacket @startPos[@side][0], @gs[@side].pos, @racketColor
     @drawRacket @startPos[@enemySide][0], @gs[@enemySide].pos, @racketColor
     @drawBall @ball, 'rgb(200,200,200)'
-    @drawBall @ghost, 'rgb(0,200,0)' if @ghost
+    @drawBall @ghost, 'rgb(0,200,0)' if @debug and @ghost?
 
   # Game logic
 
@@ -148,7 +148,7 @@ window.Game = class Game extends GameCore
       @ballUpdates.push data.ball
       @ghost = data.ball
 
-      @pos = @gs[@side].pos if @pos == undefined
+      @pos = @gs[@side].pos unless @pos?
       if @gs[@side].lastSeq <= @lastProcessedSeq
         howmany = 1 + @seq2index(@gs[@side].lastSeq)
         @dirUpdates.splice 0, howmany # FIXME splice is slow

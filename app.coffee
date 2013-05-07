@@ -5,6 +5,7 @@ http = require 'http'
 
 # classes
 Game = require './game/game'
+PongServer = require './game/pongServer'
 
 # functions
 # still no functions imported here...
@@ -39,12 +40,12 @@ port = process.env['app_port'] || 3000
 
 srv = http.createServer(app)
 
-game = new Game
+gameServer = new PongServer
 
 # Comment log:false to see sockets debug messages
 io = io.listen srv, log:false
 io.sockets.on 'connection', (socket) ->
-  game.connect socket
+  gameServer.game.connect socket
 
 srv.listen(port)
 

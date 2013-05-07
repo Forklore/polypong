@@ -78,9 +78,20 @@
           updates: []
         }
       ];
+<<<<<<< HEAD
       this.maxBallV = 0.4;
       this.initBallV = 0.2;
       this.minBallV = 0.1;
+=======
+      this.ballPosition = [this.canvasWidth / 2 - this.ballSize / 2, this.canvasHeight / 2 - this.ballSize / 2];
+      this.ballResetOffset = 50;
+      this.angle = (20 + Math.random() * 50) * Math.PI / 180;
+      this.ballV = 200;
+      this.maxBallV = 400;
+      this.initBallV = 200;
+      this.minBallV = 100;
+      this.racketV = 0.15;
+>>>>>>> 1a4375ab001e799f1a9f4ff80eeb07081b2ee33d
       this.speedUp = 0.9;
       this.ball = {
         x: this.canvasWidth / 2 - this.ballSize / 2,
@@ -138,11 +149,19 @@
 
     GameCore.prototype.moveBallBit = function(ball, dt) {
       var ds;
+<<<<<<< HEAD
       ds = ball.v * dt;
       ball.x += ds * Math.cos(ball.angle);
       ball.y += ds * Math.sin(ball.angle);
       ball.t += dt;
       return this.checkBallCollision(ball);
+=======
+      ds = this.ballV * this.dtInSec;
+      console.log("1: " + this.ballPosition[0] + ", " + this.ballPosition[1]);
+      this.ballPosition[0] += Math.round(ds * Math.cos(this.angle));
+      this.ballPosition[1] += Math.round(ds * Math.sin(this.angle));
+      return this.checkBallCollision();
+>>>>>>> 1a4375ab001e799f1a9f4ff80eeb07081b2ee33d
     };
 
     GameCore.prototype.checkBallCollision = function(ball) {

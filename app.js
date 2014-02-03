@@ -2,8 +2,6 @@
 (function() {
   var Game, app, express, game, http, io, port, routes, srv;
 
-  require('newrelic');
-
   express = require('express');
 
   routes = require('./routes');

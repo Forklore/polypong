@@ -1,4 +1,4 @@
-require 'newrelic'
+#require 'newrelic'
 express = require 'express'
 routes = require './routes'
 io = require 'socket.io'

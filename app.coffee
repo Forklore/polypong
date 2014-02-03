@@ -36,7 +36,7 @@ app.locals
 app.get '/', routes.index
 app.get '/about', routes.about
 
-port = process.env['app_port'] || 3000
+port = process.env['PORT'] || 3000
 
 srv = http.createServer(app)
 

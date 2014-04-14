@@ -4,6 +4,13 @@ routes = require './routes'
 io = require 'socket.io'
 http = require 'http'
 
+# middleware
+bodyParser = require 'body-parser'
+cookieParser = require 'cookie-parser'
+session = require 'express-session'
+methodOverride = require 'method-override'
+errorHandler = require 'errorhandler'
+
 # classes
 Game = require './game/game'
 
@@ -11,26 +18,27 @@ Game = require './game/game'
 # still no functions imported here...
 
 app = express()
-app.configure ->
-  app.set "views", __dirname + "/views"
-  app.set "view engine", "jade"
-  app.use express.bodyParser()
-  app.use express.cookieParser()
-  app.use express.session {secret: 'thisisasecretnobodyshouldseehoweverthisisdevwhowantstohackponggameanyway?' }
-  app.use express.methodOverride()
-  app.use app.router
-  app.use '/public', express.static(__dirname + '/public')
 
-app.configure 'development', ->
-  app.use express.errorHandler
+app.set "views", __dirname + "/views"
+app.set "view engine", "jade"
+app.use bodyParser()
+app.use cookieParser()
+app.use session {secret: 'thisisasecretnobodyshouldseehoweverthisisdevwhowantstohackponggameanyway?' }
+app.use methodOverride()
+# app.use app.router
+app.use '/public', express.static(__dirname + '/public')
+
+env = process.env.NODE_ENV || 'development';
+
+if 'development' == env
+  app.use errorHandler
     dumpExceptions: true, showStack: true
 
-app.configure 'production', ->
-  app.use express.errorHandler()
+if 'production' == env
+  app.use errorHandler()
 
 # setup locals for views
-app.locals
-  production: (app.settings.env == 'production')
+app.locals = { production: ('production' == env) }
 
 # routing
 app.get '/', routes.index

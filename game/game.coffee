@@ -19,14 +19,17 @@ module.exports = class Player
     @sid = ""   # socket user id
     @room = 0   # room id - link to room container
 
-module.exports = class Room 
+module.exports = class Room
 
   constructor: ->
     @id = 0              # room id
     @score = 0           # score in room
     @gamers = {}         # array of room participants
-    @count = 0           
+    @count = 0
     @inDaLoop = false    # is game started in the room?
+    @state = 0           # 0 - empty
+                         # 1 - waiting for second
+                         # 2 - game!
 
 
 module.exports = class Game extends GameCore
@@ -99,7 +102,7 @@ module.exports = class Game extends GameCore
       if @ball.x > @canvasWidth - @ballSize
         @scores[0] += 1
         side = 1
-      @placeBall side 
+      @placeBall side
       @sendScoreAll()
 
   startLoop: ->

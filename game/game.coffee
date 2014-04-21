@@ -15,9 +15,14 @@ timers = require 'timers'
 
 module.exports = class Player
 
-  constructor: ->
-    @sid = ""   # socket user id
-    @room = 0   # room id - link to room container
+  constructor: (socket, sid, side, position) ->
+    @sid = sid             # socket user id
+    @room = 0              # room id - link to room container
+    @socket = {}           # socket link
+    @updated = []          # updates, that should be sent to socket
+    @side = side           # side (left/right)
+    @position = position   # position on the desk
+    console.log "Initialized player with sid: #{@sid}, side: #{@side}, position: #{@position}"
 
 module.exports = class Room
 
@@ -38,6 +43,7 @@ module.exports = class Game extends GameCore
     super()
 
     @gamers = {}
+    @gamerObjects = {}
     initPos = @canvasHeight / 2 - 40
     @gs = [{pos: initPos - @racketHeight, dir: @dirIdle, updates: [], lastSeq: -1},
            {pos: initPos + @racketHeight, dir: @dirIdle, updates: [], lastSeq: -1}]
@@ -48,6 +54,7 @@ module.exports = class Game extends GameCore
 
   addGamer: (sid, socket, side) ->
     @gamers[sid] = {socket: socket, updates: [], side: side, pos: @gs[side].pos}
+    @gamerObjects[sid] = new Player(socket, sid, side, @gs[side].pos)
     @sendJoined sid
 
   sendJoined: (sid) ->

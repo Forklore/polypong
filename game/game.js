@@ -11,9 +11,14 @@
   timers = require('timers');
 
   module.exports = Player = (function() {
-    function Player() {
-      this.sid = "";
+    function Player(socket, sid, side, position) {
+      this.sid = sid;
       this.room = 0;
+      this.socket = {};
+      this.updated = [];
+      this.side = side;
+      this.position = position;
+      console.log("Initialized player with sid: " + this.sid + ", side: " + this.side + ", position: " + this.position);
     }
 
     return Player;
@@ -27,6 +32,7 @@
       this.gamers = {};
       this.count = 0;
       this.inDaLoop = false;
+      this.state = 0;
     }
 
     return Room;
@@ -40,6 +46,7 @@
       var initPos;
       Game.__super__.constructor.call(this);
       this.gamers = {};
+      this.gamerObjects = {};
       initPos = this.canvasHeight / 2 - 40;
       this.gs = [
         {
@@ -67,6 +74,7 @@
         side: side,
         pos: this.gs[side].pos
       };
+      this.gamerObjects[sid] = new Player(socket, sid, side, this.gs[side].pos);
       return this.sendJoined(sid);
     };
 

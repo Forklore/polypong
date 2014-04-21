@@ -13,6 +13,22 @@ GameCore = require './game.core'
 cookie = require 'cookie'
 timers = require 'timers'
 
+module.exports = class Player
+
+  constructor: ->
+    @sid = ""   # socket user id
+    @room = 0   # room id - link to room container
+
+module.exports = class Room 
+
+  constructor: ->
+    @id = 0              # room id
+    @score = 0           # score in room
+    @gamers = {}         # array of room participants
+    @count = 0           
+    @inDaLoop = false    # is game started in the room?
+
+
 module.exports = class Game extends GameCore
 
   constructor: ->

@@ -45,7 +45,6 @@
     function Game() {
       var initPos;
       Game.__super__.constructor.call(this);
-      this.gamers = {};
       this.gamerObjects = {};
       initPos = this.canvasHeight / 2 - 40;
       this.gs = [
@@ -68,21 +67,11 @@
     }
 
     Game.prototype.addGamer = function(sid, socket, side) {
-      this.gamers[sid] = {
-        socket: socket,
-        updates: [],
-        side: side,
-        pos: this.gs[side].pos
-      };
       this.gamerObjects[sid] = new Player(socket, sid, side, this.gs[side].pos);
       return this.sendJoined(sid);
     };
 
     Game.prototype.sendJoined = function(sid) {
-      this.gamers[sid].socket.emit('joined', {
-        side: this.gamers[sid].side,
-        t: this.time()
-      });
       return this.gamerObjects[sid].socket.emit('joined', {
         sid: this.gamerObjects[sid].side,
         t: this.time()
@@ -90,14 +79,9 @@
     };
 
     Game.prototype.sendMove = function(sid) {
-      var g, go;
-      g = this.gamers[sid];
+      var go;
       go = this.gamerObjects[sid];
-      this.gs[g.side].updates = g.updates;
-      g.socket.emit('move', {
-        gamers: this.gs,
-        ball: this.ball
-      });
+      this.gs[go.side].updates = go.updates;
       return go.socket.emit('move1', {
         gamers: this.gs,
         ball: this.ball
@@ -107,16 +91,13 @@
     Game.prototype.sendMoveAll = function() {
       var sid, _results;
       _results = [];
-      for (sid in this.gamers) {
-        _results.push(this.sendMove(sid));
+      for (sid in this.gamerObjects) {
+        _results.push(this.sendScore(sid));
       }
       return _results;
     };
 
     Game.prototype.sendScore = function(sid) {
-      this.gamers[sid].socket.emit('score', {
-        scores: this.scores
-      });
       return this.gamerObjects[sid].socket.emit('score', {
         scores: this.score
       });
@@ -124,9 +105,6 @@
 
     Game.prototype.sendScoreAll = function() {
       var sid, _results;
-      for (sid in this.gamers) {
-        this.sendScore(sid);
-      }
       _results = [];
       for (sid in this.gamerObjects) {
         _results.push(this.sendScore(sid));
@@ -135,11 +113,6 @@
     };
 
     Game.prototype.updateState = function(sid, dir, seq) {
-      this.gamers[sid].updates.push({
-        dir: dir,
-        seq: seq,
-        t: this.time()
-      });
       return this.gamerObjects[sid].updates.push({
         dir: dir,
         seq: seq,
@@ -161,7 +134,7 @@
 
     Game.prototype.moveRackets = function(currentTime) {
       var gamer, lastUpdate, sid, _ref, _results;
-      _ref = this.gamers;
+      _ref = this.gamerObjects;
       _results = [];
       for (sid in _ref) {
         gamer = _ref[sid];
@@ -230,8 +203,8 @@
 
     Game.prototype.oneQuitted = function(sidQuit) {
       var gamer, sid, _ref, _results;
-      delete this.gamers[sidQuit];
-      _ref = this.gamers;
+      delete this.gamerObjects[sidQuit];
+      _ref = this.gamerObjects;
       _results = [];
       for (sid in _ref) {
         gamer = _ref[sid];
@@ -250,7 +223,7 @@
       console.log("Have a connection: " + sid + " (socket id: " + socket.id + ")");
       socket.on('join', (function(_this) {
         return function(data) {
-          if (sid in _this.gamers) {
+          if (sid in _this.gamerObjects) {
             _this.sendJoined(sid);
             _this.sendMove(sid);
             return;
@@ -276,7 +249,7 @@
       })(this));
       return socket.on('disconnect', (function(_this) {
         return function() {
-          if (!(sid in _this.gamers && _this.gamers[sid].socket.id === socket.id)) {
+          if (!(sid in _this.gamerObjects && _this.gamerObjects[sid].socket.id === socket.id)) {
             return;
           }
           console.log("Disconnecting: " + sid);

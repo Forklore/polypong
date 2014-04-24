@@ -42,7 +42,7 @@ module.exports = class Game extends GameCore
   constructor: ->
     super()
 
-    @gamers = {}
+    #@gamers = {}
     @gamerObjects = {}
     initPos = @canvasHeight / 2 - 40
     @gs = [{pos: initPos - @racketHeight, dir: @dirIdle, updates: [], lastSeq: -1},
@@ -53,37 +53,40 @@ module.exports = class Game extends GameCore
     @inDaLoop = false
 
   addGamer: (sid, socket, side) ->
-    @gamers[sid] = {socket: socket, updates: [], side: side, pos: @gs[side].pos}
+    #@gamers[sid] = {socket: socket, updates: [], side: side, pos: @gs[side].pos}
     @gamerObjects[sid] = new Player(socket, sid, side, @gs[side].pos)
     @sendJoined sid
 
   sendJoined: (sid) ->
-    @gamers[sid].socket.emit 'joined', {side: @gamers[sid].side, t: @time()}
+    #@gamers[sid].socket.emit 'joined', {side: @gamers[sid].side, t: @time()}
     @gamerObjects[sid].socket.emit 'joined', {sid: @gamerObjects[sid].side, t: @time()}
 
   sendMove: (sid) ->
-    g = @gamers[sid]
+    #g = @gamers[sid]
     go = @gamerObjects[sid]
-    @gs[g.side].updates = g.updates
-    g.socket.emit 'move', {gamers: @gs, ball: @ball}
+    # @gs[g.side].updates = g.updates
+    @gs[go.side].updates = go.updates
+    #g.socket.emit 'move', {gamers: @gs, ball: @ball}
     go.socket.emit 'move1', {gamers: @gs, ball: @ball}
 
   sendMoveAll: ->
-    for sid of @gamers
-      @sendMove sid
+    # for sid of @gamers
+    #   @sendMove sid
+    for sid of @gamerObjects
+      @sendScore sid
 
   sendScore: (sid) ->
-    @gamers[sid].socket.emit 'score', {scores: @scores}
+    # @gamers[sid].socket.emit 'score', {scores: @scores}
     @gamerObjects[sid].socket.emit 'score', {scores: @score}
 
   sendScoreAll: ->
-    for sid of @gamers
-      @sendScore sid
+    #for sid of @gamers
+    #  @sendScore sid
     for sid of @gamerObjects
       @sendScore sid
 
   updateState: (sid, dir, seq) ->
-    @gamers[sid].updates.push {dir: dir, seq: seq, t: @time()} # FIXME not serverTime this should be
+    #@gamers[sid].updates.push {dir: dir, seq: seq, t: @time()} # FIXME not serverTime this should be
     @gamerObjects[sid].updates.push {dir: dir, seq: seq, t: @time()}
 
   placeBall: (side) ->
@@ -97,7 +100,7 @@ module.exports = class Game extends GameCore
     @ball.v = @initBallV
 
   moveRackets: (currentTime) ->
-    for sid, gamer of @gamers
+    for sid, gamer of @gamerObjects
       gamer.pos = @moveRacket gamer.dir, gamer.updates, gamer.pos, currentTime, @updateTime
       @gs[gamer.side].pos = gamer.pos
       if gamer.updates.length
@@ -143,8 +146,10 @@ module.exports = class Game extends GameCore
     @updateTime = time
 
   oneQuitted: (sidQuit) ->
-    delete @gamers[sidQuit]
-    for sid, gamer of @gamers
+    # delete @gamers[sidQuit]
+    delete @gamerObjects[sidQuit]
+    # for sid, gamer of @gamers
+    for sid, gamer of @gamerObjects
       gamer.socket.emit('quit', sid) if (sidQuit != sid)
 
   connect: (socket) ->
@@ -152,7 +157,8 @@ module.exports = class Game extends GameCore
     console.log "Have a connection: #{sid} (socket id: #{socket.id})"
 
     socket.on 'join', (data) =>
-      if sid of @gamers
+      # if sid of @gamers
+      if sid of @gamerObjects
         @sendJoined sid
         @sendMove sid
         return
@@ -170,7 +176,8 @@ module.exports = class Game extends GameCore
       @updateState sid, data.dir, data.seq
 
     socket.on 'disconnect', =>
-      return unless sid of @gamers && @gamers[sid].socket.id == socket.id
+      # return unless sid of @gamers && @gamers[sid].socket.id == socket.id
+      return unless sid of @gamerObjects && @gamerObjects[sid].socket.id == socket.id
       console.log "Disconnecting: #{sid}"
       @oneQuitted sid
       @count--

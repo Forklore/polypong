@@ -82,7 +82,7 @@
       var go;
       go = this.gamerObjects[sid];
       this.gs[go.side].updates = go.updates;
-      return go.socket.emit('move1', {
+      return go.socket.emit('move', {
         gamers: this.gs,
         ball: this.ball
       });

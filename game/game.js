@@ -14,8 +14,8 @@
     function Player(socket, sid, side, position) {
       this.sid = sid;
       this.room = 0;
-      this.socket = {};
-      this.updated = [];
+      this.socket = socket;
+      this.updates = [];
       this.side = side;
       this.position = position;
       console.log("Initialized player with sid: " + this.sid + ", side: " + this.side + ", position: " + this.position);
@@ -79,17 +79,26 @@
     };
 
     Game.prototype.sendJoined = function(sid) {
-      return this.gamers[sid].socket.emit('joined', {
+      this.gamers[sid].socket.emit('joined', {
         side: this.gamers[sid].side,
+        t: this.time()
+      });
+      return this.gamerObjects[sid].socket.emit('joined', {
+        sid: this.gamerObjects[sid].side,
         t: this.time()
       });
     };
 
     Game.prototype.sendMove = function(sid) {
-      var g;
+      var g, go;
       g = this.gamers[sid];
+      go = this.gamerObjects[sid];
       this.gs[g.side].updates = g.updates;
-      return g.socket.emit('move', {
+      g.socket.emit('move', {
+        gamers: this.gs,
+        ball: this.ball
+      });
+      return go.socket.emit('move1', {
         gamers: this.gs,
         ball: this.ball
       });
@@ -105,22 +114,33 @@
     };
 
     Game.prototype.sendScore = function(sid) {
-      return this.gamers[sid].socket.emit('score', {
+      this.gamers[sid].socket.emit('score', {
         scores: this.scores
+      });
+      return this.gamerObjects[sid].socket.emit('score', {
+        scores: this.score
       });
     };
 
     Game.prototype.sendScoreAll = function() {
       var sid, _results;
-      _results = [];
       for (sid in this.gamers) {
+        this.sendScore(sid);
+      }
+      _results = [];
+      for (sid in this.gamerObjects) {
         _results.push(this.sendScore(sid));
       }
       return _results;
     };
 
     Game.prototype.updateState = function(sid, dir, seq) {
-      return this.gamers[sid].updates.push({
+      this.gamers[sid].updates.push({
+        dir: dir,
+        seq: seq,
+        t: this.time()
+      });
+      return this.gamerObjects[sid].updates.push({
         dir: dir,
         seq: seq,
         t: this.time()

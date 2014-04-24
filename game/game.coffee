@@ -18,8 +18,8 @@ module.exports = class Player
   constructor: (socket, sid, side, position) ->
     @sid = sid             # socket user id
     @room = 0              # room id - link to room container
-    @socket = {}           # socket link
-    @updated = []          # updates, that should be sent to socket
+    @socket = socket           # socket link
+    @updates = []          # updates, that should be sent to socket
     @side = side           # side (left/right)
     @position = position   # position on the desk
     console.log "Initialized player with sid: #{@sid}, side: #{@side}, position: #{@position}"
@@ -59,11 +59,14 @@ module.exports = class Game extends GameCore
 
   sendJoined: (sid) ->
     @gamers[sid].socket.emit 'joined', {side: @gamers[sid].side, t: @time()}
+    @gamerObjects[sid].socket.emit 'joined', {sid: @gamerObjects[sid].side, t: @time()}
 
   sendMove: (sid) ->
     g = @gamers[sid]
+    go = @gamerObjects[sid]
     @gs[g.side].updates = g.updates
     g.socket.emit 'move', {gamers: @gs, ball: @ball}
+    go.socket.emit 'move1', {gamers: @gs, ball: @ball}
 
   sendMoveAll: ->
     for sid of @gamers
@@ -71,13 +74,17 @@ module.exports = class Game extends GameCore
 
   sendScore: (sid) ->
     @gamers[sid].socket.emit 'score', {scores: @scores}
+    @gamerObjects[sid].socket.emit 'score', {scores: @score}
 
   sendScoreAll: ->
     for sid of @gamers
       @sendScore sid
+    for sid of @gamerObjects
+      @sendScore sid
 
   updateState: (sid, dir, seq) ->
     @gamers[sid].updates.push {dir: dir, seq: seq, t: @time()} # FIXME not serverTime this should be
+    @gamerObjects[sid].updates.push {dir: dir, seq: seq, t: @time()}
 
   placeBall: (side) ->
     @ball.y = @gs[side].pos + @racketHeight / 2 - @ballSize / 2

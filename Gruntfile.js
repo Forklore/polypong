@@ -1,6 +1,7 @@
 module.exports = function(grunt) {
 
   grunt.loadNpmTasks('grunt-contrib-coffee');
+  grunt.loadNpmTasks('grunt-execute');
 
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
@@ -14,6 +15,12 @@ module.exports = function(grunt) {
           'game/game.js': 'game/game.coffee',
           'public/javascripts/pong.js': ['public/javascripts/*.coffee', 'game/game.coffee']
         }
+      }
+    },
+
+    execute: {
+      target: {
+       src: ['app.js']
       }
     }
   });

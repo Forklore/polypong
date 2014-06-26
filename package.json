@@ -1,19 +1,22 @@
 {
-    "name": "Polypong"
-  , "version": "0.0.1"
-  , "description": "Browser based multiplayer Pong game implemented with canvas, websockets, node.js and coffee.script"
-  , "private": true
-  , "node": "0.10.25"
-  , "dependencies": {
-      "express": "latest"
-    , "jade": "latest"
-    , "coffee-script": "latest"
-    , "cookie": "latest"
-    , "socket.io": "latest"
-    , "body-parser": "latest"
-    , "cookie-parser": "latest"
-    , "express-session": "latest"
-    , "method-override": "latest"
-    , "errorhandler": "latest"
+  "name": "Polypong",
+  "version": "0.0.3",
+  "description": "Browser based multiplayer Pong game implemented with canvas, websockets, node.js and coffee.script",
+  "private": true,
+  "node": "0.10.25",
+  "dependencies": {
+    "express": "latest",
+    "jade": "latest",
+    "coffee-script": "latest",
+    "cookie": "latest",
+    "socket.io": "latest",
+    "body-parser": "latest",
+    "cookie-parser": "latest",
+    "express-session": "latest",
+    "method-override": "latest",
+    "errorhandler": "latest"
+  },
+  "devDependencies": {
+    "grunt-contrib-coffee": "~0.10.1"
   }
 }

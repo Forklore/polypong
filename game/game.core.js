@@ -2,7 +2,6 @@
   var GameCore;
 
   GameCore = (function() {
-
     function GameCore() {
       this.canvasWidth = 780;
       this.canvasHeight = 440;
@@ -49,7 +48,9 @@
       var upd, _i, _len;
       for (_i = 0, _len = dirUpdates.length; _i < _len; _i++) {
         upd = dirUpdates[_i];
-        if (upd.t <= beforeTime || upd.t > currentTime) continue;
+        if (upd.t <= beforeTime || upd.t > currentTime) {
+          continue;
+        }
         pos = this.moveRacketBit(pos, dir, upd.t - beforeTime);
         beforeTime = upd.t;
         dir = upd.dir;
@@ -61,7 +62,9 @@
     GameCore.prototype.moveRacketBit = function(pos, dir, dt) {
       var newPos;
       newPos = dir === this.dirUp ? pos - this.racketV * dt : dir === this.dirDown ? pos + this.racketV * dt : pos;
-      if (newPos < 0) newPos = 0;
+      if (newPos < 0) {
+        newPos = 0;
+      }
       if (newPos > this.canvasHeight - this.racketHeight) {
         newPos = this.canvasHeight - this.racketHeight;
       }
@@ -69,9 +72,9 @@
     };
 
     GameCore.prototype.moveBall = function(ballUpdates, currentTime, dt) {
-      var b, ball, beforeTime, found, _i, _len, _step;
+      var b, ball, beforeTime, found, _i;
       beforeTime = currentTime - dt;
-      for (_i = 0, _len = ballUpdates.length, _step = -1; _i < _len; _i += _step) {
+      for (_i = ballUpdates.length - 1; _i >= 0; _i += -1) {
         b = ballUpdates[_i];
         ball = b;
         if (beforeTime <= b.t && b.t <= currentTime) {
@@ -79,7 +82,9 @@
           break;
         }
       }
-      if (!found) ball = ballUpdates[ballUpdates.length - 1];
+      if (!found) {
+        ball = ballUpdates[ballUpdates.length - 1];
+      }
       return this.moveBallBit(ball, currentTime - ball.t);
     };
 

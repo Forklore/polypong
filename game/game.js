@@ -1,7 +1,7 @@
 (function() {
   var Game, GameCore, cookie, timers,
-    __hasProp = Object.prototype.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   GameCore = require('./game.core');
 
@@ -10,7 +10,6 @@
   timers = require('timers');
 
   module.exports = Game = (function(_super) {
-
     __extends(Game, _super);
 
     function Game() {
@@ -145,16 +144,21 @@
     };
 
     Game.prototype.startLoop = function() {
-      var _this = this;
-      if (this.inDaLoop) return;
-      this.gameLoop = timers.setInterval(function() {
-        return _this.gameStep();
-      }, this.dt);
+      if (this.inDaLoop) {
+        return;
+      }
+      this.gameLoop = timers.setInterval((function(_this) {
+        return function() {
+          return _this.gameStep();
+        };
+      })(this), this.dt);
       return this.inDaLoop = true;
     };
 
     Game.prototype.endLoop = function() {
-      if (!this.inDaLoop) return;
+      if (!this.inDaLoop) {
+        return;
+      }
       timers.clearInterval(this.gameLoop);
       this.inDaLoop = false;
       return this.scores = [0, 0];
@@ -189,39 +193,48 @@
     };
 
     Game.prototype.connect = function(socket) {
-      var sid,
-        _this = this;
+      var sid;
       sid = cookie.parse(socket.handshake.headers.cookie)['connect.sid'];
       console.log("Have a connection: " + sid + " (socket id: " + socket.id + ")");
-      socket.on('join', function(data) {
-        if (sid in _this.gamers) {
-          _this.sendJoined(sid);
+      socket.on('join', (function(_this) {
+        return function(data) {
+          if (sid in _this.gamers) {
+            _this.sendJoined(sid);
+            _this.sendMove(sid);
+            return;
+          }
+          if (_this.count === 2) {
+            socket.emit('busy');
+            return;
+          }
+          console.log("I can has join: " + sid);
+          _this.addGamer(sid, socket, _this.count);
+          _this.count++;
+          if (_this.count > 0) {
+            _this.startLoop();
+          }
           _this.sendMove(sid);
-          return;
-        }
-        if (_this.count === 2) {
-          socket.emit('busy');
-          return;
-        }
-        console.log("I can has join: " + sid);
-        _this.addGamer(sid, socket, _this.count);
-        _this.count++;
-        if (_this.count > 0) _this.startLoop();
-        _this.sendMove(sid);
-        return _this.sendScore(sid);
-      });
-      socket.on('state', function(data) {
-        return _this.updateState(sid, data.dir, data.seq);
-      });
-      return socket.on('disconnect', function() {
-        if (!(sid in _this.gamers && _this.gamers[sid].socket.id === socket.id)) {
-          return;
-        }
-        console.log("Disconnecting: " + sid);
-        _this.oneQuitted(sid);
-        _this.count--;
-        if (_this.count === 0) return _this.endLoop();
-      });
+          return _this.sendScore(sid);
+        };
+      })(this));
+      socket.on('state', (function(_this) {
+        return function(data) {
+          return _this.updateState(sid, data.dir, data.seq);
+        };
+      })(this));
+      return socket.on('disconnect', (function(_this) {
+        return function() {
+          if (!(sid in _this.gamers && _this.gamers[sid].socket.id === socket.id)) {
+            return;
+          }
+          console.log("Disconnecting: " + sid);
+          _this.oneQuitted(sid);
+          _this.count--;
+          if (_this.count === 0) {
+            return _this.endLoop();
+          }
+        };
+      })(this));
     };
 
     return Game;

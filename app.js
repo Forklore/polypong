@@ -1,5 +1,5 @@
 (function() {
-  var Game, app, express, game, http, io, port, routes, srv;
+  var Game, app, bodyParser, cookieParser, env, errorHandler, express, game, http, io, methodOverride, port, routes, session, srv;
 
   express = require('express');
 
@@ -9,37 +9,52 @@
 
   http = require('http');
 
+  bodyParser = require('body-parser');
+
+  cookieParser = require('cookie-parser');
+
+  session = require('express-session');
+
+  methodOverride = require('method-override');
+
+  errorHandler = require('errorhandler');
+
   Game = require('./game/game');
 
   app = express();
 
-  app.configure(function() {
-    app.set("views", __dirname + "/views");
-    app.set("view engine", "jade");
-    app.use(express.bodyParser());
-    app.use(express.cookieParser());
-    app.use(express.session({
-      secret: 'thisisasecretnobodyshouldseehoweverthisisdevwhowantstohackponggameanyway?'
-    }));
-    app.use(express.methodOverride());
-    app.use(app.router);
-    return app.use('/public', express.static(__dirname + '/public'));
-  });
+  app.set("views", __dirname + "/views");
 
-  app.configure('development', function() {
-    return app.use(express.errorHandler({
+  app.set("view engine", "jade");
+
+  app.use(bodyParser());
+
+  app.use(cookieParser());
+
+  app.use(session({
+    secret: 'thisisasecretnobodyshouldseehoweverthisisdevwhowantstohackponggameanyway?'
+  }));
+
+  app.use(methodOverride());
+
+  app.use('/public', express["static"](__dirname + '/public'));
+
+  env = process.env.NODE_ENV || 'development';
+
+  if ('development' === env) {
+    app.use(errorHandler({
       dumpExceptions: true,
       showStack: true
     }));
-  });
+  }
 
-  app.configure('production', function() {
-    return app.use(express.errorHandler());
-  });
+  if ('production' === env) {
+    app.use(errorHandler());
+  }
 
-  app.locals({
-    production: app.settings.env === 'production'
-  });
+  app.locals = {
+    production: 'production' === env
+  };
 
   app.get('/', routes.index);
 

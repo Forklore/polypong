@@ -5,18 +5,19 @@
   "private": true,
   "node": "0.10.25",
   "dependencies": {
-    "express": "latest",
-    "jade": "latest",
-    "coffee-script": "latest",
-    "cookie": "latest",
-    "socket.io": "latest",
-    "body-parser": "latest",
-    "cookie-parser": "latest",
-    "express-session": "latest",
-    "method-override": "latest",
-    "errorhandler": "latest"
+      "express": "latest"
+    , "jade": "latest"
+    , "coffee-script": "latest"
+    , "cookie": "latest"
+    , "socket.io": "latest"
+    , "body-parser": "latest"
+    , "cookie-parser": "latest"
+    , "express-session": "latest"
+    , "method-override": "latest"
+    , "errorhandler": "latest"
   },
   "devDependencies": {
-    "grunt-contrib-coffee": "~0.10.1"
+      "grunt-contrib-coffee": "latest"
+    , "grunt-execute": "latest"
   }
 }

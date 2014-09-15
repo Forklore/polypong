@@ -22,6 +22,8 @@ module.exports = function(grunt) {
       target: {
        src: ['app.js']
       }
-    }
+    },
   });
+
+  grunt.registerTask('default', ['coffee']);
 };

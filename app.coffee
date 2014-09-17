@@ -1,8 +1,8 @@
 #require 'newrelic'
 express = require 'express'
 routes = require './routes'
-io = require 'socket.io'
 http = require 'http'
+io = require 'socket.io'
 
 # middleware
 bodyParser = require 'body-parser'
@@ -14,16 +14,19 @@ errorHandler = require 'errorhandler'
 # classes
 Game = require './game/game'
 
-# functions
-# still no functions imported here...
-
+# server config
 app = express()
 
 app.set "views", __dirname + "/views"
 app.set "view engine", "jade"
-app.use bodyParser()
+app.use bodyParser.json()
+#app.use bodyParser.urlencoded {extended:true}
 app.use cookieParser()
-app.use session {secret: 'thisisasecretnobodyshouldseehoweverthisisdevwhowantstohackponggameanyway?' }
+app.use session {
+  secret: 'thisisasecretnobodyshouldseehoweverthisisdevwhowantstohackponggameanyway?',
+  resave: true,
+  saveUninitialized: true,
+}
 app.use methodOverride()
 # app.use app.router
 app.use '/public', express.static(__dirname + '/public')
@@ -46,7 +49,7 @@ app.get '/about', routes.about
 
 port = process.env['PORT'] || 3000
 
-srv = http.createServer(app)
+srv = http.createServer app
 
 game = new Game
 

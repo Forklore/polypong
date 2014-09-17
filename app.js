@@ -5,9 +5,9 @@
 
   routes = require('./routes');
 
-  io = require('socket.io');
-
   http = require('http');
+
+  io = require('socket.io');
 
   bodyParser = require('body-parser');
 
@@ -27,12 +27,14 @@
 
   app.set("view engine", "jade");
 
-  app.use(bodyParser());
+  app.use(bodyParser.json());
 
   app.use(cookieParser());
 
   app.use(session({
-    secret: 'thisisasecretnobodyshouldseehoweverthisisdevwhowantstohackponggameanyway?'
+    secret: 'thisisasecretnobodyshouldseehoweverthisisdevwhowantstohackponggameanyway?',
+    resave: true,
+    saveUninitialized: true
   }));
 
   app.use(methodOverride());

@@ -13,17 +13,17 @@ module.exports = function(grunt) {
           'routes.js': 'routes.coffee',
           'game/game.core.js': 'game/game.core.coffee',
           'game/game.js': 'game/game.coffee',
-          'public/javascripts/pong.js': ['public/javascripts/*.coffee', 'game/game.coffee']
+          'public/javascripts/pong.js': ['game/game.core.coffee', 'public/javascripts/*.coffee']
         }
       }
     },
 
     execute: {
       target: {
-       src: ['app.js']
+        src: ['app.js']
       }
     },
   });
 
-  grunt.registerTask('default', ['coffee']);
+  grunt.registerTask('default', ['coffee', 'execute']);
 };

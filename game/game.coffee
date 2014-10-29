@@ -1,4 +1,4 @@
-# Here is all our socket machimery.
+# Here is all our socket machinery.
 # We have server events:
 # - join - user joins the game
 # - state - user updates his position
